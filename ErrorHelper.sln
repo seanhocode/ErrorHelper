@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorHelper", "ErrorHelper\ErrorHelper.csproj", "{6AA51F69-F789-41DB-882A-96E4EDA2E2D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6AA51F69-F789-41DB-882A-96E4EDA2E2D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AA51F69-F789-41DB-882A-96E4EDA2E2D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AA51F69-F789-41DB-882A-96E4EDA2E2D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AA51F69-F789-41DB-882A-96E4EDA2E2D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E763D229-576C-4151-B184-A3097C4F0C7F}
+	EndGlobalSection
+EndGlobal
