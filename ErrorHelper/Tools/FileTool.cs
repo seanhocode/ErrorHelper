@@ -50,13 +50,35 @@
         /// 取得指定資料夾內所有檔案的完整路徑清單。
         /// </summary>
         /// <param name="folderPath">資料夾完整路徑</param>
-        /// <returns>該資料夾底下的所有檔案(不包含子資料夾)</returns>
-        public List<string> GetAllFileInFolder(string folderPath)
+        /// <param name="isSearchSubFolder">是否往下撈子資料夾檔案</param>
+        /// <param name="subFolderDepth">子資料夾底層層數</param>
+        /// <param name="currentFolderDepth">目前層數</param>
+        /// <returns>該資料夾底下的所有檔案</returns>
+        private List<string> GetAllFileInFolder(string folderPath, int currentFolderDepth, bool isSearchSubFolder = false, int subFolderDepth = -1)
         {
-            if (!CheckFolderExist(folderPath))
-                return null;
+            List<string> filePathList = new List<string>();
 
-            return Directory.GetFiles(folderPath).ToList();
+            if (!CheckFolderExist(folderPath))
+                return filePathList;
+
+            filePathList.AddRange(Directory.GetFiles(folderPath).ToList());
+
+            if (isSearchSubFolder && (subFolderDepth == -1 || currentFolderDepth < subFolderDepth))
+                foreach (string subFolder in Directory.GetDirectories(folderPath))
+                    filePathList.AddRange(GetAllFileInFolder(subFolder, currentFolderDepth + 1, true, subFolderDepth));
+
+            return filePathList;
+        }
+
+        /// <summary>
+        /// 取得指定資料夾內所有檔案的完整路徑清單。
+        /// </summary>
+        /// <param name="folderPath">資料夾完整路徑</param>
+        /// <param name="isSearchSubFolder">是否往下撈子資料夾檔案</param>
+        /// <returns>該資料夾底下的所有檔案</returns>
+        public List<string> GetAllFileInFolder(string folderPath, bool isSearchSubFolder = false, int subFolderDepth = -1)
+        {
+            return GetAllFileInFolder(folderPath, 0, isSearchSubFolder, subFolderDepth);
         }
     }
 }

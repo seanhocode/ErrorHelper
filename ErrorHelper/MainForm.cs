@@ -1,4 +1,5 @@
 ﻿using ErrorHelper.Model.Elmah;
+using ErrorHelper.Service.Backup;
 using ErrorHelper.Tools;
 
 namespace ErrorHelper
@@ -6,6 +7,7 @@ namespace ErrorHelper
     public partial class MainForm: Form
     {
         private FormControlTool controlTool = new FormControlTool();
+        private BackupService backupService = new BackupService();
 
         //private ElmahPage _elmahPage;
         private IList<ElmahPage> _elmahPageList;
