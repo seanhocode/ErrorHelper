@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace ErrorHelper.Model.Elmah
 {
-    public class ViewElmah
+    public class ElmahView
     {
         /// <summary>
         /// ErrorInfo
@@ -46,7 +46,7 @@ namespace ErrorHelper.Model.Elmah
         /// </summary>
         /// <param name="elmahName"></param>
         /// <param name="zipPath"></param>
-        public ViewElmah(string elmahName, string zipPath)
+        public ElmahView(string elmahName, string zipPath)
         {
             Initial(elmahName);
             SourceZIPPath = zipPath;
@@ -59,7 +59,7 @@ namespace ErrorHelper.Model.Elmah
         /// 建構元(來自File)
         /// </summary>
         /// <param name="elmahFilePath"></param>
-        public ViewElmah(string elmahFilePath)
+        public ElmahView(string elmahFilePath)
         {
             Initial(Path.GetFileName(elmahFilePath));
             ParentFolderPath = Path.GetDirectoryName(elmahFilePath) ?? string.Empty;
@@ -67,7 +67,7 @@ namespace ErrorHelper.Model.Elmah
             GetElmahErrorInfoByFile();
         }
 
-        public ViewElmah()
+        public ElmahView()
         {
             Initial(string.Empty);
         }

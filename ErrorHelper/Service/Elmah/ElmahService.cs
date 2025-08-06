@@ -5,21 +5,17 @@ using System.Diagnostics;
 
 namespace ErrorHelper.Service.Elmah
 {
-    public class ElmahService
+    public class ElmahService : ServiceBase
     {
-        private ZipTool zipTool = new ZipTool();
-        private FileTool fileTool = new FileTool();
-        private FormControlTool controlTool = new FormControlTool();
-
         /// <summary>
         /// 取得Elmah清單
         /// </summary>
         /// <param name="elmahFolderPath"></param>
         /// <returns></returns>
-        public IList<ViewElmah> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
+        public IList<ElmahView> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
         {
-            IList<ViewElmah> elmahList = new List<ViewElmah>();
-            ConcurrentBag<ViewElmah> elmahBag = new ConcurrentBag<ViewElmah>();
+            IList<ElmahView> elmahList = new List<ElmahView>();
+            ConcurrentBag<ElmahView> elmahBag = new ConcurrentBag<ElmahView>();
 
             IList<string> filePathList = fileTool.GetAllFileInFolder(elmahFolderPath);
 
@@ -38,7 +34,7 @@ namespace ErrorHelper.Service.Elmah
                         if (filePath.EndsWith(".zip"))
                         {
                             //先取得zip日期
-                            elmahZipTime = ViewElmah.GetZipDateTime(Path.GetFileName(filePath)) ?? new DateTime(1900, 1, 1);
+                            elmahZipTime = ElmahView.GetZipDateTime(Path.GetFileName(filePath)) ?? new DateTime(1900, 1, 1);
 
                             //zip日期符合時間條件才取得zip裡面的檔案名稱(zip檔時間條件放寬前後一日，因今日的壓縮檔可能隔日才壓縮，壓縮檔名時間會被+1)
                             if ((elmahZipTime >= startTime.Value.Date.AddDays(-1)) && (elmahZipTime <= endTime.Value.Date.AddDays(1)))
@@ -48,9 +44,9 @@ namespace ErrorHelper.Service.Elmah
                                     if (fileName.EndsWith(".xml"))
                                     {
                                         //再取得elmah日期時間
-                                        elmahTime = ViewElmah.GetElmahFileNameData(fileName).Value.ElmahTime;
+                                        elmahTime = ElmahView.GetElmahFileNameData(fileName).Value.ElmahTime;
                                         if ((elmahTime >= startTime) && (elmahTime <= endTime))
-                                            elmahBag.Add(new ViewElmah(fileName, filePath));
+                                            elmahBag.Add(new ElmahView(fileName, filePath));
                                     }
                                 }
                             }
@@ -58,9 +54,9 @@ namespace ErrorHelper.Service.Elmah
                         //一般Elmah
                         else if (filePath.EndsWith(".xml"))
                         {
-                            elmahTime = ViewElmah.GetElmahFileNameData(Path.GetFileName(filePath)).Value.ElmahTime;
+                            elmahTime = ElmahView.GetElmahFileNameData(Path.GetFileName(filePath)).Value.ElmahTime;
                             if ((elmahTime >= startTime) && (elmahTime <= endTime))
-                                elmahBag.Add(new ViewElmah(filePath));
+                                elmahBag.Add(new ElmahView(filePath));
                         }
                     }
                     catch(Exception ex){
@@ -87,13 +83,13 @@ namespace ErrorHelper.Service.Elmah
         /// <remarks>如檔案在zip裡，會刪除整個zip。會備份至BackUp\yyyyMMdd-HHmmss</remarks>
         /// <param name="gridErrorList">欲刪除的ErrorList</param>
         /// <param name="elmahList">SourceElmah清單</param>
-        public void DeleteElmah(IList<ElmahError> gridErrorList, IList<ViewElmah> elmahList)
+        public void DeleteElmah(IList<ElmahError> gridErrorList, IList<ElmahView> elmahList)
         {
             string filePathMsg = string.Empty
                  , backupFolderPath = Path.Combine(FileTool.CurrentFolder, "BackUp", $"{DateTime.Now.ToString("yyyyMMdd-HHmmss")}");
 
             //Step.1 取得Grid上的Elmah
-            IList<ViewElmah> deleteElmahList = elmahList.Where(elmah => gridErrorList.Any(error => error.ErrorID.Contains(elmah.GUID))).ToList();
+            IList<ElmahView> deleteElmahList = elmahList.Where(elmah => gridErrorList.Any(error => error.ErrorID.Contains(elmah.GUID))).ToList();
 
             //Step.2 取得類型不為zip的Elmah(直接刪除)
             List<string> deleteFilePath = deleteElmahList

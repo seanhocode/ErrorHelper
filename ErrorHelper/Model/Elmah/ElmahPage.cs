@@ -9,7 +9,7 @@ namespace ErrorHelper.Model.Elmah
     {
         private ElmahService elmahSrv = new ElmahService();
         private FormControlTool controlTool = new FormControlTool();
-        public IList<ViewElmah> ElmahList { get; set; }
+        public IList<ElmahView> ElmahList { get; set; }
         public ElmahQueryCondition ElmahQueryCondition { get; set; }
         public DataGridView ElmahDataGridView { get; set; }
         public Form DetailForm { get; set; }
@@ -60,7 +60,7 @@ namespace ErrorHelper.Model.Elmah
         /// <param name="error"></param>
         public void OpenElmahFolder(ElmahError error)
         {
-            ViewElmah selectedElmah = ElmahList.FirstOrDefault(elmah => elmah.GUID == error.ErrorID) ?? new ViewElmah();
+            ElmahView selectedElmah = ElmahList.FirstOrDefault(elmah => elmah.GUID == error.ErrorID) ?? new ElmahView();
 
             if (selectedElmah != null && string.IsNullOrEmpty(selectedElmah.SourceZIPPath))
                 Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedElmah.ParentFolderPath, selectedElmah.FileName)}\"");
@@ -73,7 +73,7 @@ namespace ErrorHelper.Model.Elmah
         /// </summary>
         public ElmahPage()
         {
-            ElmahList = new List<ViewElmah>();
+            ElmahList = new List<ElmahView>();
             
             DetailForm = GenErrorDetailForm();
 
