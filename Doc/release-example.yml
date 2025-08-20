@@ -1,0 +1,66 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # 只要推任何 v 開頭的 tag（e.g., v1.0.0）就會觸發
+
+permissions:
+  contents: write  # 建立 Release 需要這個
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 從 tag 取版本（去掉前面的 v）
+      - name: Read version from tag
+        id: version
+        shell: bash
+        run: |
+          ref="${GITHUB_REF#refs/tags/}"
+          ver="${ref#v}"
+          echo "version=$ver" >> $GITHUB_OUTPUT
+          echo "ref_name=$ref" >> $GITHUB_OUTPUT
+
+      # 還原 NuGet 套件（有 cache 可加速）
+      - name: Restore
+        run: dotnet restore
+
+      # 你專案的相對路徑，請改成實際的 .csproj 路徑
+      - name: Publish (self-contained, win-x64, single-file)
+        run: >
+          dotnet publish ./ErrorHelper/ErrorHelper.csproj
+          -c Release
+          -r win-x64
+          --self-contained false
+          -p:PublishSingleFile=false
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -p:Version=${{ steps.version.outputs.version }}
+          -o out/win-x64
+
+      - name: Zip artifacts
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Compress-Archive -Path out/win-x64/* -DestinationPath artifacts/ErrorHelper.${{ steps.version.outputs.version }}.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}                        # 原始 tag（含 v 前綴）
+          name: ${{ github.ref_name }}                           # Release 顯示名稱
+          files: artifacts/*.zip                                 # 附件
+          generate_release_notes: true                           # 自動產生變更摘要
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }} # e.g., 1.2.3-beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
