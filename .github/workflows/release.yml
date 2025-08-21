@@ -34,13 +34,11 @@ jobs:
         run: dotnet restore
 
       # 輸出到 Release 資料夾（和 sln 同層）
-      - name: Publish (framework-dependent, win-x64)
+      - name: Publish (single file, self-contained, win-x64)
         run: >
           dotnet publish ./ErrorHelper/ErrorHelper.csproj
           -c Release
           -r win-x64
-          --self-contained false
-          -p:PublishSingleFile=false
           -p:Version=${{ steps.version.outputs.version }}
           -o Release/build
 
