@@ -6,12 +6,17 @@ namespace ErrorHelper.Model.Common.Config
     public class AppSettings
     {
         public static ElmahSetting Elmah { get; private set; } = new ElmahSetting();
+        public static BackupSetting Backup { get; private set; } = new BackupSetting("Appsetting");
 
         static AppSettings()
         {
             try
             {
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+                // 取得目前正在執行的程式(EXE)檔案所在完整路徑下的appsettings.json
+                string exePath = Process.GetCurrentProcess().MainModule!.FileName;
+                string exeDir = Path.GetDirectoryName(exePath)!;
+                string path = Path.Combine(exeDir, "appsettings.json");
+
                 string jsonString = File.ReadAllText(path);
 
                 using JsonDocument doc = JsonDocument.Parse(jsonString);
@@ -26,6 +31,15 @@ namespace ErrorHelper.Model.Common.Config
                     else
                     {
                         Elmah = new ElmahSetting();
+                    }
+
+                    if (appSettingsElement.TryGetProperty("Backup", out JsonElement backupElement))
+                    {
+                        Backup = JsonSerializer.Deserialize<BackupSetting>(backupElement.GetRawText()) ?? new BackupSetting();
+                    }
+                    else
+                    {
+                        Backup = new BackupSetting();
                     }
                 }
             }
