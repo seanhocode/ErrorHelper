@@ -1,4 +1,6 @@
-﻿using ErrorHelper.Model.Elmah;
+﻿using ErrorHelper.Model.Common.Config;
+using ErrorHelper.Model.Elmah;
+using ErrorHelper.Service.Backup;
 using ErrorHelper.Tools;
 
 namespace ErrorHelper
@@ -6,6 +8,7 @@ namespace ErrorHelper
     public partial class MainForm: Form
     {
         private FormControlTool controlTool = new FormControlTool();
+        private BackupService backupService = new BackupService();
 
         //private ElmahPage _elmahPage;
         private IList<ElmahPage> _elmahPageList;
@@ -73,7 +76,8 @@ namespace ErrorHelper
         {
             MenuStrip mainMenuStrip = controlTool.NewMenuStrip("MainMenuStrip");
             ToolStripMenuItem openElmahFolderItem = controlTool.NewToolStripMenuItem("OpenElmahFolderStripMenuItem", "新增Elmah查詢頁面", NewElmahQueryPage)
-                            , fileDropDownList = controlTool.NewToolStripMenuItemDropDownList("FileToolStripMenuItem", "功能", new ToolStripMenuItem[] { openElmahFolderItem });
+                            , doBackupItem = controlTool.NewToolStripMenuItem("DoBackupStripMenuItem", "Backup", DoBackup)
+                            , fileDropDownList = controlTool.NewToolStripMenuItemDropDownList("FileToolStripMenuItem", "功能", new ToolStripMenuItem[] { openElmahFolderItem, doBackupItem });
 
             mainMenuStrip.Items.Add(fileDropDownList);
 
@@ -93,6 +97,16 @@ namespace ErrorHelper
 
             _elmahPageList.Add(page);
             _mainTabControl.Controls.Add(page.ElmahTabPage);
+        }
+
+        private void DoBackup(object? sender, EventArgs e)
+        {
+            AppSettings.Backup.SetEditControlWedgt(500);
+            if (AppSettings.Backup.OpenEditWindow())
+            {
+                backupService.BackupFolder(AppSettings.Backup.TempFolderPath, AppSettings.Backup.SourceFolderPath, AppSettings.Backup.BackupFolderPath);
+                MessageBox.Show("Done");
+            }
         }
     }
 }

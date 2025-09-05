@@ -103,7 +103,7 @@ namespace ErrorHelper.Model.Elmah
         public void ChangeElmahFolder()
         {
             ElmahSourceFolderPath =
-                controlTool.GetSelectFolderPath(ElmahSourceFolderPath);
+                FormControlTool.GetSelectFolderPath(ElmahSourceFolderPath);
         }
     }
 }
