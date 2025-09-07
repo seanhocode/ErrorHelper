@@ -1,5 +1,6 @@
 ﻿using ErrorHelper.Model.Common.Config;
-using ErrorHelper.Model.Elmah;
+using ErrorHelper.Model.ErrorHelper.Elmah;
+using ErrorHelper.Model.ErrorHelper.ErrorBase;
 using ErrorHelper.Service.Backup;
 using ErrorHelper.Tools;
 
@@ -93,10 +94,12 @@ namespace ErrorHelper
         private void NewElmahQueryPage(object? sender, EventArgs e)
         {
             ElmahPage page = new ElmahPage();
-            page.ElmahQueryCondition.ChangeElmahFolder();
+            ErrorPage errorPage = new ErrorPage();
+            errorPage.ErrorQueryCondition.ChangeErrorFolder();
+            //page.ElmahQueryCondition.ChangeElmahFolder();
 
-            _elmahPageList.Add(page);
-            _mainTabControl.Controls.Add(page.ElmahTabPage);
+            //_elmahPageList.Add(page);
+            _mainTabControl.Controls.Add(errorPage.ErrorTabPage);
         }
 
         private void DoBackup(object? sender, EventArgs e)

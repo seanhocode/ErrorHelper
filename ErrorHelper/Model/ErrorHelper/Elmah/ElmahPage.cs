@@ -1,9 +1,9 @@
-﻿using ErrorHelper.Service.Elmah;
+﻿using ErrorHelper.Service.Error.Elmah;
 using ErrorHelper.Tools;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace ErrorHelper.Model.Elmah
+namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
     public class ElmahPage
     {

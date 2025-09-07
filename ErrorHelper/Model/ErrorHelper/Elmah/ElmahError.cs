@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace ErrorHelper.Model.Elmah
+namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
     public class ElmahError
     {

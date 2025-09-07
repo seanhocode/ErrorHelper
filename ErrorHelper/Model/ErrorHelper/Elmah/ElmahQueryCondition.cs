@@ -2,7 +2,7 @@
 using ErrorHelper.Tools;
 using System.Configuration;
 
-namespace ErrorHelper.Model.Elmah
+namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
     public class ElmahQueryCondition
     {

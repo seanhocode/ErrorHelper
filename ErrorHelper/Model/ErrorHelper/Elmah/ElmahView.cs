@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace ErrorHelper.Model.Elmah
+namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
     public class ElmahView
     {

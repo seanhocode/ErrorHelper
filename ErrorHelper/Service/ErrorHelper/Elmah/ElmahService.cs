@@ -1,9 +1,9 @@
-﻿using ErrorHelper.Model.Elmah;
+﻿using ErrorHelper.Model.ErrorHelper.Elmah;
 using ErrorHelper.Tools;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace ErrorHelper.Service.Elmah
+namespace ErrorHelper.Service.Error.Elmah
 {
     public class ElmahService : ServiceBase
     {
@@ -37,7 +37,7 @@ namespace ErrorHelper.Service.Elmah
                             elmahZipTime = ElmahView.GetZipDateTime(Path.GetFileName(filePath)) ?? new DateTime(1900, 1, 1);
 
                             //zip日期符合時間條件才取得zip裡面的檔案名稱(zip檔時間條件放寬前後一日，因今日的壓縮檔可能隔日才壓縮，壓縮檔名時間會被+1)
-                            if ((elmahZipTime >= startTime.Value.Date.AddDays(-1)) && (elmahZipTime <= endTime.Value.Date.AddDays(1)))
+                            if (elmahZipTime >= startTime.Value.Date.AddDays(-1) && elmahZipTime <= endTime.Value.Date.AddDays(1))
                             {
                                 foreach (string fileName in zipTool.GetFileNameInZip(filePath))
                                 {
@@ -45,7 +45,7 @@ namespace ErrorHelper.Service.Elmah
                                     {
                                         //再取得elmah日期時間
                                         elmahTime = ElmahView.GetElmahFileNameData(fileName).Value.ElmahTime;
-                                        if ((elmahTime >= startTime) && (elmahTime <= endTime))
+                                        if (elmahTime >= startTime && elmahTime <= endTime)
                                             elmahBag.Add(new ElmahView(fileName, filePath));
                                     }
                                 }
@@ -55,7 +55,7 @@ namespace ErrorHelper.Service.Elmah
                         else if (filePath.EndsWith(".xml"))
                         {
                             elmahTime = ElmahView.GetElmahFileNameData(Path.GetFileName(filePath)).Value.ElmahTime;
-                            if ((elmahTime >= startTime) && (elmahTime <= endTime))
+                            if (elmahTime >= startTime && elmahTime <= endTime)
                                 elmahBag.Add(new ElmahView(filePath));
                         }
                     }
