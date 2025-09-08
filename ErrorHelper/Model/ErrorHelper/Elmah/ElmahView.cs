@@ -1,16 +1,17 @@
-﻿using ErrorHelper.Tools;
+﻿using ErrorHelper.Model.ErrorHelper.ErrorBase;
+using ErrorHelper.Tools;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
-    public class ElmahView
+    public class ElmahView : IErrorFile
     {
         /// <summary>
         /// ErrorInfo
         /// </summary>
-        public ElmahError ElmahError { get; set; }
+        public IErrorInfo ErrorInfo { get; set; }
 
         /// <summary>
         /// ElmahFileName
@@ -20,7 +21,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
         /// <summary>
         /// ElmahTime
         /// </summary>
-        public DateTime Time { get; set; }
+        public DateTime FileTime { get; set; }
 
         /// <summary>
         /// ElmahGUID
@@ -79,7 +80,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
         public void Initial(string elmahName)
         {
             FileName = elmahName;
-            ElmahError = new ElmahError();
+            ErrorInfo = new ElmahError();
         }
 
         /// <summary>
@@ -97,11 +98,11 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
             else
                 try
                 {
-                    ElmahError.SetInfo(xmlTool.GetXDocumentFromBytes(elmahBytes));
+                    ((ElmahError)ErrorInfo).SetInfo(xmlTool.GetXDocumentFromBytes(elmahBytes));
                 }
                 catch
                 {
-                    ElmahError.SetLoadFailInfo(FileName, GUID);
+                    ((ElmahError)ErrorInfo).SetLoadFailInfo(FileName, GUID);
                 }
                 
         }
@@ -116,7 +117,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
             if (!fileTool.CheckFileExist(filePath))
                 Debug.WriteLine($"找不到elmah檔，請檢查此路徑{filePath}");
 
-            ElmahError.SetInfo(xmlTool.GetXDocument(filePath));
+            ((ElmahError)ErrorInfo).SetInfo(xmlTool.GetXDocument(filePath));
         }
 
         /// <summary>
@@ -163,7 +164,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
         private void LoadErrorTimeAndGUIDByName()
         {
             var elmahData = GetElmahFileNameData(FileName);
-            Time = elmahData.Value.ElmahTime;
+            FileTime = elmahData.Value.ElmahTime;
             GUID = elmahData.Value.GUID;
         }
 

@@ -1,11 +1,4 @@
-﻿using ErrorHelper.Model.Common.Config;
-using ErrorHelper.Model.ErrorHelper.Elmah;
-using ErrorHelper.Tools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ErrorHelper.Tools;
 
 namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 {
@@ -69,16 +62,6 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
         }
 
         /// <summary>
-        /// 更改Log資料夾 for button
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ChangeErrorFolder(object? sender, EventArgs e)
-        {
-            ChangeErrorFolder();
-        }
-
-        /// <summary>
         /// 更改Log資料夾
         /// </summary>
         public void ChangeErrorFolder()
@@ -98,15 +81,15 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
                 controlTool.NewDateTimePicker("ErrorQueryConditionStartTime", DateTime.Today);
             StartTimePicker.CustomFormat = dateTimeFormat;
 
-            if (AppSettings.Elmah.DefaultElmahQueryDays >= 0)
-            {
-                StartTimePicker.ValueChanged += (sender, e) =>
-                {
-                    //EndDateTime = StartDateTime + XXX Days
-                    DateTimePicker senderPicker = (DateTimePicker)sender;
-                    EndTime = senderPicker.Value.AddDays(AppSettings.Elmah.DefaultElmahQueryDays);
-                };
-            }
+            //if (AppSettings.Elmah.DefaultElmahQueryDays >= 0)
+            //{
+            //    StartTimePicker.ValueChanged += (sender, e) =>
+            //    {
+            //        //EndDateTime = StartDateTime + XXX Days
+            //        DateTimePicker senderPicker = (DateTimePicker)sender;
+            //        EndTime = senderPicker.Value.AddDays(AppSettings.Elmah.DefaultElmahQueryDays);
+            //    };
+            //}
 
             EndTimePicker =
                 controlTool.NewDateTimePicker("ErrorQueryConditionEndTime", DateTime.Today.AddDays(1));
@@ -122,7 +105,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
                 AutoSize = true
             };
 
-            ErrorSourceFolderPath = AppSettings.Elmah.DefaultElmahFolderPath;
+            //ErrorSourceFolderPath = AppSettings.Elmah.DefaultElmahFolderPath;
         }
 
         /// <summary>
@@ -130,7 +113,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
         /// </summary>
         private void GenErrorQueryConditionLayout()
         {
-            QueryConditionLayout = controlTool.NewTableLayoutPanel("QueryConditionLayout", 3, 1);
+            QueryConditionLayout = controlTool.NewTableLayoutPanel("ErrorQueryConditionLayout", 3, 1);
 
             QueryConditionLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));     //Row 0: 資訊區
             QueryConditionLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));     //Row 1: 查詢區(Time)
@@ -154,7 +137,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
             InfoPanel = new Panel
             {
                 Name = "ErrorInfoPanel",
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 Height = 40 // 或其他適合高度
             };
 
@@ -172,8 +155,8 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 
             TimeQueryPanel = new Panel
             {
-                Name = "ElmahTimeQueryPanel",
-                Dock = DockStyle.Fill,
+                Name = "ErrorTimeQueryPanel",
+                Dock = DockStyle.Top,
                 Height = 40 // 或其他適合高度
             };
 
@@ -213,7 +196,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
             QueryPanel = new Panel
             {
                 Name = "ErrorContainQueryPanel",
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 Height = 40 // 或其他適合高度
             };
 

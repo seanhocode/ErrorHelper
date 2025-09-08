@@ -66,7 +66,7 @@ namespace ErrorHelper
         {
             _mainTabControl = controlTool.NewTabControl("MainTabControl");
 
-            _mainTabControl.Controls.Add(_elmahPageList[0].ElmahTabPage);
+            _mainTabControl.Controls.Add(_elmahPageList[0].ErrorTabPage);
         }
 
         /// <summary>

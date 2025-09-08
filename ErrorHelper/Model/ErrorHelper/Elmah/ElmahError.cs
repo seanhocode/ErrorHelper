@@ -1,8 +1,9 @@
-﻿using System.Xml.Linq;
+﻿using ErrorHelper.Model.ErrorHelper.ErrorBase;
+using System.Xml.Linq;
 
 namespace ErrorHelper.Model.ErrorHelper.Elmah
 {
-    public class ElmahError
+    public class ElmahError : IErrorInfo
     {
         public DateTime Time { get; set; }
 

@@ -1,7 +1,9 @@
 ﻿using ErrorHelper.Model.ErrorHelper.Elmah;
+using ErrorHelper.Model.ErrorHelper.ErrorBase;
 using ErrorHelper.Tools;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ErrorHelper.Service.Error.Elmah
 {
@@ -12,9 +14,9 @@ namespace ErrorHelper.Service.Error.Elmah
         /// </summary>
         /// <param name="elmahFolderPath"></param>
         /// <returns></returns>
-        public IList<ElmahView> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
+        public IList<IErrorFile> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
         {
-            IList<ElmahView> elmahList = new List<ElmahView>();
+            IList<IErrorFile> elmahList = new List<IErrorFile>();
             ConcurrentBag<ElmahView> elmahBag = new ConcurrentBag<ElmahView>();
 
             IList<string> filePathList = fileTool.GetAllFileInFolder(elmahFolderPath);
@@ -68,11 +70,11 @@ namespace ErrorHelper.Service.Error.Elmah
             elmahList = elmahBag
                         .Where(elmah =>
                             elmah.FileName.IndexOf(fileNameContain, StringComparison.OrdinalIgnoreCase) >= 0                //FileName查詢條件
-                            && elmah.ElmahError.Message.IndexOf(messageContain, StringComparison.OrdinalIgnoreCase) >= 0)   //Message查詢條件
+                            && elmah.ErrorInfo.Message.IndexOf(messageContain, StringComparison.OrdinalIgnoreCase) >= 0)   //Message查詢條件
                         .Where(elmah =>
-                            elmah.ElmahError.GetDetail().IndexOf(detailContain, StringComparison.OrdinalIgnoreCase) >= 0)   //Detail查詢條件
-                        .OrderByDescending(elmah => elmah.ElmahError.Time)
-                        .ToList();
+                            elmah.ErrorInfo.GetDetail().IndexOf(detailContain, StringComparison.OrdinalIgnoreCase) >= 0)   //Detail查詢條件
+                        .OrderByDescending(elmah => elmah.ErrorInfo.Time)
+                        .ToList<IErrorFile>();
 
             return elmahList;
         }
@@ -83,13 +85,13 @@ namespace ErrorHelper.Service.Error.Elmah
         /// <remarks>如檔案在zip裡，會刪除整個zip。會備份至BackUp\yyyyMMdd-HHmmss</remarks>
         /// <param name="gridErrorList">欲刪除的ErrorList</param>
         /// <param name="elmahList">SourceElmah清單</param>
-        public void DeleteElmah(IList<ElmahError> gridErrorList, IList<ElmahView> elmahList)
+        public void DeleteElmah(IList<IErrorInfo> gridErrorList, IList<IErrorFile> elmahList)
         {
             string filePathMsg = string.Empty
                  , backupFolderPath = Path.Combine(FileTool.CurrentFolder, "BackUp", $"{DateTime.Now.ToString("yyyyMMdd-HHmmss")}");
 
             //Step.1 取得Grid上的Elmah
-            IList<ElmahView> deleteElmahList = elmahList.Where(elmah => gridErrorList.Any(error => error.ErrorID.Contains(elmah.GUID))).ToList();
+            IList<ElmahView> deleteElmahList = (IList<ElmahView>)elmahList.Where(elmah => gridErrorList.Any(error => error.ErrorID.Contains(elmah.ErrorInfo.ErrorID))).ToList();
 
             //Step.2 取得類型不為zip的Elmah(直接刪除)
             List<string> deleteFilePath = deleteElmahList
