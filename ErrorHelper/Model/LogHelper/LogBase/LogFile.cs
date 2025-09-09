@@ -1,16 +1,16 @@
-﻿namespace ErrorHelper.Model.ErrorHelper.ErrorBase
+﻿namespace ErrorHelper.Model.LogHelper.ErrorBase
 {
-    public class ErrorFile : IErrorFile
+    public class LogFile
     {
         /// <summary>
         /// ErrorInfo
         /// </summary>
-        public required IErrorInfo ErrorInfo { get; set; }
+        public LogInfo ErrorInfo { get; set; }
 
         /// <summary>
         /// ErrorFileName
         /// </summary>
-        public required string FileName { get; set; }
+        public string FileName { get; set; }
 
         /// <summary>
         /// 檔案產生時間
@@ -25,6 +25,6 @@
         /// <summary>
         /// 上層資料夾
         /// </summary>
-        public required string ParentFolderPath { get; set; }
+        public string ParentFolderPath { get; set; }
     }
 }

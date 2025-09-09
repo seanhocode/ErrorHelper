@@ -1,6 +1,6 @@
 ﻿using ErrorHelper.Model.Common.Config;
-using ErrorHelper.Model.ErrorHelper.Elmah;
-using ErrorHelper.Model.ErrorHelper.ErrorBase;
+using ErrorHelper.Model.LogHelper.Elmah;
+using ErrorHelper.Model.LogHelper.ErrorBase;
 using ErrorHelper.Service.Backup;
 using ErrorHelper.Tools;
 
@@ -94,7 +94,7 @@ namespace ErrorHelper
         private void NewElmahQueryPage(object? sender, EventArgs e)
         {
             ElmahPage page = new ElmahPage();
-            ErrorPage errorPage = new ErrorPage();
+            LogPage errorPage = new LogPage();
             errorPage.ErrorQueryCondition.ChangeErrorFolder();
             //page.ElmahQueryCondition.ChangeElmahFolder();
 

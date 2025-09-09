@@ -1,42 +1,19 @@
-﻿using ErrorHelper.Model.ErrorHelper.ErrorBase;
+﻿using ErrorHelper.Model.LogHelper.ErrorBase;
 using ErrorHelper.Tools;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace ErrorHelper.Model.ErrorHelper.Elmah
+namespace ErrorHelper.Model.LogHelper.Elmah
 {
-    public class ElmahView : IErrorFile
+    public class ElmahView : LogFile
     {
-        /// <summary>
-        /// ErrorInfo
-        /// </summary>
-        public IErrorInfo ErrorInfo { get; set; }
-
-        /// <summary>
-        /// ElmahFileName
-        /// </summary>
-        public string FileName { get; set; }
-
-        /// <summary>
-        /// ElmahTime
-        /// </summary>
-        public DateTime FileTime { get; set; }
-
         /// <summary>
         /// ElmahGUID
         /// </summary>
         public string GUID { get; set; }
 
-        /// <summary>
-        /// 來自哪個ZIP(完整路徑)
-        /// </summary>
-        public string SourceZIPPath { get; set; }
 
-        /// <summary>
-        /// 上層資料夾
-        /// </summary>
-        public string ParentFolderPath { get; set; }
 
         private XMLTool xmlTool = new XMLTool();
         private ZipTool zipTool = new ZipTool();

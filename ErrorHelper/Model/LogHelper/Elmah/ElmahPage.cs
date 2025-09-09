@@ -1,11 +1,11 @@
 ﻿using ErrorHelper.Model.Common.Config;
-using ErrorHelper.Model.ErrorHelper.ErrorBase;
-using ErrorHelper.Service.Error.Elmah;
+using ErrorHelper.Model.LogHelper.ErrorBase;
+using ErrorHelper.Service.LogHelper.Elmah;
 using System.ComponentModel;
 
-namespace ErrorHelper.Model.ErrorHelper.Elmah
+namespace ErrorHelper.Model.LogHelper.Elmah
 {
-    public class ElmahPage : ErrorPage
+    public class ElmahPage : LogPage
     {
         private ElmahService elmahSrv = new ElmahService();
 
@@ -23,7 +23,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
                                              , ErrorQueryCondition.Message
                                              , ErrorQueryCondition.Detail);
 
-            ErrorDataGridView.DataSource =  new BindingList<IErrorInfo>(ErrorList.Select(elmah => elmah.ErrorInfo).ToList());
+            ErrorDataGridView.DataSource =  new BindingList<LogInfo>(ErrorList.Select(elmah => elmah.ErrorInfo).ToList());
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
         /// <remarks>如檔案在zip裡，會刪除整個zip。會備份至BackUp\yyyyMMdd-HHmmss</remarks>
         public void DeleteElmah()
         {
-            elmahSrv.DeleteElmah((IList<IErrorInfo>)ErrorDataGridView.DataSource, ErrorList);
+            elmahSrv.DeleteElmah((IList<LogInfo>)ErrorDataGridView.DataSource, ErrorList);
 
             QueryError();
         }
@@ -42,7 +42,7 @@ namespace ErrorHelper.Model.ErrorHelper.Elmah
         /// </summary>
         public ElmahPage()
         {
-            ErrorList = new List<IErrorFile>();
+            ErrorList = new List<LogFile>();
 
             ErrorQueryCondition.ErrorSourceFolderPath = AppSettings.Elmah.DefaultElmahFolderPath;
 

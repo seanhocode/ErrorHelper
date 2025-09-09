@@ -2,17 +2,17 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace ErrorHelper.Model.ErrorHelper.ErrorBase
+namespace ErrorHelper.Model.LogHelper.ErrorBase
 {
-    public class ErrorPage
+    public class LogPage
     {
         private FormControlTool controlTool = new FormControlTool();
 
         public TabPage ErrorTabPage { get; set; }
 
-        public ErrorQueryCondition ErrorQueryCondition { get; set; }
+        public LogQueryCondition ErrorQueryCondition { get; set; }
 
-        public IList<IErrorFile> ErrorList { get; set; }
+        public IList<LogFile> ErrorList { get; set; }
 
         private TableLayoutPanel ErrorTabPageLayout { get; set; }
 
@@ -22,7 +22,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 
         private Panel ErrorActionPanel { get; set; }
 
-        public ErrorPage()
+        public LogPage()
         {
             InitialData();
             GetErrorTabPage();
@@ -44,7 +44,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 
         private void InitialData()
         {
-            ErrorQueryCondition = new ErrorQueryCondition();
+            ErrorQueryCondition = new LogQueryCondition();
             GenErrorDetailForm();
             GenErrorDataGridView();
         }
@@ -53,22 +53,22 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
         {
             ErrorTabPageLayout = controlTool.NewTableLayoutPanel("QueryErrorTabPageLayout", 3, 1);
 
-            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25));     //Row 0: 查詢區
-            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));     //Row 1: 動作區
-            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); //Row 2: Grid區
+            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25));   //Row 0: 查詢區
+            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      //Row 1: 動作區
+            ErrorTabPageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  //Row 2: Grid區
 
             GenErrorActionPanel();
 
             ErrorTabPageLayout.Controls.Add(ErrorQueryCondition.QueryConditionLayout, 0, 0);    //資訊區
-            ErrorTabPageLayout.Controls.Add(ErrorActionPanel, 0, 1);    //動作區
-            ErrorTabPageLayout.Controls.Add(ErrorDataGridView, 0, 2);    //Grid區
+            ErrorTabPageLayout.Controls.Add(ErrorActionPanel, 0, 1);                            //動作區
+            ErrorTabPageLayout.Controls.Add(ErrorDataGridView, 0, 2);                           //Grid區
         }
 
         private void GenErrorDataGridView()
         {
             ErrorDataGridView = controlTool.NewDataGridView("ErrorDataGridView");
 
-            ErrorDataGridView.DataSource = new BindingList<IErrorInfo>();
+            ErrorDataGridView.DataSource = new BindingList<LogInfo>();
 
             //資料Binding完後生成Grid按鈕
             ErrorDataGridView.DataBindingComplete += (sender, e) => { GenGridAction(sender); };
@@ -80,7 +80,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 
             if (!dataGridView.Columns.Contains("OpenErrorDetailCol"))
             {
-                controlTool.GenDataGridViewActionColumn<IErrorInfo>(dataGridView
+                controlTool.GenDataGridViewActionColumn<LogInfo>(dataGridView
                 , "OpenErrorDetailCol"
                 , "操作", "細節"
                 , 0
@@ -89,7 +89,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
 
             if (!dataGridView.Columns.Contains("OpenElmahFolderCol"))
             {
-                controlTool.GenDataGridViewActionColumn<IErrorInfo>(dataGridView
+                controlTool.GenDataGridViewActionColumn<LogInfo>(dataGridView
                 , "OpenElmahFolderCol"
                 , "操作", "檔案總管顯示"
                 , 0
@@ -97,7 +97,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
             }
         }
 
-        private void OpenErrorDetail(IErrorInfo errorInfo)
+        private void OpenErrorDetail(LogInfo errorInfo)
         {
             ErrorDetailForm.Controls["ErrorDetailTextBox"].Text = errorInfo.GetDetail();
 
@@ -137,9 +137,9 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
             ErrorDetailForm.Controls.Add(textBox);
         }
 
-        private void OpenElmahFolder(IErrorInfo errorInfo)
+        private void OpenElmahFolder(LogInfo errorInfo)
         {
-            IErrorFile? selectedErrorFile = ErrorList.FirstOrDefault(file => file.ErrorInfo.ErrorID == errorInfo.ErrorID);
+            LogFile? selectedErrorFile = ErrorList.FirstOrDefault(file => file.ErrorInfo.ErrorID == errorInfo.ErrorID);
 
             if (selectedErrorFile != null)
             {

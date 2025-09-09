@@ -1,8 +1,8 @@
 ﻿using ErrorHelper.Tools;
 
-namespace ErrorHelper.Model.ErrorHelper.ErrorBase
+namespace ErrorHelper.Model.LogHelper.ErrorBase
 {
-    public class ErrorQueryCondition
+    public class LogQueryCondition
     {
         private FormControlTool controlTool = new FormControlTool();
 
@@ -54,7 +54,7 @@ namespace ErrorHelper.Model.ErrorHelper.ErrorBase
         public TableLayoutPanel QueryConditionLayout { get; set; }
         #endregion
 
-        public ErrorQueryCondition()
+        public LogQueryCondition()
         {
             InitialData();
 

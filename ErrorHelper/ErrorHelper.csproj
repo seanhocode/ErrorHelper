@@ -29,6 +29,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\LogHelper\LogBase\IErrorFile.cs" />
+    <Compile Remove="Model\LogHelper\LogBase\IErrorInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <!-- 不要打包進單一 exe -->

@@ -1,11 +1,10 @@
-﻿using ErrorHelper.Model.ErrorHelper.Elmah;
-using ErrorHelper.Model.ErrorHelper.ErrorBase;
+﻿using ErrorHelper.Model.LogHelper.Elmah;
+using ErrorHelper.Model.LogHelper.ErrorBase;
 using ErrorHelper.Tools;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Linq;
 
-namespace ErrorHelper.Service.Error.Elmah
+namespace ErrorHelper.Service.LogHelper.Elmah
 {
     public class ElmahService : ServiceBase
     {
@@ -14,9 +13,9 @@ namespace ErrorHelper.Service.Error.Elmah
         /// </summary>
         /// <param name="elmahFolderPath"></param>
         /// <returns></returns>
-        public IList<IErrorFile> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
+        public IList<LogFile> GetElmahList(string elmahFolderPath, DateTime? startTime, DateTime? endTime, string fileNameContain = "", string messageContain = "", string detailContain = "")
         {
-            IList<IErrorFile> elmahList = new List<IErrorFile>();
+            IList<LogFile> elmahList = new List<LogFile>();
             ConcurrentBag<ElmahView> elmahBag = new ConcurrentBag<ElmahView>();
 
             IList<string> filePathList = fileTool.GetAllFileInFolder(elmahFolderPath);
@@ -74,7 +73,7 @@ namespace ErrorHelper.Service.Error.Elmah
                         .Where(elmah =>
                             elmah.ErrorInfo.GetDetail().IndexOf(detailContain, StringComparison.OrdinalIgnoreCase) >= 0)   //Detail查詢條件
                         .OrderByDescending(elmah => elmah.ErrorInfo.Time)
-                        .ToList<IErrorFile>();
+                        .ToList<LogFile>();
 
             return elmahList;
         }
@@ -85,7 +84,7 @@ namespace ErrorHelper.Service.Error.Elmah
         /// <remarks>如檔案在zip裡，會刪除整個zip。會備份至BackUp\yyyyMMdd-HHmmss</remarks>
         /// <param name="gridErrorList">欲刪除的ErrorList</param>
         /// <param name="elmahList">SourceElmah清單</param>
-        public void DeleteElmah(IList<IErrorInfo> gridErrorList, IList<IErrorFile> elmahList)
+        public void DeleteElmah(IList<LogInfo> gridErrorList, IList<LogFile> elmahList)
         {
             string filePathMsg = string.Empty
                  , backupFolderPath = Path.Combine(FileTool.CurrentFolder, "BackUp", $"{DateTime.Now.ToString("yyyyMMdd-HHmmss")}");
