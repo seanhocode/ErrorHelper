@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ErrorHelper.Core\ErrorHelper.Core.csproj" />
+    <ProjectReference Include="..\ErrorHelper.Tool\ErrorHelper.Tool.csproj" />
   </ItemGroup>
 
 </Project>

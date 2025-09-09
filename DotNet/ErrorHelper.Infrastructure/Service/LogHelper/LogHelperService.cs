@@ -3,15 +3,16 @@ using ErrorHelper.Core.Service.Log;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
-    public class LogHelperService : ServiceBase, ILogHelperService
+    public class LogHelperService : ServiceBase, ILogHelperService<LogFile<LogInfo>, LogInfo, LogQueryCondition>
     {
-        public IList<LogFile> GetLogList(LogQueryCondition logQueryCondition)
+        public LogFile<LogInfo> GetLogFile(string logPath)
         {
-            return new List<LogFile>();
+            throw new NotImplementedException();
         }
 
-        public string Test(){
-            return "HelloWorld";
+        public IList<LogFile<LogInfo>> GetLogFileList(LogQueryCondition logQueryCondition)
+        {
+            throw new NotImplementedException();
         }
     }
 }

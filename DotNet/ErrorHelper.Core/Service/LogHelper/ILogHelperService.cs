@@ -1,11 +1,9 @@
-﻿using ErrorHelper.Core.Model.Service.LogHelper;
-
+﻿
 namespace ErrorHelper.Core.Service.Log
 {
-    public interface ILogHelperService : IServiceBase
+    public interface ILogHelperService<TLogFile, TLogInfo, TLogQueryCondition> : IServiceBase
     {
-        IList<LogFile> GetLogList(LogQueryCondition logQueryCondition);
-
-        string Test();
+        abstract IList<TLogFile> GetLogFileList(TLogQueryCondition logQueryCondition);
+        abstract TLogFile GetLogFile(string logPath);
     }
 }

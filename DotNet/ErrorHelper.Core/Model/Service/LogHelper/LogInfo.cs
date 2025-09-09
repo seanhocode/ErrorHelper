@@ -4,9 +4,9 @@ namespace ErrorHelper.Core.Model.Service.LogHelper
     public class LogInfo
     {
         /// <summary>
-        /// ErrorID
+        /// LogID
         /// </summary>
-        public string? ErrorID { get; set; }
+        public string? LogID { get; set; }
 
         /// <summary>
         /// 發生時間
@@ -21,7 +21,7 @@ namespace ErrorHelper.Core.Model.Service.LogHelper
         /// <summary>
         /// 詳細錯誤訊息
         /// </summary>
-        protected string? Detail { get; set; }
+        private string? Detail { get; set; }
 
         /// <summary>
         /// 取得詳細錯誤訊息
@@ -30,6 +30,11 @@ namespace ErrorHelper.Core.Model.Service.LogHelper
         public string GetDetail()
         {
             return Detail ?? string.Empty;
+        }
+
+        public void SetDetail(string detail)
+        {
+            Detail = detail;
         }
     }
 }

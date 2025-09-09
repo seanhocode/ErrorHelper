@@ -1,12 +1,12 @@
 ﻿
 namespace ErrorHelper.Core.Model.Service.LogHelper
 {
-    public class LogFile
+    public class LogFile<T> where T : LogInfo
     {
         /// <summary>
-        /// ErrorInfo
+        /// LogInfo
         /// </summary>
-        public LogInfo? ErrorInfo { get; set; }
+        public T? LogInfo { get; set; }
 
         /// <summary>
         /// ErrorFileName
@@ -16,7 +16,7 @@ namespace ErrorHelper.Core.Model.Service.LogHelper
         /// <summary>
         /// 檔案產生時間
         /// </summary>
-        public DateTime FileTime { get; set; }
+        public DateTime? FileTime { get; set; }
 
         /// <summary>
         /// 來自哪個ZIP(完整路徑)
