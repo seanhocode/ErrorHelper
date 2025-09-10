@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
-    public class ElmahService : LogHelperService, IElmahService<ElmahFile, ElmahInfo, ElmahQueryCondition>
+    public class ElmahHelperService : LogHelperService, IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>
     {
         public IList<ElmahFile> GetLogFileList(ElmahQueryCondition elmahQueryCondition)
         {

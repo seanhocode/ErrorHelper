@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace ErrorHelper.Core.Service.LogHelper
 {
-    public interface IElmahService<TLogFile, TLogInfo, TLogQueryCondition> : ILogHelperService<TLogFile, TLogInfo, TLogQueryCondition>
+    public interface IElmahHelperService<TLogFile, TLogInfo, TLogQueryCondition> : ILogHelperService<TLogFile, TLogInfo, TLogQueryCondition>
     {
         (DateTime? ElmahTime, string GUID)? GetElmahFileNameData(string elmahName);
         TLogInfo GetElmahInfo(XDocument info);
