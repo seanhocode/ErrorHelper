@@ -48,3 +48,17 @@ sealed 關鍵字的意思是：禁止被繼承。
 Parallel.ForEach 是 .NET 平行程式設計 (Parallel Programming) 裡的一個方法，位於 System.Threading.Tasks 命名空間下。
 它的作用是：
     在多核心 CPU 上，將一個可列舉的集合（IEnumerable / IList）分割成多個部分，並行執行迴圈內容，達到加速效果。
+
+# 20250911
+## C#
+### UserControl
+UserControl 是 .NET / C# WinForms 內建的一個類別，它繼承自 Control，專門讓你把一堆 UI 控制項（Button、TextBox、Panel …）打包成一個「自訂元件」
+### INotifyPropertyChanged、PropertyChanged
+PropertyChanged 這個事件，是從 .NET 的介面 INotifyPropertyChanged 來的
+呼叫PropertyChanged = 通知DataBindings更新
+### DataBindings
+ToDo
+## MVVM
+Model：純資料，不碰 UI。
+ViewModel：包裝 Model，提供屬性通知，並能放自訂邏輯（例如 Trim()、驗證）。
+View：只做 UI，靠 DataBindings 直接和 ViewModel 溝通。
