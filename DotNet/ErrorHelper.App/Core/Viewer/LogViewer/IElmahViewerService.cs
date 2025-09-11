@@ -3,5 +3,6 @@
     public interface IElmahViewerService : ILogViewerService
     {
         ToolStripMenuItem GetOpenElmahFolderMenuItem();
+        void NewElmahQueryPage(TabControl tabControl);
     }
 }

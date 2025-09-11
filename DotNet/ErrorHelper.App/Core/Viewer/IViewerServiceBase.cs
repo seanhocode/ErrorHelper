@@ -2,6 +2,5 @@
 {
     public interface IViewerServiceBase
     {
-        event Action<Control>? OnAddControlRequested;
     }
 }

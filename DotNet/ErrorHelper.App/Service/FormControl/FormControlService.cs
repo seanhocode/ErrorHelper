@@ -74,5 +74,19 @@ namespace ErrorHelper.App.Service.FormControl
 
             return dropdownList;
         }
+
+        /// <summary>
+        /// New TabControl
+        /// </summary>
+        /// <param name="tabControlName"></param>
+        /// <returns></returns>
+        public TabControl NewTabControl(string tabControlName)
+        {
+            TabControl configTabControl = new TabControl();
+            configTabControl.Dock = DockStyle.Fill;
+            configTabControl.Name = tabControlName;
+
+            return configTabControl;
+        }
     }
 }

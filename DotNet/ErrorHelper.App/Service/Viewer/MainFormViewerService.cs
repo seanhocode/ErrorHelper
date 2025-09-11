@@ -16,34 +16,37 @@ namespace ErrorHelper.App.Service.Viewer
         public TableLayoutPanel GetMainLayout()
         {
             TableLayoutPanel mainLayout = controlService.NewTableLayoutPanel("MainLayout", 2, 1);
+            TabControl tabControl = controlService.NewTabControl("MainTabControl");
 
             // =======================================MainLayout=======================================
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      //Row 0: 菜單
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  //Row 1: MainTabControl
 
-            mainLayout.Controls.Add(GenMainMenuStrip(), 1, 0);              //菜單
-            //mainLayout.Controls.Add(_mainTabControl, 1, 1);                 //MainTabControl
+            mainLayout.Controls.Add(GenMainMenuStrip(tabControl), 1, 0);    //菜單
+            mainLayout.Controls.Add(tabControl, 1, 1);                      //MainTabControl
             // =======================================MainLayout=======================================
 
             return mainLayout;
-        }
-
-        public void Test(Action<System.Windows.Forms.Control> e)
-        {
-            elmahViewerService.OnAddControlRequested += e;
         }
 
         /// <summary>
         /// 生成主選單區域
         /// </summary>
         /// <returns></returns>
-        private MenuStrip GenMainMenuStrip()
+        private MenuStrip GenMainMenuStrip(TabControl tabControl)
         {
             MenuStrip mainMenuStrip = controlService.NewMenuStrip("MainMenuStrip");
+            ToolStripMenuItem openElmahFolderMenuItem = elmahViewerService.GetOpenElmahFolderMenuItem();
+
+            openElmahFolderMenuItem.Click += (sender, e) =>
+            {
+                elmahViewerService.NewElmahQueryPage(tabControl);
+            };
+
             ToolStripMenuItem fileDropDownList = controlService.NewToolStripMenuItemDropDownList(
                         "FileToolStripMenuItem", "功能",
                         new ToolStripMenuItem[] {
-                            elmahViewerService.GetOpenElmahFolderMenuItem()
+                            openElmahFolderMenuItem
                         });
 
             //, doBackupItem = controlService.NewToolStripMenuItem("DoBackupStripMenuItem", "Backup", DoBackup)

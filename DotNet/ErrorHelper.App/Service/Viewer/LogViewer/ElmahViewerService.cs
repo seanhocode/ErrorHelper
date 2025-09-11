@@ -11,17 +11,17 @@ namespace ErrorHelper.App.Service.Control.LogViewer
 
         public ToolStripMenuItem GetOpenElmahFolderMenuItem()
         {
-            return controlService.NewToolStripMenuItem("OpenElmahFolderStripMenuItem", "新增Elmah查詢頁面", NewElmahQueryPage);
+            return controlService.NewToolStripMenuItem("OpenElmahFolderStripMenuItem", "新增Elmah查詢頁面");
         }
 
         /// <summary>
         /// 新增查詢Elmah頁面
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NewElmahQueryPage(object? sender, EventArgs e)
+        /// <param name="tabControl"></param>
+        /// <returns></returns>
+        public void NewElmahQueryPage(TabControl tabControl)
         {
-            RequestAddControl(new Button() { Text = "Test", Location = new Point(10, 10) });
+            tabControl.Controls.Add(new TabPage() { Text = "test" });
         }
     }
 }

@@ -11,21 +11,14 @@ namespace ErrorHelper.App
         public ErrorHelperForm()
         {
             InitializeComponent();
-            
         }
 
         private void ErrorHelperForm_Load(object sender, EventArgs e)
         {
-            mainFormViewerSrv.Test(AddControls);
             mainLayout = mainFormViewerSrv.GetMainLayout();
             this.Controls.Add(mainLayout);
             //ElmahQueryCondition elmahQueryCondition = new ElmahQueryCondition(AppSettings.LogSetting.DefaultLogFolderPath);
             //MessageBox.Show(elmahHelperService.GetLogFileList(elmahQueryCondition).FirstOrDefault().LogInfo.Message);
-        }
-
-        private void AddControls(Control control)
-        {
-            mainLayout.Controls.Add(control);
         }
     }
 }
