@@ -8,6 +8,7 @@ namespace ErrorHelper.App.Service.Viewer
     public class MainFormViewerService : ViewerServiceBase, IMainFormViewerService
     {
         protected IElmahViewerService elmahViewerService { get { return DIHelper.GetService<IElmahViewerService>(); } }
+        protected ILogViewerService logViewerService { get { return DIHelper.GetService<ILogViewerService>(); } }
 
         /// <summary>
         /// 生成主要畫面
@@ -36,11 +37,11 @@ namespace ErrorHelper.App.Service.Viewer
         private MenuStrip GenMainMenuStrip(TabControl tabControl)
         {
             MenuStrip mainMenuStrip = controlService.NewMenuStrip("MainMenuStrip");
-            ToolStripMenuItem openElmahFolderMenuItem = elmahViewerService.GetOpenElmahFolderMenuItem();
+            ToolStripMenuItem openElmahFolderMenuItem = logViewerService.GetOpenNewLogViewerTabPageMenuItem();
 
             openElmahFolderMenuItem.Click += (sender, e) =>
             {
-                elmahViewerService.NewElmahQueryPage(tabControl);
+                logViewerService.NewLogQueryPage(tabControl);
             };
 
             ToolStripMenuItem fileDropDownList = controlService.NewToolStripMenuItemDropDownList(

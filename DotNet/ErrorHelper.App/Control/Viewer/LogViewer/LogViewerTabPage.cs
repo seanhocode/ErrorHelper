@@ -5,8 +5,8 @@ namespace ErrorHelper.App.Control.Viewer.LogViewer
 {
     public class LogViewerTabPage : TabPage
     {
-        private readonly LogQueryConditionControl _LogQueryConditionControl;
-        private readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
+        public LogQueryConditionControl _LogQueryConditionControl;
+        public LogQueryConditionViewModel _LogQueryConditionViewModel;
 
         public LogViewerTabPage(string folderPath)
         {
@@ -19,13 +19,10 @@ namespace ErrorHelper.App.Control.Viewer.LogViewer
             // View
             _LogQueryConditionControl = new LogQueryConditionControl(_LogQueryConditionViewModel)
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Top
             };
 
             Controls.Add(_LogQueryConditionControl);
         }
-
-        // 如果要從外面存取 ViewModel 或 Model，提供屬性
-        public LogQueryConditionViewModel ViewModel => _LogQueryConditionViewModel;
     }
 }

@@ -29,6 +29,7 @@ namespace ErrorHelper.App.Core
             services.AddSingleton<IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>, ElmahHelperService>();
             services.AddSingleton<IElmahViewerService, ElmahViewerService>();
             services.AddSingleton<IMainFormViewerService, MainFormViewerService>();
+            services.AddSingleton<ILogViewerService, LogViewerService>();
 
             _provider = services.BuildServiceProvider();
         }

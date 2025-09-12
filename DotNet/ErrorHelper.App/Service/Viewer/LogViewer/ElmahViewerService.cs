@@ -11,9 +11,9 @@ namespace ErrorHelper.App.Service.Control.LogViewer
     {
         private IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition> elmahHelperService { get { return DIHelper.GetService<IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>>(); } }
 
-        public ToolStripMenuItem GetOpenElmahFolderMenuItem()
+        public ToolStripMenuItem GetOpenNewElmahViewerTabPageMenuItem()
         {
-            return controlService.NewToolStripMenuItem("OpenElmahFolderStripMenuItem", "新增Elmah查詢頁面");
+            return controlService.NewToolStripMenuItem("OpenNewElmahViewerTabPageMenuItem", "新增Elmah查詢頁面");
         }
 
         /// <summary>

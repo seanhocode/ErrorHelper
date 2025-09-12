@@ -7,6 +7,11 @@ namespace ErrorHelper.App.Service.Control.LogViewer
 {
     public class LogViewerService : ViewerServiceBase, ILogViewerService
     {
+        public ToolStripMenuItem GetOpenNewLogViewerTabPageMenuItem()
+        {
+            return controlService.NewToolStripMenuItem("OpenNewLogViewerTabPageMenuItem", "新增Log查詢頁面");
+        }
+
         public void NewLogQueryPage(TabControl tabControl)
         {
             //tabControl.Controls.Add(new TabPage() { Text = "test" });
