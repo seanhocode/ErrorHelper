@@ -49,6 +49,8 @@ namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
             set { if (_LogQueryCondition.LogSourceFolderPath != value) { _LogQueryCondition.LogSourceFolderPath = value; OnPropertyChanged(nameof(LogSourceFolderPath)); } }
         }
 
+        public LogQueryCondition LogQueryCondition => _LogQueryCondition;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

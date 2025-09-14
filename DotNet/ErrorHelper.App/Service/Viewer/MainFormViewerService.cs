@@ -2,13 +2,16 @@
 using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer;
 using ErrorHelper.App.Core.Viewer.LogViewer;
+using ErrorHelper.App.ViewModel.Backup;
+using ErrorHelper.Core.Model.Service.BackupHelper;
+using ErrorHelper.Infrastructure.Service.BackupHelper;
 
 namespace ErrorHelper.App.Service.Viewer
 {
     public class MainFormViewerService : ViewerServiceBase, IMainFormViewerService
     {
-        protected IElmahViewerService elmahViewerService { get { return DIHelper.GetService<IElmahViewerService>(); } }
-        protected ILogViewerService logViewerService { get { return DIHelper.GetService<ILogViewerService>(); } }
+        protected IElmahViewerService elmahViewerSrv { get { return DIHelper.GetService<IElmahViewerService>(); } }
+        protected IBackupHelperService backupHelperSrv { get { return DIHelper.GetService<IBackupHelperService>(); } }
 
         /// <summary>
         /// 生成主要畫面
@@ -37,17 +40,29 @@ namespace ErrorHelper.App.Service.Viewer
         private MenuStrip GenMainMenuStrip(TabControl tabControl)
         {
             MenuStrip mainMenuStrip = controlService.NewMenuStrip("MainMenuStrip");
-            ToolStripMenuItem openElmahFolderMenuItem = logViewerService.GetOpenNewLogViewerTabPageMenuItem();
+            ToolStripMenuItem openElmahFolderMenuItem = elmahViewerSrv.GetOpenNewLogViewerTabPageMenuItem();
+            ToolStripMenuItem backupFolderMenuItem = controlService.NewToolStripMenuItem("BackupFolderMenuItem", "備份資料夾");
 
             openElmahFolderMenuItem.Click += (sender, e) =>
             {
-                logViewerService.NewLogQueryPage(tabControl);
+                elmahViewerSrv.NewLogQueryPage(tabControl);
+            };
+
+            backupFolderMenuItem.Click += (sender, e) =>
+            {
+                BackupFolderViewModel backupFolder = new BackupFolderViewModel(new BackupFolder());
+                if (backupFolder.OpenEditWindow())
+                {
+                    backupHelperSrv.BackupFolderByTemp(backupFolder.BackupFolder);
+                    MessageBox.Show("Done");
+                }
             };
 
             ToolStripMenuItem fileDropDownList = controlService.NewToolStripMenuItemDropDownList(
                         "FileToolStripMenuItem", "功能",
                         new ToolStripMenuItem[] {
                             openElmahFolderMenuItem
+                            , backupFolderMenuItem
                         });
 
             //, doBackupItem = controlService.NewToolStripMenuItem("DoBackupStripMenuItem", "Backup", DoBackup)

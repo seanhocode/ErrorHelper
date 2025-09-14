@@ -7,6 +7,7 @@ using ErrorHelper.App.Service.FormControl;
 using ErrorHelper.App.Service.Viewer;
 using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
+using ErrorHelper.Infrastructure.Service.BackupHelper;
 using ErrorHelper.Infrastructure.Service.LogHelper;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,6 +31,7 @@ namespace ErrorHelper.App.Core
             services.AddSingleton<IElmahViewerService, ElmahViewerService>();
             services.AddSingleton<IMainFormViewerService, MainFormViewerService>();
             services.AddSingleton<ILogViewerService, LogViewerService>();
+            services.AddSingleton<IBackupHelperService, BackupHelperService>();
 
             _provider = services.BuildServiceProvider();
         }

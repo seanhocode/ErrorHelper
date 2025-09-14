@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
-    public class ElmahHelperService : LogHelperService, IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>
+    public class ElmahHelperService : ServiceBase, IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>
     {
         public IList<ElmahFile> GetLogFileList(ElmahQueryCondition elmahQueryCondition)
         {
@@ -126,10 +126,6 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             }
         }
 
-        /// <summary>
-        /// 解析Elmah
-        /// </summary>
-        /// <param name="info"></param>
         public ElmahInfo GetElmahInfo(XDocument info)
         {
             ElmahInfo elmahInfo = new ElmahInfo();
@@ -150,11 +146,6 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             return elmahInfo;
         }
 
-        /// <summary>
-        /// 取得Elmah壓縮檔檔名
-        /// </summary>
-        /// <param name="zipFileName"></param>
-        /// <returns></returns>
         public DateTime? GetElmahZipDateTime(string zipFileName)
         {
 
@@ -169,11 +160,6 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             return null;
         }
 
-        /// <summary>
-        /// 取得Elmah時間、GUID by 檔名
-        /// </summary>
-        /// <param name="elmahName"></param>
-        /// <returns></returns>
         public (DateTime? ElmahTime, string GUID)? GetElmahFileNameData(string elmahName)
         {
             // Regex說明：
@@ -193,7 +179,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
         /// </summary>
         /// <param name="zTimeStr">時間字串，格式:yyyy-MM-ddHHmmssZ</param>
         /// <returns>轉換後的台灣時間(DateTime)，若格式錯誤則回傳 null</returns>
-        private DateTime? ConvertZFormatToTaiwanTime(string zTimeStr)
+        public DateTime? ConvertZFormatToTaiwanTime(string zTimeStr)
         {
             //定義輸入時間的格式('Z' 是字面值，需加上單引號)
             const string format = "yyyy-MM-ddHHmmss'Z'";

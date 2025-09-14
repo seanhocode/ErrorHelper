@@ -17,8 +17,6 @@ namespace ErrorHelper.App
         {
             mainLayout = mainFormViewerSrv.GetMainLayout();
             this.Controls.Add(mainLayout);
-            //ElmahQueryCondition elmahQueryCondition = new ElmahQueryCondition(AppSettings.LogSetting.DefaultLogFolderPath);
-            //MessageBox.Show(elmahHelperService.GetLogFileList(elmahQueryCondition).FirstOrDefault().LogInfo.Message);
         }
     }
 }

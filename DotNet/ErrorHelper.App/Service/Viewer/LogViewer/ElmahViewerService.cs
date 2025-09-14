@@ -1,17 +1,18 @@
-﻿using ErrorHelper.App.Control.Viewer.LogViewer;
-using ErrorHelper.App.Core;
+﻿using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer.LogViewer;
+using ErrorHelper.App.Service.Viewer;
+using ErrorHelper.App.View.Control.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 
 namespace ErrorHelper.App.Service.Control.LogViewer
 {
-    public class ElmahViewerService : LogViewerService, IElmahViewerService
+    public class ElmahViewerService : ViewerServiceBase, IElmahViewerService
     {
         private IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition> elmahHelperService { get { return DIHelper.GetService<IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>>(); } }
 
-        public ToolStripMenuItem GetOpenNewElmahViewerTabPageMenuItem()
+        public ToolStripMenuItem GetOpenNewLogViewerTabPageMenuItem()
         {
             return controlService.NewToolStripMenuItem("OpenNewElmahViewerTabPageMenuItem", "新增Elmah查詢頁面");
         }
@@ -21,12 +22,17 @@ namespace ErrorHelper.App.Service.Control.LogViewer
         /// </summary>
         /// <param name="tabControl"></param>
         /// <returns></returns>
-        public void NewElmahQueryPage(TabControl tabControl)
+        public void NewLogQueryPage(TabControl tabControl)
         {
-            //tabControl.Controls.Add(new TabPage() { Text = "test" });
-            var logTab = new LogViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);
-            tabControl.TabPages.Add(logTab);
-            tabControl.SelectedTab = logTab;
+            ElmahViewerTabPage elmahViewerTabPage = new ElmahViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);
+            elmahViewerTabPage.ElmahViewerControl.ClickQueryLogBtn += (elmahQueryCondition) => ClickQueryLogBtn(elmahQueryCondition);
+            tabControl.TabPages.Add(elmahViewerTabPage);
+            tabControl.SelectedTab = elmahViewerTabPage;
+        }
+
+        private IList<ElmahFile> ClickQueryLogBtn(ElmahQueryCondition elmahQueryCondition)
+        {
+            return elmahHelperService.GetLogFileList(elmahQueryCondition);
         }
     }
 }

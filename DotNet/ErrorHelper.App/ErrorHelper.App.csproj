@@ -35,6 +35,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="View\Control\Viewer\LogViewer\ElmahViewerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="View\Control\Viewer\LogViewer\ElmahViewerTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="AppSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <!-- 不要打包進單一 exe -->

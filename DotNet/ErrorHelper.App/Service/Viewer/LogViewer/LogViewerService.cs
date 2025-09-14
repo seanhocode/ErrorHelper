@@ -1,6 +1,7 @@
-﻿using ErrorHelper.App.Control.Viewer.LogViewer;
-using ErrorHelper.App.Core.Viewer.LogViewer;
+﻿using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.Service.Viewer;
+using ErrorHelper.App.View.Control.Viewer.LogViewer;
+using ErrorHelper.Core.Model.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 
 namespace ErrorHelper.App.Service.Control.LogViewer
@@ -14,10 +15,15 @@ namespace ErrorHelper.App.Service.Control.LogViewer
 
         public void NewLogQueryPage(TabControl tabControl)
         {
-            //tabControl.Controls.Add(new TabPage() { Text = "test" });
             var logTab = new LogViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);
+            logTab.LogViewerControl.ClickQueryLogBtn += QueryLogInfoList; 
             tabControl.TabPages.Add(logTab);
             tabControl.SelectedTab = logTab;
+        }
+
+        public IList<LogFile<LogInfo>> QueryLogInfoList(LogQueryCondition logQueryCondition)
+        {
+            return new List<LogFile<LogInfo>>();
         }
     }
 }
