@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics;
+
 namespace ErrorHelper.Tool
 {
     public static class FileTool
@@ -65,8 +67,17 @@ namespace ErrorHelper.Tool
         {
             List<string> filePathList = new List<string>();
 
-            if (!CheckFolderExist(folderPath))
+            try
+            {
+                if (!CheckFolderExist(folderPath))
+                    return filePathList;
+            }
+            catch (Exception ex) 
+            { 
+                Debug.WriteLine(ex);
                 return filePathList;
+            }
+            
 
             filePathList.AddRange(Directory.GetFiles(folderPath).ToList());
 

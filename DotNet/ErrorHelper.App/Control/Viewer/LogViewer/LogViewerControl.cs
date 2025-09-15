@@ -1,19 +1,20 @@
-﻿using ErrorHelper.App.Core.Model;
-using ErrorHelper.App.Service.FormControl;
+﻿using ErrorHelper.App.Service.FormControl;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 using System.Diagnostics;
 
-namespace ErrorHelper.App.View.Control.Viewer.LogViewer
+namespace ErrorHelper.App.Control.Viewer.LogViewer
 {
     public partial class LogViewerControl : UserControl
     {
-        protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
-        protected FormControlService controlSrv = new FormControlService();
-
+        private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
         public IList<LogFile<LogInfo>> LogFileList { get; set; }
         public IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
+
+
+        protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
+        protected FormControlService controlSrv = new FormControlService();
 
         protected DateTimePicker StartTimePicker;
         protected DateTimePicker EndTimePicker;
@@ -43,9 +44,9 @@ namespace ErrorHelper.App.View.Control.Viewer.LogViewer
 
         public LogViewerControl(LogQueryConditionViewModel viewModel)
         {
+            _LogQueryConditionViewModel = viewModel;
             InitializeComponent();
             InitializeOtherControl();
-            _LogQueryConditionViewModel = viewModel;
             SetViewModel();
         }
 
@@ -90,6 +91,8 @@ namespace ErrorHelper.App.View.Control.Viewer.LogViewer
             // StartTimePicker
             // 
             StartTimePicker.Anchor = AnchorStyles.Left;
+            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
+            StartTimePicker.Format = DateTimePickerFormat.Custom;
             StartTimePicker.Location = new Point(134, 48);
             StartTimePicker.Name = "StartTimePicker";
             StartTimePicker.Size = new Size(200, 23);
@@ -98,6 +101,8 @@ namespace ErrorHelper.App.View.Control.Viewer.LogViewer
             // EndTimePicker
             // 
             EndTimePicker.Anchor = AnchorStyles.Left;
+            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
+            EndTimePicker.Format = DateTimePickerFormat.Custom;
             EndTimePicker.Location = new Point(476, 48);
             EndTimePicker.Name = "EndTimePicker";
             EndTimePicker.Size = new Size(200, 23);

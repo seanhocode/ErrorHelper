@@ -1,8 +1,6 @@
-﻿
+﻿using ErrorHelper.Core.Model.Service.LogHelper;
 
-using ErrorHelper.Core.Model.Service.LogHelper;
-
-namespace ErrorHelper.App.View.Control.Viewer.LogViewer
+namespace ErrorHelper.App.Control.Viewer.LogViewer
 {
     public class LogDetailForm : Form
     {

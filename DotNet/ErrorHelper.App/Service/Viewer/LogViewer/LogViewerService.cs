@@ -1,6 +1,6 @@
-﻿using ErrorHelper.App.Core.Viewer.LogViewer;
+﻿using ErrorHelper.App.Control.Viewer.LogViewer;
+using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.Service.Viewer;
-using ErrorHelper.App.View.Control.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 

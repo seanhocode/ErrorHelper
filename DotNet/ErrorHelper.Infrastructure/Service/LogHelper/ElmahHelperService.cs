@@ -42,9 +42,8 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                                         elmahTime = GetElmahFileNameData(fileName)?.ElmahTime;
                                         if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
                                         {
-                                            ElmahFile elmahFile = new ElmahFile();
-                                        }
                                             elmahBag.Add(GetLogFile(fileName, filePath));
+                                        }
                                     }
                                 }
                             }

@@ -1,5 +1,6 @@
 ﻿
 using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+using ErrorHelper.Infrastructure.Common.Configuration;
 using System.ComponentModel;
 
 namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
@@ -16,7 +17,17 @@ namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
         public DateTime StartTime
         {
             get => _ElmahQueryCondition.StartTime;
-            set { if (_ElmahQueryCondition.StartTime != value) { _ElmahQueryCondition.StartTime = value; OnPropertyChanged(nameof(StartTime)); } }
+            set { 
+                if (_ElmahQueryCondition.StartTime != value) { 
+                    _ElmahQueryCondition.StartTime = value;
+                    if (AppSettings.LogSetting.DefaultLogQueryDays >= 0)
+                    {
+                        //EndDateTime = StartDateTime + XXX Days
+                        EndTime = StartTime.AddDays(AppSettings.LogSetting.DefaultLogQueryDays);
+                    }
+                    OnPropertyChanged(nameof(StartTime)); 
+                } 
+            }
         }
 
         public DateTime EndTime
