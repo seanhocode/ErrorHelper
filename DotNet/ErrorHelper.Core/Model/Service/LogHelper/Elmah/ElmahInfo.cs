@@ -3,12 +3,12 @@ namespace ErrorHelper.Core.Model.Service.LogHelper.Elmah
 {
     public class ElmahInfo : LogInfo
     {
-        public string? Application { get; set; }
+        public string? Application { get; set; } = string.Empty;
 
-        public string? Host { get; set; }
+        public string? Host { get; set; } = string.Empty;
 
-        public string? Type { get; set; }
+        public string? Type { get; set; } = string.Empty;
 
-        public string? Source { get; set; }
+        public string? Source { get; set; } = string.Empty;
     }
 }

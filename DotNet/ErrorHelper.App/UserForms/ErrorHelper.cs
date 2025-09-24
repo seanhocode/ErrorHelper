@@ -1,7 +1,7 @@
 using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer;
 
-namespace ErrorHelper.App
+namespace ErrorHelper.App.UserForms
 {
     public partial class ErrorHelperForm : Form
     {

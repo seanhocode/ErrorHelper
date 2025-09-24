@@ -64,6 +64,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             }
 
             elmahFileList = elmahBag
+                        .Where(elmah => elmah.LogInfo != null)
                         .Where(elmah =>
                             elmah.FileName.IndexOf(elmahQueryCondition.FileName, StringComparison.OrdinalIgnoreCase) >= 0             //FileName查詢條件
                             && elmah.LogInfo.Message.IndexOf(elmahQueryCondition.Message, StringComparison.OrdinalIgnoreCase) >= 0)   //Message查詢條件

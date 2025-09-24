@@ -1,10 +1,9 @@
-﻿using ErrorHelper.App.Control.Viewer.LogViewer;
-using ErrorHelper.App.Core.Viewer.LogViewer;
-using ErrorHelper.App.Service.Viewer;
+﻿using ErrorHelper.App.Core.Viewer.LogViewer;
+using ErrorHelper.App.UserControls.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 
-namespace ErrorHelper.App.Service.Control.LogViewer
+namespace ErrorHelper.App.Service.Viewer.LogViewer
 {
     public class LogViewerService : ViewerServiceBase, ILogViewerService
     {

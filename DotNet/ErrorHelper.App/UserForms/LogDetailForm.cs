@@ -1,6 +1,6 @@
 ﻿using ErrorHelper.Core.Model.Service.LogHelper;
 
-namespace ErrorHelper.App.Control.Viewer.LogViewer
+namespace ErrorHelper.App.UserForms
 {
     public class LogDetailForm : Form
     {

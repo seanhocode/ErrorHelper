@@ -11,7 +11,6 @@ namespace ErrorHelper.App.ViewModel.Backup
 
         public BackupFolderViewModel(BackupFolder backupFolder)
         {
-            SetEditControlWedgt(500);
             _BackupFolder = backupFolder;
             TempFolderPath = AppSettings.BackupSetting.TempFolderPath;
             SourceFolderPath = AppSettings.BackupSetting.SourceFolderPath;

@@ -1,7 +1,7 @@
 ﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper;
 
-namespace ErrorHelper.App.Control.Viewer.LogViewer
+namespace ErrorHelper.App.UserControls.Viewer.LogViewer
 {
     public class LogViewerTabPage : TabPage
     {

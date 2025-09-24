@@ -1,5 +1,4 @@
-﻿
-using ErrorHelper.App.Core;
+﻿using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer;
 using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.ViewModel.Backup;

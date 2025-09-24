@@ -1,10 +1,10 @@
 ﻿using ErrorHelper.App.Service.FormControl;
+using ErrorHelper.App.UserForms;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper;
-using ErrorHelper.Infrastructure.Common.Configuration;
 using System.Diagnostics;
 
-namespace ErrorHelper.App.Control.Viewer.LogViewer
+namespace ErrorHelper.App.UserControls.Viewer.LogViewer
 {
     public partial class LogViewerControl : UserControl
     {

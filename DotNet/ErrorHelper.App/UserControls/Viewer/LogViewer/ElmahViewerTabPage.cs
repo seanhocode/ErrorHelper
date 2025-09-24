@@ -1,7 +1,7 @@
 ﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
 
-namespace ErrorHelper.App.Control.Viewer.LogViewer
+namespace ErrorHelper.App.UserControls.Viewer.LogViewer
 {
     public class ElmahViewerTabPage : TabPage
     {
@@ -22,7 +22,7 @@ namespace ErrorHelper.App.Control.Viewer.LogViewer
                 Dock = DockStyle.Top
             };
 
-            Controls.Add(ElmahViewerControl);
+            this.Controls.Add(ElmahViewerControl);
         }
     }
 }

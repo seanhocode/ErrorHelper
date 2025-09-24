@@ -15,19 +15,33 @@ namespace ErrorHelper.App.Core.Model
         /// 子Model的PropertyInfo
         /// </summary>
         private PropertyInfo[] PropertyInfoList { get; set; }
+
         /// <summary>
         /// 預設間隔X
         /// </summary>
         private readonly int DefaultX = 10;
+
         /// <summary>
         /// 預設間隔Y
         /// </summary>
         private readonly int DefaultY = 25;
+
         private int? DefaultEditControlWidth { get; set; }
+
         /// <summary>
         /// 子Model辨識別名
         /// </summary>
         private string ModelAlias { get; set; }
+
+        /// <summary>
+        /// 編輯畫面GroupBox
+        /// </summary>
+        private GroupBox EditorGroupBox { get; set; }
+
+        /// <summary>
+        /// 屬性控制項清單
+        /// </summary>
+        private IList<PropertyEditor> PropertyEditorList { get; set; }
 
         /// <summary>
         /// 初始化ModelEditor
@@ -45,19 +59,30 @@ namespace ErrorHelper.App.Core.Model
         /// </summary>
         /// <remarks>回傳前先重新Load Editor的值</remarks>
         /// <returns>編輯Model畫面的GroupBox</returns>
-        public GroupBox GetEditorGroupBox()
+        public GroupBox GetEditorGroupBox(Button customizeAction = null)
         {
-            List<PropertyEditor> propertyEditorList = GenNewPropertyEditorList();
-            LoadModelEditorValue(propertyEditorList);
-            return GenNewEditorGroupBox(propertyEditorList);
+            if (EditorGroupBox == null)
+            {
+                PropertyEditorList = GenNewPropertyEditorList(PropertyInfoList);
+                LoadModelEditorValue(PropertyEditorList, PropertyInfoList);
+                SetPropertyEditorLocation(PropertyEditorList);
+                EditorGroupBox = GenNewEditorGroupBox(PropertyEditorList, PropertyInfoList, customizeAction);
+            }
+
+            return EditorGroupBox;
+        }
+
+        public void LoadModelEditorValue()
+        {
+            LoadModelEditorValue(PropertyEditorList, PropertyInfoList);
         }
 
         /// <summary>
         /// 將子Model上的值帶入EditControl
         /// </summary>
-        public void LoadModelEditorValue(List<PropertyEditor> propertyEditorList)
+        private void LoadModelEditorValue(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList)
         {
-            foreach (PropertyInfo propInfo in PropertyInfoList)
+            foreach (PropertyInfo propInfo in propertyInfoList)
             {
                 System.Windows.Forms.Control? propEditor = GetEditControl(propertyEditorList, propInfo.Name);
                 object? value = propInfo.GetValue(this);
@@ -69,7 +94,7 @@ namespace ErrorHelper.App.Core.Model
                         case Type type when type == typeof(int):
                             ((NumericUpDown)propEditor).Value = int.Parse(value?.ToString() ?? "0");
                             break;
-                        default:
+                        case Type type when type == typeof(string):
                             propEditor.Text = value?.ToString() ?? string.Empty;
                             break;
                     }
@@ -77,12 +102,17 @@ namespace ErrorHelper.App.Core.Model
             }
         }
 
+        public void SaveModelEditorValue()
+        {
+            SaveModelEditorValue(PropertyEditorList, PropertyInfoList);
+        }
+
         /// <summary>
         /// 將EditControl的值寫回子Model
         /// </summary>
-        public void SaveModelEditorValue(List<PropertyEditor> propertyEditorList)
+        private void SaveModelEditorValue(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList)
         {
-            foreach (PropertyInfo propInfo in PropertyInfoList)
+            foreach (PropertyInfo propInfo in propertyInfoList)
             {
                 System.Windows.Forms.Control? propEditor = GetEditControl(propertyEditorList, propInfo.Name);
 
@@ -93,7 +123,7 @@ namespace ErrorHelper.App.Core.Model
                         case Type type when type == typeof(int):
                             propInfo.SetValue(this, Convert.ToInt32(((NumericUpDown)propEditor).Value));
                             break;
-                        default:
+                        case Type type when type == typeof(string):
                             propInfo.SetValue(this, propEditor.Text);
                             break;
                     }
@@ -113,10 +143,13 @@ namespace ErrorHelper.App.Core.Model
         /// <summary>
         /// 直接開新視窗
         /// </summary>
-        public bool OpenEditWindow()
+        public bool OpenEditWindow(Button customizeAction = null)
         {
-            DialogResult result = new ModelEditorForm(GetEditorGroupBox()).ShowDialog();
-            if (result == DialogResult.OK) MessageBox.Show("確定不代表存檔!");
+            DialogResult result = new ModelEditorForm(GetEditorGroupBox(customizeAction)).ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                SaveModelEditorValue(PropertyEditorList, PropertyInfoList);
+            }
             return result == DialogResult.OK; // 點按鈕回傳 true，直接 X 回傳 false
         }
 
@@ -125,7 +158,7 @@ namespace ErrorHelper.App.Core.Model
         /// </summary>
         /// <param name="propName">PropertyName</param>
         /// <returns>EditControl</returns>
-        private System.Windows.Forms.Control? GetEditControl(List<PropertyEditor> propertyEditorList, string propName)
+        private System.Windows.Forms.Control? GetEditControl(IList<PropertyEditor> propertyEditorList, string propName)
         {
             return propertyEditorList
                     .Where(editor => editor.PropertyName == propName)
@@ -141,10 +174,10 @@ namespace ErrorHelper.App.Core.Model
         /// 且如果有傳入子Model辨識別名則在後面加上.[子Model辨識別名]。
         /// Name預設為Edit[GetType().Name](.[子Model辨識別名])GroupBox
         /// </remarks>
-        private GroupBox GenNewEditorGroupBox(List<PropertyEditor> propertyEditorList)
+        private GroupBox GenNewEditorGroupBox(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList, Button customizeAction = null)
         {
 
-            Button saveButton = new Button() { Text = "Save" };
+            //Button saveButton = new Button() { Text = "Save" };
             string modelName = $"{GetType().Name}", groupBoxTitle = string.Empty;
             DisplayNameAttribute? displayAttr = GetType().GetCustomAttribute<DisplayNameAttribute>();
 
@@ -160,7 +193,7 @@ namespace ErrorHelper.App.Core.Model
             {
                 Name = $"Edit{modelName}GroupBox",
                 Text = groupBoxTitle,
-                //Dock = DockStyle.Fill,
+                Dock = DockStyle.Fill,
                 AutoSize = true
             };
 
@@ -177,14 +210,18 @@ namespace ErrorHelper.App.Core.Model
             }
 
             //Step.2 將saveButton放入GroupBox
-            saveButton.Top = (propertyEditorList ?? new List<PropertyEditor>()).Max(editor => editor.ShowNameLabel.Top) + DefaultY;
-            saveButton.Click += (sender, e) =>
-            {
-                SaveModelEditorValue(propertyEditorList);
-                MessageBox.Show("Saved");
-            };
+            //saveButton.Top = (propertyEditorList ?? new List<PropertyEditor>()).Max(editor => editor.ShowNameLabel.Top) + DefaultY;
+            //saveButton.Click += (sender, e) =>
+            //{
+            //    SaveModelEditorValue(propertyEditorList, propertyInfoList);
+            //    MessageBox.Show("Saved");
+            //};
 
-            editorGroupBox.Controls.Add(saveButton);
+            if (customizeAction != null)
+            {
+                customizeAction.Top = (propertyEditorList ?? new List<PropertyEditor>()).Max(editor => editor.ShowNameLabel.Top) + DefaultY;
+                editorGroupBox.Controls.Add(customizeAction);
+            }
 
             return editorGroupBox;
         }
@@ -192,19 +229,16 @@ namespace ErrorHelper.App.Core.Model
         /// <summary>
         /// 產生PropertyEditorList
         /// </summary>
-        private List<PropertyEditor> GenNewPropertyEditorList()
+        private List<PropertyEditor> GenNewPropertyEditorList(PropertyInfo[] propertyInfoList)
         {
             List<PropertyEditor> propertyEditorList = new List<PropertyEditor>();
 
-            if (PropertyInfoList == null)
-                PropertyInfoList = GetType().GetProperties();
-
-            foreach (PropertyInfo prop in PropertyInfoList)
+            foreach (PropertyInfo prop in propertyInfoList)
             {
                 propertyEditorList.Add(new PropertyEditor(prop));
             }
 
-            SetPropertyEditorLocation(propertyEditorList);
+            propertyEditorList.RemoveAll(PropertyEditor => PropertyEditor.EditControl == null);
 
             return propertyEditorList;
         }
@@ -213,9 +247,10 @@ namespace ErrorHelper.App.Core.Model
         /// 設定PropertyEditor的長寬、位置
         /// </summary>
         /// <remarks>將所有欄位名稱長度設為最長的欄位名稱長度</remarks>
-        private void SetPropertyEditorLocation(List<PropertyEditor> propertyEditorList)
+        private void SetPropertyEditorLocation(IList<PropertyEditor> propertyEditorList)
         {
             int maxLabelWidth = propertyEditorList.Max(editor => editor.ShowNameLabel.Width)
+                , maxControlWidth = (int)(propertyEditorList.Max(editor => TextRenderer.MeasureText(editor.EditControl.Text, SystemFonts.DefaultFont).Width) * 1.3)
                 , positionY = DefaultY
                 , initialX = DefaultX;
 
@@ -224,8 +259,10 @@ namespace ErrorHelper.App.Core.Model
                 editor.ShowNameLabel.Width = maxLabelWidth;
                 editor.ShowNameLabel.Left = initialX;
                 editor.ShowNameLabel.Top = positionY;
-                if (DefaultEditControlWidth != null && DefaultEditControlWidth > 0)
+                if (DefaultEditControlWidth != null && DefaultEditControlWidth > 0 && maxControlWidth < DefaultEditControlWidth)
                     editor.EditControl.Width = DefaultEditControlWidth.Value;
+                else
+                    editor.EditControl.Width = maxControlWidth;
                 editor.EditControl.Left = initialX + DefaultX + maxLabelWidth;
                 editor.EditControl.Top = positionY;
                 if (editor.SelectButton != null)
@@ -251,28 +288,34 @@ namespace ErrorHelper.App.Core.Model
         /// </summary>
         /// <remarks>預設PropertyInfo.Name，Property有設定屬性[DisplayName]則會顯示DisplayName</remarks>
         public Label ShowNameLabel { get; set; }
+
         /// <summary>
         /// 編輯Property的Control
         /// </summary>
         public System.Windows.Forms.Control EditControl { get; set; }
+
         /// <summary>
         /// Property名稱
         /// </summary>
         /// <remarks>存PropertyInfo.Name</remarks>
         public string PropertyName { get; set; }
+
         /// <summary>
         /// 選擇按鈕
         /// </summary>
         /// <remarks>PropertyInfo.Name結尾為Path:檔案、FolderPath:資料夾</remarks>
         public Button? SelectButton { get; set; }
+
         /// <summary>
         /// 選擇按鈕預設長度
         /// </summary>
         private int SelectButtonDefaultWidth = 90;
+
         /// <summary>
         /// Label長度修正
         /// </summary>
         private double OffsetLabelWidth = 1.2f;
+
         /// <summary>
         /// 預設EditControl長度
         /// </summary>
@@ -311,12 +354,15 @@ namespace ErrorHelper.App.Core.Model
                         Width = DefaultControlWidth
                     };
                     break;
-                default:
+                case Type type when type == typeof(string):
                     EditControl = new TextBox()
                     {
                         Width = DefaultControlWidth
                     };
                     break;
+                    //default:
+                    //    EditControl = new Control();
+                    //    break;
             }
 
             //Step.3 Path結尾的Property的設定SelectButton
@@ -327,7 +373,7 @@ namespace ErrorHelper.App.Core.Model
                     SelectButton = new Button() { Text = "SelectFolder", Width = SelectButtonDefaultWidth };
                     SelectButton.Click += (sender, e) =>
                     {
-                        EditControl.Text = FormControlService.GetSelectFolderPath(EditControl.Text);
+                        EditControl.Text = GetSelectFolderPath(EditControl.Text);
                     };
                 }
                 else if (PropertyName.EndsWith("Path"))
@@ -335,9 +381,49 @@ namespace ErrorHelper.App.Core.Model
                     SelectButton = new Button() { Text = "SelectFile", Width = SelectButtonDefaultWidth };
                     SelectButton.Click += (sender, e) =>
                     {
-                        EditControl.Text = FormControlService.GetSelectFilePath(EditControl.Text);
+                        EditControl.Text = GetSelectFilePath(EditControl.Text);
                     };
                 }
+            }
+        }
+
+        /// <summary>
+        /// 打開SelectFolder視窗
+        /// </summary>
+        /// <param name="defaultPath">預設資料夾</param>
+        /// <returns>選擇資料夾的路徑</returns>
+        private string GetSelectFolderPath(string defaultPath = "")
+        {
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+            {
+                fbd.Description = "請選擇一個資料夾";
+                fbd.SelectedPath = defaultPath;     // 預設開啟的資料夾
+
+                if (fbd.ShowDialog() == DialogResult.OK)
+                    return fbd.SelectedPath;
+
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 打開SelectFile視窗
+        /// </summary>
+        /// <param name="defaultPath"></param>
+        /// <returns></returns>
+        private string GetSelectFilePath(string defaultPath = "")
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Title = "請選擇一個檔案";
+                ofd.Filter = "所有檔案 (*.*)|*.*";   // 或指定檔案類型
+                ofd.InitialDirectory = Path.GetDirectoryName(defaultPath); // 預設開啟的資料夾
+                ofd.FileName = Path.GetFileName(defaultPath);
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                    return ofd.FileName;
+
+                return string.Empty;
             }
         }
     }
@@ -353,8 +439,7 @@ namespace ErrorHelper.App.Core.Model
         public ModelEditorForm(GroupBox editorGroupBox)
         {
             Text = "ModelEditor";
-            Width = 800;
-            Height = 250;
+            AutoSize = true;
 
             Button confirmBtn = new Button
             {

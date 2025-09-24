@@ -11,21 +11,21 @@ namespace ErrorHelper.Core.Model.Service.LogHelper
         /// <summary>
         /// ErrorFileName
         /// </summary>
-        public string? FileName { get; set; }
+        public string? FileName { get; set; } = string.Empty;
 
         /// <summary>
         /// 檔案產生時間
         /// </summary>
-        public DateTime? FileTime { get; set; }
+        public DateTime? FileTime { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// 來自哪個ZIP(完整路徑)
         /// </summary>
-        public string? SourceZIPPath { get; set; }
+        public string? SourceZIPPath { get; set; } = string.Empty;
 
         /// <summary>
         /// 上層資料夾
         /// </summary>
-        public string? ParentFolderPath { get; set; }
+        public string? ParentFolderPath { get; set; } = string.Empty;
     }
 }
