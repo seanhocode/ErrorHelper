@@ -1,5 +1,5 @@
 ﻿
-using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Infrastructure.Common.Configuration;
 using System.ComponentModel;
 

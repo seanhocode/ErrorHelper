@@ -2,7 +2,5 @@
 {
     public interface IElmahViewerService : ILogViewerService
     {
-        //ToolStripMenuItem GetOpenNewElmahViewerTabPageMenuItem();
-        //void NewElmahQueryPage(TabControl tabControl);
     }
 }

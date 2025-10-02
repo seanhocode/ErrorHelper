@@ -1,10 +1,10 @@
 ﻿using ErrorHelper.App.Service.FormControl;
-using ErrorHelper.App.UserForms;
+using ErrorHelper.App.View;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
-using ErrorHelper.Core.Model.Service.LogHelper;
+using ErrorHelper.Core.Model.LogHelper;
 using System.Diagnostics;
 
-namespace ErrorHelper.App.UserControls.Viewer.LogViewer
+namespace ErrorHelper.App.Control.LogViewer
 {
     public partial class LogViewerControl : UserControl
     {
@@ -36,6 +36,9 @@ namespace ErrorHelper.App.UserControls.Viewer.LogViewer
 
         public Func<LogQueryCondition, IList<LogFile<LogInfo>>> ClickQueryLogBtn;
 
+        /// <summary>
+        /// 給繼承Control用
+        /// </summary>
         public LogViewerControl()
         {
             InitializeComponent();

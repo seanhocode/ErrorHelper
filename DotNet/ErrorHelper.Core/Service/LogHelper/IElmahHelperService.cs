@@ -1,6 +1,4 @@
-﻿using ErrorHelper.Core.Model.Service.LogHelper;
-using ErrorHelper.Core.Service.Log;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace ErrorHelper.Core.Service.LogHelper
 {

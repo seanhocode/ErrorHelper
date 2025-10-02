@@ -4,7 +4,7 @@ using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.Service.FormControl;
 using ErrorHelper.App.Service.Viewer;
 using ErrorHelper.App.Service.Viewer.LogViewer;
-using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Infrastructure.Service.BackupHelper;
 using ErrorHelper.Infrastructure.Service.LogHelper;
@@ -28,8 +28,7 @@ namespace ErrorHelper.App.Core
             services.AddSingleton<IFormControlService, FormControlService>();
             services.AddSingleton<IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>, ElmahHelperService>();
             services.AddSingleton<IElmahViewerService, ElmahViewerService>();
-            services.AddSingleton<IMainFormViewerService, MainFormViewerService>();
-            services.AddSingleton<ILogViewerService, LogViewerService>();
+            services.AddSingleton<IErrorHelperViewerService, ErrorHelperViewerService>();
             services.AddSingleton<IBackupHelperService, BackupHelperService>();
 
             _provider = services.BuildServiceProvider();

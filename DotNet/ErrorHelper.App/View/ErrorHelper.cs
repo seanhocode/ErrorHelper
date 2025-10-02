@@ -1,11 +1,11 @@
 using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer;
 
-namespace ErrorHelper.App.UserForms
+namespace ErrorHelper.App.View
 {
     public partial class ErrorHelperForm : Form
     {
-        private IMainFormViewerService mainFormViewerSrv { get { return DIHelper.GetService<IMainFormViewerService>(); } }
+        private IErrorHelperViewerService mainFormViewerSrv { get { return DIHelper.GetService<IErrorHelperViewerService>(); } }
         private TableLayoutPanel mainLayout;
 
         public ErrorHelperForm()

@@ -1,5 +1,4 @@
-﻿
-namespace ErrorHelper.Core.Model.Service.LogHelper
+﻿namespace ErrorHelper.Core.Model.LogHelper
 {
     public class LogQueryCondition
     {

@@ -35,10 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="UserControls\Viewer\LogViewer\LogViewerControl.cs">
+    <Compile Update="Control\LogViewer\LogViewerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UserControls\Viewer\LogViewer\ElmahViewerControl.cs">
+    <Compile Update="Control\LogViewer\ElmahViewerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <!--<Compile Update="UserControls\Viewer\LogViewer\ElmahViewerTabPage.cs">

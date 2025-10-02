@@ -1,5 +1,4 @@
-﻿
-namespace ErrorHelper.Core.Model.Service.LogHelper.Elmah
+﻿namespace ErrorHelper.Core.Model.LogHelper.Elmah
 {
     public class ElmahInfo : LogInfo
     {

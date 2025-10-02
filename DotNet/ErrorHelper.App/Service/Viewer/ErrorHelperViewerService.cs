@@ -2,20 +2,16 @@
 using ErrorHelper.App.Core.Viewer;
 using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.ViewModel.Backup;
-using ErrorHelper.Core.Model.Service.BackupHelper;
+using ErrorHelper.Core.Model.BackupHelper;
 using ErrorHelper.Infrastructure.Service.BackupHelper;
 
 namespace ErrorHelper.App.Service.Viewer
 {
-    public class MainFormViewerService : ViewerServiceBase, IMainFormViewerService
+    public class ErrorHelperViewerService : ViewerServiceBase, IErrorHelperViewerService
     {
         protected IElmahViewerService elmahViewerSrv { get { return DIHelper.GetService<IElmahViewerService>(); } }
         protected IBackupHelperService backupHelperSrv { get { return DIHelper.GetService<IBackupHelperService>(); } }
 
-        /// <summary>
-        /// 生成主要畫面
-        /// </summary>
-        /// <returns></returns>
         public TableLayoutPanel GetMainLayout()
         {
             TableLayoutPanel mainLayout = controlService.NewTableLayoutPanel("MainLayout", 2, 1);
@@ -63,8 +59,6 @@ namespace ErrorHelper.App.Service.Viewer
                             openElmahFolderMenuItem
                             , backupFolderMenuItem
                         });
-
-            //, doBackupItem = controlService.NewToolStripMenuItem("DoBackupStripMenuItem", "Backup", DoBackup)
 
             mainMenuStrip.Items.Add(fileDropDownList);
 

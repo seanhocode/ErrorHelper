@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ErrorHelper.Core.Model.Service.BackupHelper
+namespace ErrorHelper.Core.Model.BackupHelper
 {
     public class BackupFolder
     {

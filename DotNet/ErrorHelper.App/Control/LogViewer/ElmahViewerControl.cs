@@ -1,10 +1,10 @@
 ﻿using ErrorHelper.App.Service.FormControl;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
-using ErrorHelper.Core.Model.Service.LogHelper;
-using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+using ErrorHelper.Core.Model.LogHelper;
+using ErrorHelper.Core.Model.LogHelper.Elmah;
 using System.Diagnostics;
 
-namespace ErrorHelper.App.UserControls.Viewer.LogViewer
+namespace ErrorHelper.App.Control.LogViewer
 {
     public partial class ElmahViewerControl : LogViewerControl
     {
@@ -47,25 +47,6 @@ namespace ErrorHelper.App.UserControls.Viewer.LogViewer
         {
             _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
             QueryLogBtn_Click(null, null);
-        }
-
-        private void InitializeComponent()
-        {
-            SuspendLayout();
-            // 
-            // MessageTextBox
-            // 
-            LogViewerTableLayoutPanel.SetColumnSpan(MessageTextBox, 3);
-            // 
-            // DetailTextBox
-            // 
-            LogViewerTableLayoutPanel.SetColumnSpan(DetailTextBox, 3);
-            // 
-            // ElmahViewerControl
-            // 
-            Name = "ElmahViewerControl";
-            ResumeLayout(false);
-
         }
 
         protected override void OpenLogSourceFolder(LogInfo logInfo)

@@ -1,4 +1,4 @@
-﻿using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Tool;
 using System.Collections.Concurrent;

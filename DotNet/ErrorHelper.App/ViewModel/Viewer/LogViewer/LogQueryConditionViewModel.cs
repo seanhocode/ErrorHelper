@@ -1,5 +1,5 @@
 ﻿
-using ErrorHelper.Core.Model.Service.LogHelper;
+using ErrorHelper.Core.Model.LogHelper;
 using System.ComponentModel;
 
 namespace ErrorHelper.App.ViewModel.Viewer.LogViewer

@@ -1,7 +1,7 @@
-﻿using ErrorHelper.App.Core;
+﻿using ErrorHelper.App.Control.LogViewer;
+using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer.LogViewer;
-using ErrorHelper.App.UserControls.Viewer.LogViewer;
-using ErrorHelper.Core.Model.Service.LogHelper.Elmah;
+using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 
@@ -16,11 +16,6 @@ namespace ErrorHelper.App.Service.Viewer.LogViewer
             return controlService.NewToolStripMenuItem("OpenNewElmahViewerTabPageMenuItem", "新增Elmah查詢頁面");
         }
 
-        /// <summary>
-        /// 新增查詢Elmah頁面
-        /// </summary>
-        /// <param name="tabControl"></param>
-        /// <returns></returns>
         public void NewLogQueryPage(TabControl tabControl)
         {
             ElmahViewerTabPage elmahViewerTabPage = new ElmahViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);

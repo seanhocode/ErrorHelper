@@ -1,8 +1,9 @@
-﻿using ErrorHelper.Core.Model.Service.BackupHelper;
+﻿using ErrorHelper.Core.Model.BackupHelper;
+using ErrorHelper.Core.Service;
 
 namespace ErrorHelper.Infrastructure.Service.BackupHelper
 {
-    public interface IBackupHelperService
+    public interface IBackupHelperService : IServiceBase
     {
         /// <summary>
         /// 將Source裡與Temp相同路徑的檔案備份到Backup資料夾

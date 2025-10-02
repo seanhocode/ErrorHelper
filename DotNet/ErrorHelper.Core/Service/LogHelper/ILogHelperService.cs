@@ -1,5 +1,5 @@
 ﻿
-namespace ErrorHelper.Core.Service.Log
+namespace ErrorHelper.Core.Service.LogHelper
 {
     public interface ILogHelperService<TLogFile, TLogInfo, TLogQueryCondition> : IServiceBase
     {

@@ -1,4 +1,4 @@
-﻿namespace ErrorHelper.App.UserForms
+﻿namespace ErrorHelper.App.View
 {
     partial class ErrorHelperForm
     {
