@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*.*.*'   # 例如推送 v1.0.0 時觸發
 
+permissions:
+  contents: write  # 讓 GITHUB_TOKEN 能建立 Release
+
 jobs:
   build:
     runs-on: windows-latest
