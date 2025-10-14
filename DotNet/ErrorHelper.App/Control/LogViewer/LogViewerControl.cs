@@ -10,7 +10,17 @@ namespace ErrorHelper.App.Control.LogViewer
     {
         private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
         public IList<LogFile<LogInfo>> LogFileList { get; set; }
-        public IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
+
+        /// <summary>
+        /// Message只取第一行前100字
+        /// </summary>
+        public IList<LogInfo> LogInfoList =>
+            LogFileList.Select(
+                elmahFile => new LogInfo
+                {
+                    Message = elmahFile.LogInfo.Message.Split('\n')[0].Length > 100 ? elmahFile.LogInfo.Message.Split('\n')[0].Substring(0, 100) : elmahFile.LogInfo.Message.Split('\n')[0],
+                    Time = elmahFile.LogInfo.Time
+                }).ToList<LogInfo>() ?? [];
 
 
         protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
@@ -333,7 +343,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected virtual void OpenLogSourceFolder(LogInfo logInfo)
         {
-            LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
+            LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.GetLogID() == logInfo.GetLogID());
 
             if (selectedErrorFile != null)
             {

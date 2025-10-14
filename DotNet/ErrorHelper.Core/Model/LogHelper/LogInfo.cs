@@ -5,7 +5,7 @@
         /// <summary>
         /// LogID
         /// </summary>
-        public string? LogID { get; set; } = string.Empty;
+        private string? LogID { get; set; } = string.Empty;
 
         /// <summary>
         /// 發生時間
@@ -34,6 +34,16 @@
         public void SetDetail(string detail)
         {
             Detail = detail;
+        }
+
+        public string GetLogID()
+        {
+            return LogID ?? string.Empty;
+        }
+
+        public void SetLogID(string logID)
+        {
+            LogID = logID;
         }
     }
 }
