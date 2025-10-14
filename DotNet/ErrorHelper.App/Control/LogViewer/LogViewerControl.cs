@@ -10,18 +10,7 @@ namespace ErrorHelper.App.Control.LogViewer
     {
         private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
         public IList<LogFile<LogInfo>> LogFileList { get; set; }
-
-        /// <summary>
-        /// Message只取第一行前100字
-        /// </summary>
-        public IList<LogInfo> LogInfoList =>
-            LogFileList.Select(
-                elmahFile => new LogInfo
-                {
-                    Message = elmahFile.LogInfo.Message.Split('\n')[0].Length > 100 ? elmahFile.LogInfo.Message.Split('\n')[0].Substring(0, 100) : elmahFile.LogInfo.Message.Split('\n')[0],
-                    Time = elmahFile.LogInfo.Time
-                }).ToList<LogInfo>() ?? [];
-
+        public IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
         protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
         protected FormControlService controlSrv = new FormControlService();
@@ -51,16 +40,20 @@ namespace ErrorHelper.App.Control.LogViewer
         /// </summary>
         public LogViewerControl()
         {
-            InitializeComponent();
-            InitializeOtherControl();
+            Initialize();
         }
 
         public LogViewerControl(LogQueryConditionViewModel viewModel)
         {
+            Initialize();
             _LogQueryConditionViewModel = viewModel;
+            SetViewModel();
+        }
+
+        public virtual void Initialize()
+        {
             InitializeComponent();
             InitializeOtherControl();
-            SetViewModel();
         }
 
         protected virtual void InitializeOtherControl()
@@ -343,7 +336,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected virtual void OpenLogSourceFolder(LogInfo logInfo)
         {
-            LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.GetLogID() == logInfo.GetLogID());
+            LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
 
             if (selectedErrorFile != null)
             {

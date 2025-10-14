@@ -19,7 +19,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // View
             ElmahViewerControl = new ElmahViewerControl(ElmahQueryConditionViewModel)
             {
-                Dock = DockStyle.Top
+                Dock = DockStyle.Fill
             };
 
             Controls.Add(ElmahViewerControl);

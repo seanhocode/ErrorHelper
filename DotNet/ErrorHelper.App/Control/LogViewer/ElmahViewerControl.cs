@@ -10,15 +10,7 @@ namespace ErrorHelper.App.Control.LogViewer
     {
         protected readonly ElmahQueryConditionViewModel _ElmahQueryConditionViewModel;
         public IList<ElmahFile> ElmahFileList { get; set; }
-        /// <summary>
-        /// Message只取第一行前100字
-        /// </summary>
-        public IList<LogInfo> ElmahInfoList => 
-            ElmahFileList.Select(
-                elmahFile => new LogInfo { 
-                    Message = elmahFile.LogInfo.Message.Split('\n')[0].Length > 100 ? elmahFile.LogInfo.Message.Split('\n')[0].Substring(0, 100) : elmahFile.LogInfo.Message.Split('\n')[0],
-                    Time = elmahFile.LogInfo.Time
-                } ).ToList<LogInfo>() ?? [];
+        public IList<LogInfo> ElmahInfoList => ElmahFileList.Select(elmahFile => elmahFile.LogInfo).ToList<LogInfo>() ?? [];
 
         public new Func<ElmahQueryCondition, IList<ElmahFile>> ClickQueryLogBtn;
 
@@ -32,6 +24,8 @@ namespace ErrorHelper.App.Control.LogViewer
             LogInfoDataGridView.DataSource = ElmahInfoList;
             //資料Binding完後生成Grid按鈕
             LogInfoDataGridView.DataBindingComplete += (sender, e) => { GenGridAction(); };
+            LogInfoDataGridView.Columns["LogID"].Visible = false;
+            LogInfoDataGridView.Columns["Message"].Visible = false;
         }
 
         protected override void SetViewModel()
@@ -59,7 +53,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void OpenLogSourceFolder(LogInfo logInfo)
         {
-            ElmahFile? selectedErrorFile = ElmahFileList.FirstOrDefault(file => file.LogInfo.GetLogID() == logInfo.GetLogID());
+            ElmahFile? selectedErrorFile = ElmahFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
 
             if (selectedErrorFile != null)
             {

@@ -1,11 +1,13 @@
-﻿namespace ErrorHelper.Core.Model.LogHelper
+﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
+
+namespace ErrorHelper.Core.Model.LogHelper
 {
     public class LogInfo
     {
         /// <summary>
         /// LogID
         /// </summary>
-        private string? LogID { get; set; } = string.Empty;
+        public string? LogID { get; set; } = string.Empty;
 
         /// <summary>
         /// 發生時間
@@ -16,6 +18,12 @@
         /// 錯誤訊息
         /// </summary>
         public string? Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 錯誤訊息標頭
+        /// </summary>
+        /// <remarks>第一行前100字</remarks>
+        public string? Title => Message.Split('\n')[0].Length > 100 ? Message.Split('\n')[0].Substring(0, 100) : Message.Split('\n')[0];
 
         /// <summary>
         /// 詳細錯誤訊息
@@ -34,16 +42,6 @@
         public void SetDetail(string detail)
         {
             Detail = detail;
-        }
-
-        public string GetLogID()
-        {
-            return LogID ?? string.Empty;
-        }
-
-        public void SetLogID(string logID)
-        {
-            LogID = logID;
         }
     }
 }

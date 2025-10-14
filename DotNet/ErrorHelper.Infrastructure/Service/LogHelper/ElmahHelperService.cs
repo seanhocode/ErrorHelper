@@ -133,7 +133,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             XElement? errorElement = info.Descendants("error").FirstOrDefault();
             if (errorElement == null) return elmahInfo;
 
-            elmahInfo.SetLogID(errorElement.Attribute("errorId")?.Value ?? string.Empty);
+            elmahInfo.LogID = errorElement.Attribute("errorId")?.Value ?? string.Empty;
             elmahInfo.Application = errorElement.Attribute("application")?.Value ?? string.Empty;
             elmahInfo.Host = errorElement.Attribute("host")?.Value ?? string.Empty;
             elmahInfo.Type = errorElement.Attribute("type")?.Value ?? string.Empty;
