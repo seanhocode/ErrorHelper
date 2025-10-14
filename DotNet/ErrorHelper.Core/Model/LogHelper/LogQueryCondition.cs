@@ -8,6 +8,7 @@
         public string Message { get; set; }
         public string Detail { get; set; }
         public string LogSourceFolderPath { get; set; }
+        public IList<string> IgnoreMessageList { get; set; }
 
         public LogQueryCondition(string logSourceFolderPath = "")
         {
@@ -17,6 +18,7 @@
             Message = string.Empty;
             Detail = string.Empty;
             LogSourceFolderPath = logSourceFolderPath;
+            IgnoreMessageList = new List<string>();
         }
     }
 }

@@ -9,8 +9,8 @@ namespace ErrorHelper.App.Control.LogViewer
     public partial class ElmahViewerControl : LogViewerControl
     {
         protected readonly ElmahQueryConditionViewModel _ElmahQueryConditionViewModel;
-        public IList<ElmahFile> ElmahFileList { get; set; }
-        public IList<LogInfo> ElmahInfoList => ElmahFileList.Select(elmahFile => elmahFile.LogInfo).ToList<LogInfo>() ?? [];
+        protected IList<ElmahFile> ElmahFileList { get; set; }
+        protected IList<LogInfo> ElmahInfoList => ElmahFileList.Select(elmahFile => elmahFile.LogInfo).ToList<LogInfo>() ?? [];
 
         public new Func<ElmahQueryCondition, IList<ElmahFile>> ClickQueryLogBtn;
 
@@ -30,7 +30,6 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void SetViewModel()
         {
-            // 綁定 UI 和 ViewModel
             StartTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.EndTime));
             FileNameTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.FileName));
@@ -41,14 +40,20 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            ElmahFileList = ClickQueryLogBtn?.Invoke(_ElmahQueryConditionViewModel.ElmahQueryCondition) ?? new List<ElmahFile>();
+            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList = new List<string>();
+            QueryLog();
+        }
+
+        protected override void QueryLog()
+        {
+            ElmahFileList = ClickQueryLogBtn?.Invoke(_ElmahQueryConditionViewModel.ElmahQueryCondition);
             LogInfoDataGridView.DataSource = ElmahInfoList;
         }
 
         protected override void ChangeLogFolderBtn_Click(object sender, EventArgs e)
         {
             _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
-            QueryLogBtn_Click(null, null);
+            QueryLog();
         }
 
         protected override void OpenLogSourceFolder(LogInfo logInfo)
@@ -62,6 +67,12 @@ namespace ErrorHelper.App.Control.LogViewer
                 else
                     Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
             }
+        }
+
+        protected override void AddTitleToIgnoreList(LogInfo logInfo)
+        {
+            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            QueryLog();
         }
     }
 }

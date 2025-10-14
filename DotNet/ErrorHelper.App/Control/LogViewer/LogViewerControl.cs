@@ -9,8 +9,8 @@ namespace ErrorHelper.App.Control.LogViewer
     public partial class LogViewerControl : UserControl
     {
         private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
-        public IList<LogFile<LogInfo>> LogFileList { get; set; }
-        public IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
+        protected IList<LogFile<LogInfo>> LogFileList { get; set; }
+        protected IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
         protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
         protected FormControlService controlSrv = new FormControlService();
@@ -33,16 +33,24 @@ namespace ErrorHelper.App.Control.LogViewer
         protected Label ErrorSourceFolderPathLabel;
         protected LogDetailForm LogDetailForm;
 
+        /// <summary>
+        /// 點QueryBtn後執行的Method
+        /// </summary>
+        /// <remarks>傳入LogQueryCondition並回傳LogFileList(Log查詢結果)</remarks>
         public Func<LogQueryCondition, IList<LogFile<LogInfo>>> ClickQueryLogBtn;
 
         /// <summary>
-        /// 給繼承Control用
+        /// 給繼承Control用之建構子
         /// </summary>
-        public LogViewerControl()
+        protected LogViewerControl()
         {
             Initialize();
         }
 
+        /// <summary>
+        /// 建構子
+        /// </summary>
+        /// <param name="viewModel"></param>
         public LogViewerControl(LogQueryConditionViewModel viewModel)
         {
             Initialize();
@@ -50,20 +58,28 @@ namespace ErrorHelper.App.Control.LogViewer
             SetViewModel();
         }
 
-        public virtual void Initialize()
+        /// <summary>
+        /// 初始化Control
+        /// </summary>
+        protected virtual void Initialize()
         {
             InitializeComponent();
             InitializeOtherControl();
         }
 
+        /// <summary>
+        /// 處理非設計工具建立的Control
+        /// </summary>
         protected virtual void InitializeOtherControl()
         {
             LogDetailForm = new LogDetailForm();
         }
 
+        /// <summary>
+        /// 綁定 UI 和 ViewModel
+        /// </summary>
         protected virtual void SetViewModel()
         {
-            // 綁定 UI 和 ViewModel
             StartTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.EndTime));
             FileNameTextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.FileName));
@@ -72,6 +88,9 @@ namespace ErrorHelper.App.Control.LogViewer
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.LogSourceFolderPath));
         }
 
+        /// <summary>
+        /// 設計工具產生之Control初始化區塊
+        /// </summary>
         protected void InitializeComponent()
         {
             StartTimePicker = new DateTimePicker();
@@ -277,10 +296,12 @@ namespace ErrorHelper.App.Control.LogViewer
             // 
             // LogInfoDataGridView
             // 
+            LogInfoDataGridView.AllowUserToOrderColumns = true;
             LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             LogInfoDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             LogViewerTableLayoutPanel.SetColumnSpan(LogInfoDataGridView, 4);
             LogInfoDataGridView.Dock = DockStyle.Fill;
+            LogInfoDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
             LogInfoDataGridView.Location = new Point(3, 263);
             LogInfoDataGridView.Name = "LogInfoDataGridView";
             LogInfoDataGridView.Size = new Size(1021, 505);
@@ -297,16 +318,39 @@ namespace ErrorHelper.App.Control.LogViewer
             ResumeLayout(false);
         }
 
+        /// <summary>
+        /// 查詢按鈕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected virtual void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
+            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
+            QueryLog();
         }
 
+        /// <summary>
+        /// 查詢Log
+        /// </summary>
+        protected virtual void QueryLog(){
+            LogFileList = ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
+            LogInfoDataGridView.DataSource = LogInfoList;
+        }
+
+        /// <summary>
+        /// 更改Log資料夾按鈕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected virtual void ChangeLogFolderBtn_Click(object sender, EventArgs e)
         {
-
+            _LogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
+            QueryLog();
         }
 
+        /// <summary>
+        /// 產生DGV自訂Action欄位
+        /// </summary>
         protected virtual void GenGridAction()
         {
             if (!LogInfoDataGridView.Columns.Contains("OpenErrorDetailCol"))
@@ -326,14 +370,31 @@ namespace ErrorHelper.App.Control.LogViewer
                 , 0
                 , (logInfo) => { OpenLogSourceFolder(logInfo); });
             }
+
+            if (!LogInfoDataGridView.Columns.Contains("AddTitleToIgnoreList"))
+            {
+                controlSrv.GenDataGridViewActionColumn<LogInfo>(LogInfoDataGridView
+                , "AddTitleToIgnoreList"
+                , "操作", "忽略此類型"
+                , 0
+                , (logInfo) => { AddTitleToIgnoreList(logInfo); });
+            }
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Detail視窗
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenLogDetail(LogInfo logInfo)
         {
             LogDetailForm.SetLogDetail(logInfo);
             LogDetailForm.ShowDialog();
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Log所在資料夾
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenLogSourceFolder(LogInfo logInfo)
         {
             LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
@@ -345,6 +406,12 @@ namespace ErrorHelper.App.Control.LogViewer
                 else
                     Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
             }
+        }
+
+        protected virtual void AddTitleToIgnoreList(LogInfo logInfo)
+        {
+            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            QueryLog();
         }
     }
 }
