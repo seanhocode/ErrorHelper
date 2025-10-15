@@ -18,6 +18,7 @@
     </None>
     <None Update="Config\LogFolderList.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
 
