@@ -1,4 +1,4 @@
-﻿using ErrorHelper.Core.Model.Common.Configuration;
+﻿using ErrorHelper.Core.Model.Common.Configuration.AppSettings;
 
 namespace ErrorHelper.Core.Common.Configuration
 {

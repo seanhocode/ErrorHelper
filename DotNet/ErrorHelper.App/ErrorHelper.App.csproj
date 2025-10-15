@@ -46,12 +46,4 @@
     </Compile>-->
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="AppSettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <!-- 不要打包進單一 exe -->
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
-  </ItemGroup>
-
 </Project>

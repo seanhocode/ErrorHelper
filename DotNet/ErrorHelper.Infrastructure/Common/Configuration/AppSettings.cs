@@ -1,5 +1,6 @@
 ﻿using ErrorHelper.Core.Common.Configuration;
-using ErrorHelper.Core.Model.Common.Configuration;
+using ErrorHelper.Core.Model.Common.Configuration.AppSettings;
+using ErrorHelper.Tool;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -14,9 +15,7 @@ namespace ErrorHelper.Infrastructure.Common.Configuration
             try
             {
                 // 取得目前正在執行的程式(EXE)檔案所在完整路徑下的appsettings.json
-                string exePath = Process.GetCurrentProcess().MainModule!.FileName;
-                string exeDir = Path.GetDirectoryName(exePath)!;
-                string path = Path.Combine(exeDir, "AppSettings.json");
+                string path = Path.Combine(FileTool.ThisExeDir, "Config", "AppSettings.json");
 
                 string jsonString = File.ReadAllText(path);
 

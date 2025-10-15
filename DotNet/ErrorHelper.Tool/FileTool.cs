@@ -5,6 +5,9 @@ namespace ErrorHelper.Tool
 {
     public static class FileTool
     {
+        public static string ThisExePath = Process.GetCurrentProcess().MainModule!.FileName;
+        public static string ThisExeDir = Path.GetDirectoryName(ThisExePath)!;
+
         /// <summary>
         /// 取得指定資料夾內所有檔案的完整路徑清單。
         /// </summary>

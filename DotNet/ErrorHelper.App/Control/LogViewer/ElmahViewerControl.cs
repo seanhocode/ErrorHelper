@@ -1,7 +1,10 @@
 ﻿using ErrorHelper.App.Service.FormControl;
+using ErrorHelper.App.View.Common;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
+using ErrorHelper.Tool;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
@@ -26,6 +29,8 @@ namespace ErrorHelper.App.Control.LogViewer
             LogInfoDataGridView.DataBindingComplete += (sender, e) => { GenGridAction(); };
             LogInfoDataGridView.Columns["LogID"].Visible = false;
             LogInfoDataGridView.Columns["Message"].Visible = false;
+
+            ChangeLogFolder();
         }
 
         protected override void SetViewModel()
@@ -44,6 +49,18 @@ namespace ErrorHelper.App.Control.LogViewer
             QueryLog();
         }
 
+        protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
+        {
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
+            SelectItem item = new SelectItem()
+            {
+                Key = _ElmahQueryConditionViewModel.LogSourceFolderPath,
+                Value = _ElmahQueryConditionViewModel.LogSourceFolderPath
+            };
+
+            JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "LogFolderList", item.Key, item);
+        }
+
         protected override void QueryLog()
         {
             ElmahFileList = ClickQueryLogBtn?.Invoke(_ElmahQueryConditionViewModel.ElmahQueryCondition);
@@ -52,7 +69,8 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void ChangeLogFolderBtn_Click(object sender, EventArgs e)
         {
-            _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
+            ChangeLogFolder();
+
             QueryLog();
         }
 
@@ -66,6 +84,31 @@ namespace ErrorHelper.App.Control.LogViewer
                     Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath, selectedErrorFile.FileName)}\"");
                 else
                     Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
+            }
+        }
+
+        protected override void ChangeLogFolder()
+        {
+            SelectForm selectConfigForm = new SelectForm("SelectFolder");
+            Dictionary<string, string> logFolderItems = new Dictionary<string, string>();
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
+
+            foreach (string key in JsonTool.GetJsonSubPropertyList(configFilePath, "LogFolderList"))
+                logFolderItems.Add(key, key);
+
+            selectConfigForm.Items = logFolderItems;
+
+            if (selectConfigForm.ShowDialog() == DialogResult.OK)
+            {
+                SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "LogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
+                if (selectedItem.Value == "Select")
+                    _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
+                else
+                    _ElmahQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
+            }
+            else
+            {
+                _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
             }
         }
 

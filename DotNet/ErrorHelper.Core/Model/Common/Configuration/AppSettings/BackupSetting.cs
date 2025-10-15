@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ErrorHelper.Core.Model.Common.Configuration
+namespace ErrorHelper.Core.Model.Common.Configuration.AppSettings
 {
     public sealed class BackupSetting
     {

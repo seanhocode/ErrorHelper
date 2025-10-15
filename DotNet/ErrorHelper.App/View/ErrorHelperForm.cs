@@ -1,4 +1,4 @@
-using ErrorHelper.App.Core;
+﻿using ErrorHelper.App.Core;
 using ErrorHelper.App.Core.Viewer;
 
 namespace ErrorHelper.App.View
