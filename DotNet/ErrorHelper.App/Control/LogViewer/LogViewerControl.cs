@@ -1,7 +1,10 @@
 ﻿using ErrorHelper.App.Service.FormControl;
-using ErrorHelper.App.View;
+using ErrorHelper.App.View.Common;
+using ErrorHelper.App.View.LogViewer;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
+using ErrorHelper.Tool;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
@@ -9,9 +12,8 @@ namespace ErrorHelper.App.Control.LogViewer
     public partial class LogViewerControl : UserControl
     {
         private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
-        public IList<LogFile<LogInfo>> LogFileList { get; set; }
-        public IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
-
+        protected IList<LogFile<LogInfo>> LogFileList { get; set; }
+        protected IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
         protected readonly LogQueryConditionViewModel _LogQueryConditionViewModel;
         protected FormControlService controlSrv = new FormControlService();
@@ -33,34 +35,60 @@ namespace ErrorHelper.App.Control.LogViewer
         protected DataGridView LogInfoDataGridView;
         protected Label ErrorSourceFolderPathLabel;
         protected LogDetailForm LogDetailForm;
+        protected Button SaveFolderPathBtn;
 
+        /// <summary>
+        /// 點QueryBtn後執行的Method
+        /// </summary>
+        /// <remarks>傳入LogQueryCondition並回傳LogFileList(Log查詢結果)</remarks>
         public Func<LogQueryCondition, IList<LogFile<LogInfo>>> ClickQueryLogBtn;
 
         /// <summary>
-        /// 給繼承Control用
+        /// 給繼承Control用之建構子
         /// </summary>
-        public LogViewerControl()
+        protected LogViewerControl()
         {
-            InitializeComponent();
-            InitializeOtherControl();
+            Initialize();
         }
 
+        /// <summary>
+        /// 建構子
+        /// </summary>
+        /// <param name="viewModel"></param>
         public LogViewerControl(LogQueryConditionViewModel viewModel)
         {
+            Initialize();
             _LogQueryConditionViewModel = viewModel;
-            InitializeComponent();
-            InitializeOtherControl();
             SetViewModel();
         }
 
+        /// <summary>
+        /// 初始化Control
+        /// </summary>
+        protected virtual void Initialize()
+        {
+            InitializeComponent();
+            InitializeOtherControl();
+        }
+
+        /// <summary>
+        /// 處理非設計工具定義之Control設定
+        /// </summary>
         protected virtual void InitializeOtherControl()
         {
             LogDetailForm = new LogDetailForm();
+            //設計工具常常覆蓋DateTimePickerFormat設定，手動設定
+            StartTimePicker.Format = DateTimePickerFormat.Custom;
+            EndTimePicker.Format = DateTimePickerFormat.Custom;
+            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
+            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
         }
 
+        /// <summary>
+        /// 綁定 UI 和 ViewModel
+        /// </summary>
         protected virtual void SetViewModel()
         {
-            // 綁定 UI 和 ViewModel
             StartTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.EndTime));
             FileNameTextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.FileName));
@@ -69,6 +97,9 @@ namespace ErrorHelper.App.Control.LogViewer
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.LogSourceFolderPath));
         }
 
+        /// <summary>
+        /// 設計工具產生之Control初始化區塊
+        /// </summary>
         protected void InitializeComponent()
         {
             StartTimePicker = new DateTimePicker();
@@ -87,6 +118,7 @@ namespace ErrorHelper.App.Control.LogViewer
             ChangeLogFolderBtn = new Button();
             LogViewerTableLayoutPanel = new TableLayoutPanel();
             LogInfoDataGridView = new DataGridView();
+            SaveFolderPathBtn = new Button();
             LogViewerTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)LogInfoDataGridView).BeginInit();
             SuspendLayout();
@@ -94,9 +126,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // StartTimePicker
             // 
             StartTimePicker.Anchor = AnchorStyles.Left;
-            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
-            StartTimePicker.Format = DateTimePickerFormat.Custom;
-            StartTimePicker.Location = new Point(134, 48);
+            StartTimePicker.Location = new Point(134, 53);
             StartTimePicker.Name = "StartTimePicker";
             StartTimePicker.Size = new Size(200, 23);
             StartTimePicker.TabIndex = 3;
@@ -104,9 +134,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // EndTimePicker
             // 
             EndTimePicker.Anchor = AnchorStyles.Left;
-            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
-            EndTimePicker.Format = DateTimePickerFormat.Custom;
-            EndTimePicker.Location = new Point(476, 48);
+            EndTimePicker.Location = new Point(494, 53);
             EndTimePicker.Name = "EndTimePicker";
             EndTimePicker.Size = new Size(200, 23);
             EndTimePicker.TabIndex = 5;
@@ -115,7 +143,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // 
             FileNameTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LogViewerTableLayoutPanel.SetColumnSpan(FileNameTextBox, 3);
-            FileNameTextBox.Location = new Point(134, 88);
+            FileNameTextBox.Location = new Point(134, 93);
             FileNameTextBox.Name = "FileNameTextBox";
             FileNameTextBox.Size = new Size(890, 23);
             FileNameTextBox.TabIndex = 7;
@@ -124,7 +152,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // 
             MessageTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LogViewerTableLayoutPanel.SetColumnSpan(MessageTextBox, 3);
-            MessageTextBox.Location = new Point(134, 128);
+            MessageTextBox.Location = new Point(134, 133);
             MessageTextBox.Name = "MessageTextBox";
             MessageTextBox.Size = new Size(890, 23);
             MessageTextBox.TabIndex = 9;
@@ -133,7 +161,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // 
             DetailTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LogViewerTableLayoutPanel.SetColumnSpan(DetailTextBox, 3);
-            DetailTextBox.Location = new Point(134, 168);
+            DetailTextBox.Location = new Point(134, 173);
             DetailTextBox.Name = "DetailTextBox";
             DetailTextBox.Size = new Size(890, 23);
             DetailTextBox.TabIndex = 11;
@@ -143,7 +171,7 @@ namespace ErrorHelper.App.Control.LogViewer
             ErrorSourceFolderPathLabel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LogViewerTableLayoutPanel.SetColumnSpan(ErrorSourceFolderPathLabel, 3);
             ErrorSourceFolderPathLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            ErrorSourceFolderPathLabel.Location = new Point(134, 8);
+            ErrorSourceFolderPathLabel.Location = new Point(134, 11);
             ErrorSourceFolderPathLabel.Name = "ErrorSourceFolderPathLabel";
             ErrorSourceFolderPathLabel.Size = new Size(890, 23);
             ErrorSourceFolderPathLabel.TabIndex = 1;
@@ -153,7 +181,7 @@ namespace ErrorHelper.App.Control.LogViewer
             StartTimeConditionLable.Anchor = AnchorStyles.Left;
             StartTimeConditionLable.AutoSize = true;
             StartTimeConditionLable.Font = new Font("Microsoft JhengHei UI", 15F);
-            StartTimeConditionLable.Location = new Point(3, 47);
+            StartTimeConditionLable.Location = new Point(3, 52);
             StartTimeConditionLable.Name = "StartTimeConditionLable";
             StartTimeConditionLable.Size = new Size(106, 25);
             StartTimeConditionLable.TabIndex = 2;
@@ -164,7 +192,7 @@ namespace ErrorHelper.App.Control.LogViewer
             EndTimeConditionLabel.Anchor = AnchorStyles.Left;
             EndTimeConditionLabel.AutoSize = true;
             EndTimeConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            EndTimeConditionLabel.Location = new Point(371, 47);
+            EndTimeConditionLabel.Location = new Point(363, 52);
             EndTimeConditionLabel.Name = "EndTimeConditionLabel";
             EndTimeConditionLabel.Size = new Size(99, 25);
             EndTimeConditionLabel.TabIndex = 4;
@@ -175,7 +203,7 @@ namespace ErrorHelper.App.Control.LogViewer
             FileNameConditionLabel.Anchor = AnchorStyles.Left;
             FileNameConditionLabel.AutoSize = true;
             FileNameConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            FileNameConditionLabel.Location = new Point(3, 87);
+            FileNameConditionLabel.Location = new Point(3, 92);
             FileNameConditionLabel.Name = "FileNameConditionLabel";
             FileNameConditionLabel.Size = new Size(106, 25);
             FileNameConditionLabel.TabIndex = 6;
@@ -186,7 +214,7 @@ namespace ErrorHelper.App.Control.LogViewer
             MessageConditionLabel.Anchor = AnchorStyles.Left;
             MessageConditionLabel.AutoSize = true;
             MessageConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            MessageConditionLabel.Location = new Point(3, 127);
+            MessageConditionLabel.Location = new Point(3, 132);
             MessageConditionLabel.Name = "MessageConditionLabel";
             MessageConditionLabel.Size = new Size(100, 25);
             MessageConditionLabel.TabIndex = 8;
@@ -197,7 +225,7 @@ namespace ErrorHelper.App.Control.LogViewer
             DetailConditionLabel.Anchor = AnchorStyles.Left;
             DetailConditionLabel.AutoSize = true;
             DetailConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            DetailConditionLabel.Location = new Point(3, 167);
+            DetailConditionLabel.Location = new Point(3, 172);
             DetailConditionLabel.Name = "DetailConditionLabel";
             DetailConditionLabel.Size = new Size(71, 25);
             DetailConditionLabel.TabIndex = 10;
@@ -208,7 +236,7 @@ namespace ErrorHelper.App.Control.LogViewer
             FolderPathConditionLabel.Anchor = AnchorStyles.Left;
             FolderPathConditionLabel.AutoSize = true;
             FolderPathConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            FolderPathConditionLabel.Location = new Point(3, 7);
+            FolderPathConditionLabel.Location = new Point(3, 10);
             FolderPathConditionLabel.Name = "FolderPathConditionLabel";
             FolderPathConditionLabel.Size = new Size(119, 25);
             FolderPathConditionLabel.TabIndex = 0;
@@ -217,7 +245,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // QueryLogBtn
             // 
             QueryLogBtn.Anchor = AnchorStyles.None;
-            QueryLogBtn.Location = new Point(3, 210);
+            QueryLogBtn.Location = new Point(3, 215);
             QueryLogBtn.Name = "QueryLogBtn";
             QueryLogBtn.Size = new Size(125, 40);
             QueryLogBtn.TabIndex = 12;
@@ -228,7 +256,7 @@ namespace ErrorHelper.App.Control.LogViewer
             // ChangeLogFolderBtn
             // 
             ChangeLogFolderBtn.Anchor = AnchorStyles.None;
-            ChangeLogFolderBtn.Location = new Point(169, 210);
+            ChangeLogFolderBtn.Location = new Point(165, 215);
             ChangeLogFolderBtn.Name = "ChangeLogFolderBtn";
             ChangeLogFolderBtn.Size = new Size(160, 40);
             ChangeLogFolderBtn.TabIndex = 13;
@@ -243,6 +271,7 @@ namespace ErrorHelper.App.Control.LogViewer
             LogViewerTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
             LogViewerTableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
             LogViewerTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            LogViewerTableLayoutPanel.Controls.Add(SaveFolderPathBtn, 2, 5);
             LogViewerTableLayoutPanel.Controls.Add(FolderPathConditionLabel, 0, 0);
             LogViewerTableLayoutPanel.Controls.Add(ErrorSourceFolderPathLabel, 1, 0);
             LogViewerTableLayoutPanel.Controls.Add(StartTimeConditionLable, 0, 1);
@@ -262,7 +291,7 @@ namespace ErrorHelper.App.Control.LogViewer
             LogViewerTableLayoutPanel.Location = new Point(0, 0);
             LogViewerTableLayoutPanel.Name = "LogViewerTableLayoutPanel";
             LogViewerTableLayoutPanel.RowCount = 7;
-            LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F));
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
@@ -274,14 +303,27 @@ namespace ErrorHelper.App.Control.LogViewer
             // 
             // LogInfoDataGridView
             // 
+            LogInfoDataGridView.AllowUserToOrderColumns = true;
             LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             LogInfoDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             LogViewerTableLayoutPanel.SetColumnSpan(LogInfoDataGridView, 4);
             LogInfoDataGridView.Dock = DockStyle.Fill;
-            LogInfoDataGridView.Location = new Point(3, 263);
+            LogInfoDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
+            LogInfoDataGridView.Location = new Point(3, 268);
             LogInfoDataGridView.Name = "LogInfoDataGridView";
-            LogInfoDataGridView.Size = new Size(1021, 505);
+            LogInfoDataGridView.Size = new Size(1021, 500);
             LogInfoDataGridView.TabIndex = 14;
+            // 
+            // SaveFolderPathBtn
+            // 
+            SaveFolderPathBtn.Anchor = AnchorStyles.None;
+            SaveFolderPathBtn.Location = new Point(363, 215);
+            SaveFolderPathBtn.Name = "SaveFolderPathBtn";
+            SaveFolderPathBtn.Size = new Size(125, 40);
+            SaveFolderPathBtn.TabIndex = 15;
+            SaveFolderPathBtn.Text = "SaveFolderPath";
+            SaveFolderPathBtn.UseVisualStyleBackColor = true;
+            SaveFolderPathBtn.Click += SaveFolderPathBtn_Click;
             // 
             // LogViewerControl
             // 
@@ -294,16 +336,57 @@ namespace ErrorHelper.App.Control.LogViewer
             ResumeLayout(false);
         }
 
+        /// <summary>
+        /// 查詢按鈕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected virtual void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
+            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
+            QueryLog();
         }
 
+        /// <summary>
+        /// 更改Log資料夾按鈕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected virtual void ChangeLogFolderBtn_Click(object sender, EventArgs e)
         {
-
+            ChangeLogFolder();
+            QueryLog();
         }
 
+        /// <summary>
+        /// 儲存資料夾路徑按鈕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected virtual void SaveFolderPathBtn_Click(object sender, EventArgs e)
+        {
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
+            SelectItem item = new SelectItem()
+            {
+                Key = Path.GetDirectoryName(_LogQueryConditionViewModel.LogSourceFolderPath),
+                Value = _LogQueryConditionViewModel.LogSourceFolderPath
+            };
+
+            JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "LogFolderList", item.Key, item);
+        }
+
+        /// <summary>
+        /// 查詢Log
+        /// </summary>
+        protected virtual void QueryLog()
+        {
+            LogFileList = ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
+            LogInfoDataGridView.DataSource = LogInfoList;
+        }
+
+        /// <summary>
+        /// 產生DGV自訂Action欄位
+        /// </summary>
         protected virtual void GenGridAction()
         {
             if (!LogInfoDataGridView.Columns.Contains("OpenErrorDetailCol"))
@@ -323,14 +406,31 @@ namespace ErrorHelper.App.Control.LogViewer
                 , 0
                 , (logInfo) => { OpenLogSourceFolder(logInfo); });
             }
+
+            if (!LogInfoDataGridView.Columns.Contains("AddTitleToIgnoreList"))
+            {
+                controlSrv.GenDataGridViewActionColumn<LogInfo>(LogInfoDataGridView
+                , "AddTitleToIgnoreList"
+                , "操作", "忽略此類型"
+                , 0
+                , (logInfo) => { AddTitleToIgnoreList(logInfo); });
+            }
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Detail視窗
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenLogDetail(LogInfo logInfo)
         {
             LogDetailForm.SetLogDetail(logInfo);
             LogDetailForm.ShowDialog();
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Log所在資料夾
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenLogSourceFolder(LogInfo logInfo)
         {
             LogFile<LogInfo>? selectedErrorFile = LogFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
@@ -342,6 +442,40 @@ namespace ErrorHelper.App.Control.LogViewer
                 else
                     Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
             }
+        }
+
+        /// <summary>
+        /// 更改Log資料夾
+        /// </summary>
+        protected virtual void ChangeLogFolder()
+        {
+            SelectForm selectConfigForm = new SelectForm("SelectFolder");
+            Dictionary<string, string> logFolderItems = new Dictionary<string, string>();
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
+
+            foreach (string key in JsonTool.GetJsonSubPropertyList(configFilePath, "LogFolderList"))
+                logFolderItems.Add(key, key);
+
+            selectConfigForm.Items = logFolderItems;
+
+            if (selectConfigForm.ShowDialog() == DialogResult.OK)
+            {
+                SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "LogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
+                if (selectedItem.Value == "Select")
+                    _LogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
+                else
+                    _LogQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
+            }
+            else
+            {
+                _LogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
+            }
+        }
+
+        protected virtual void AddTitleToIgnoreList(LogInfo logInfo)
+        {
+            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            QueryLog();
         }
     }
 }

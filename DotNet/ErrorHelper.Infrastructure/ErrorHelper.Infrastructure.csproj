@@ -11,4 +11,15 @@
     <ProjectReference Include="..\ErrorHelper.Tool\ErrorHelper.Tool.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Config\AppSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="Config\LogFolderList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+  </ItemGroup>
+
 </Project>

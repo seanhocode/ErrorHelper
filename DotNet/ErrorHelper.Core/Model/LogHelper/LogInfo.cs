@@ -1,4 +1,6 @@
-﻿namespace ErrorHelper.Core.Model.LogHelper
+﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
+
+namespace ErrorHelper.Core.Model.LogHelper
 {
     public class LogInfo
     {
@@ -16,6 +18,12 @@
         /// 錯誤訊息
         /// </summary>
         public string? Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 錯誤訊息標頭
+        /// </summary>
+        /// <remarks>第一行前100字</remarks>
+        public string? Title => Message.Split('\n')[0].Length > 100 ? Message.Split('\n')[0].Substring(0, 100) : Message.Split('\n')[0];
 
         /// <summary>
         /// 詳細錯誤訊息

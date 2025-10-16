@@ -66,10 +66,12 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             elmahFileList = elmahBag
                         .Where(elmah => elmah.LogInfo != null)
                         .Where(elmah =>
-                            elmah.FileName.IndexOf(elmahQueryCondition.FileName, StringComparison.OrdinalIgnoreCase) >= 0             //FileName查詢條件
-                            && elmah.LogInfo.Message.IndexOf(elmahQueryCondition.Message, StringComparison.OrdinalIgnoreCase) >= 0)   //Message查詢條件
+                            elmah.FileName.Contains(elmahQueryCondition.FileName)             //FileName查詢條件
+                            && elmah.LogInfo.Message.Contains(elmahQueryCondition.Message))   //Message查詢條件
                         .Where(elmah =>
-                            elmah.LogInfo.GetDetail().IndexOf(elmahQueryCondition.Detail, StringComparison.OrdinalIgnoreCase) >= 0)   //Detail查詢條件
+                            elmah.LogInfo.GetDetail().Contains(elmahQueryCondition.Detail))   //Detail查詢條件
+                        .Where(elmah =>
+                            elmahQueryCondition.IgnoreMessageList.All(ignoreMsg => !elmah.LogInfo.Message.Contains(ignoreMsg)))
                         .OrderByDescending(elmah => elmah.LogInfo.Time)
                         .ToList<ElmahFile>();
 
