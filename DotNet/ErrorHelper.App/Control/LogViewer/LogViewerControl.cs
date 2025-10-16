@@ -72,11 +72,16 @@ namespace ErrorHelper.App.Control.LogViewer
         }
 
         /// <summary>
-        /// 處理非設計工具建立的Control
+        /// 處理非設計工具定義之Control設定
         /// </summary>
         protected virtual void InitializeOtherControl()
         {
             LogDetailForm = new LogDetailForm();
+            //設計工具常常覆蓋DateTimePickerFormat設定，手動設定
+            StartTimePicker.Format = DateTimePickerFormat.Custom;
+            EndTimePicker.Format = DateTimePickerFormat.Custom;
+            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
+            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
         }
 
         /// <summary>
@@ -121,8 +126,6 @@ namespace ErrorHelper.App.Control.LogViewer
             // StartTimePicker
             // 
             StartTimePicker.Anchor = AnchorStyles.Left;
-            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
-            StartTimePicker.Format = DateTimePickerFormat.Custom;
             StartTimePicker.Location = new Point(134, 53);
             StartTimePicker.Name = "StartTimePicker";
             StartTimePicker.Size = new Size(200, 23);
@@ -131,8 +134,6 @@ namespace ErrorHelper.App.Control.LogViewer
             // EndTimePicker
             // 
             EndTimePicker.Anchor = AnchorStyles.Left;
-            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
-            EndTimePicker.Format = DateTimePickerFormat.Custom;
             EndTimePicker.Location = new Point(494, 53);
             EndTimePicker.Name = "EndTimePicker";
             EndTimePicker.Size = new Size(200, 23);

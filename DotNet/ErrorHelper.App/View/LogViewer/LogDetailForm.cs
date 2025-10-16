@@ -1,13 +1,4 @@
 ﻿using ErrorHelper.Core.Model.LogHelper;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ErrorHelper.App.View.LogViewer
 {
@@ -20,10 +11,14 @@ namespace ErrorHelper.App.View.LogViewer
 
         public void SetLogDetail(LogInfo logInfo)
         {
+            LogIDTextBox.Text = logInfo.LogID;
+            LogTimeTextBox.Text = logInfo.Time.ToString("yyyy/MM/dd dddd tt hh:mm:ss");
+            LogMessageTextBox.Text = logInfo.Message;
             LogDetailTextBox.Text = logInfo.GetDetail();
+            if (string.IsNullOrEmpty(LogDetailTextBox.Text)){
+                LogMessageTextBox.Text = logInfo.Title;
+                LogDetailTextBox.Text = logInfo.Message;
+            }
         }
-
-        
-        private TextBox LogDetailTextBox;
     }
 }
