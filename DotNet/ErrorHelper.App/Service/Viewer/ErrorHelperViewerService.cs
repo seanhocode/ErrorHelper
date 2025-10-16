@@ -10,12 +10,13 @@ namespace ErrorHelper.App.Service.Viewer
     public class ErrorHelperViewerService : ViewerServiceBase, IErrorHelperViewerService
     {
         protected IElmahViewerService elmahViewerSrv { get { return DIHelper.GetService<IElmahViewerService>(); } }
+        protected IIISLogViewerService iiSLogViewerSrv { get { return DIHelper.GetService<IIISLogViewerService>(); } }
         protected IBackupHelperService backupHelperSrv { get { return DIHelper.GetService<IBackupHelperService>(); } }
 
         public TableLayoutPanel GetMainLayout()
         {
-            TableLayoutPanel mainLayout = controlService.NewTableLayoutPanel("MainLayout", 2, 1);
-            TabControl tabControl = controlService.NewTabControl("MainTabControl");
+            TableLayoutPanel mainLayout = controlSrv.NewTableLayoutPanel("MainLayout", 2, 1);
+            TabControl tabControl = controlSrv.NewTabControl("MainTabControl");
 
             // =======================================MainLayout=======================================
             mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));      //Row 0: 菜單
@@ -34,11 +35,17 @@ namespace ErrorHelper.App.Service.Viewer
         /// <returns></returns>
         private MenuStrip GenMainMenuStrip(TabControl tabControl)
         {
-            MenuStrip mainMenuStrip = controlService.NewMenuStrip("MainMenuStrip");
+            MenuStrip mainMenuStrip = controlSrv.NewMenuStrip("MainMenuStrip");
             ToolStripMenuItem openElmahFolderMenuItem = elmahViewerSrv.GetOpenNewLogViewerTabPageMenuItem();
-            ToolStripMenuItem backupFolderMenuItem = controlService.NewToolStripMenuItem("BackupFolderMenuItem", "備份資料夾");
+            ToolStripMenuItem openIISLogFolderMenuItem = iiSLogViewerSrv.GetOpenNewLogViewerTabPageMenuItem();
+            ToolStripMenuItem backupFolderMenuItem = controlSrv.NewToolStripMenuItem("BackupFolderMenuItem", "備份資料夾");
 
             openElmahFolderMenuItem.Click += (sender, e) =>
+            {
+                elmahViewerSrv.NewLogQueryPage(tabControl);
+            };
+
+            openIISLogFolderMenuItem.Click += (sender, e) =>
             {
                 elmahViewerSrv.NewLogQueryPage(tabControl);
             };
@@ -53,10 +60,11 @@ namespace ErrorHelper.App.Service.Viewer
                 }
             };
 
-            ToolStripMenuItem fileDropDownList = controlService.NewToolStripMenuItemDropDownList(
+            ToolStripMenuItem fileDropDownList = controlSrv.NewToolStripMenuItemDropDownList(
                         "FileToolStripMenuItem", "功能",
                         new ToolStripMenuItem[] {
                             openElmahFolderMenuItem
+                            , openIISLogFolderMenuItem
                             , backupFolderMenuItem
                         });
 

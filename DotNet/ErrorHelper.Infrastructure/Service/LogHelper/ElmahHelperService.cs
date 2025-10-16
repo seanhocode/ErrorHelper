@@ -1,5 +1,6 @@
 ﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
+using ErrorHelper.Infrastructure.Common.Configuration;
 using ErrorHelper.Tool;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -164,10 +165,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
 
         public (DateTime? ElmahTime, string GUID)? GetElmahFileNameData(string elmahName)
         {
-            // Regex說明：
-            // 1. 時間戳記：4位數年份-2位月-2位日 + 6位時分秒 + 'Z'
-            // 2. GUID：標準 8-4-4-4-12 格式的 UUID
-            string pattern = @"(\d{4}-\d{2}-\d{2}\d{6}Z)-([0-9a-fA-F\-]{36})";
+            string pattern = AppSettings.LogSetting.ElmahFileNamePattern;
             Match match = Regex.Match(elmahName, pattern);
 
             if (match.Success && match.Groups.Count >= 3)
@@ -183,13 +181,10 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
         /// <returns>轉換後的台灣時間(DateTime)，若格式錯誤則回傳 null</returns>
         public DateTime? ConvertZFormatToTaiwanTime(string zTimeStr)
         {
-            //定義輸入時間的格式('Z' 是字面值，需加上單引號)
-            const string format = "yyyy-MM-ddHHmmss'Z'";
-
             // 嘗試將輸入字串解析為 DateTime 物件(UTC)
             if (DateTime.TryParseExact(
                     zTimeStr
-                    , format
+                    , AppSettings.LogSetting.ElmahFileTimeFormatPattern //定義輸入時間的格式('Z' 是字面值，需加上單引號)
                     , CultureInfo.InvariantCulture //文化資訊，InvariantCulture確保解析不受本地文化影響
                     , DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal //說明輸入字串為UTC，並將結果轉為UTC
                     , out DateTime utcDateTime

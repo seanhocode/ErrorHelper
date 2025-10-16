@@ -5,6 +5,7 @@ using ErrorHelper.App.Service.FormControl;
 using ErrorHelper.App.Service.Viewer;
 using ErrorHelper.App.Service.Viewer.LogViewer;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
+using ErrorHelper.Core.Model.LogHelper.IISLog;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Infrastructure.Service.BackupHelper;
 using ErrorHelper.Infrastructure.Service.LogHelper;
@@ -27,7 +28,9 @@ namespace ErrorHelper.App.Core
             // 註冊服務
             services.AddSingleton<IFormControlService, FormControlService>();
             services.AddSingleton<IElmahHelperService<ElmahFile, ElmahInfo, ElmahQueryCondition>, ElmahHelperService>();
+            services.AddSingleton<IIISLogHelperService<IISLogFile, IISLogInfo, IISLogQueryCondition>, IISLogHelperService>();
             services.AddSingleton<IElmahViewerService, ElmahViewerService>();
+            services.AddSingleton<IIISLogViewerService, IISLogViewerService>();
             services.AddSingleton<IErrorHelperViewerService, ErrorHelperViewerService>();
             services.AddSingleton<IBackupHelperService, BackupHelperService>();
 

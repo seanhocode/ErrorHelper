@@ -7,7 +7,7 @@ using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Tool;
 using System.Diagnostics;
 
-namespace ErrorHelper.App.Control.LogViewer
+namespace ErrorHelper.App.Control.LogViewer.Elmah
 {
     public partial class ElmahViewerControl : LogViewerControl
     {
@@ -45,7 +45,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList = new List<string>();
+            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
             QueryLog();
         }
 
@@ -63,7 +63,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void QueryLog()
         {
-            ElmahFileList = ClickQueryLogBtn?.Invoke(_ElmahQueryConditionViewModel.ElmahQueryCondition);
+            ElmahFileList = ClickQueryLogBtn?.Invoke((ElmahQueryCondition)_ElmahQueryConditionViewModel.LogQueryCondition);
             LogInfoDataGridView.DataSource = ElmahInfoList;
         }
 
@@ -112,9 +112,14 @@ namespace ErrorHelper.App.Control.LogViewer
             }
         }
 
+        private void InitializeComponent()
+        {
+
+        }
+
         protected override void AddTitleToIgnoreList(LogInfo logInfo)
         {
-            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
             QueryLog();
         }
     }
