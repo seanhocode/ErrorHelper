@@ -43,8 +43,8 @@
             QueryLogBtn = new Button();
             ChangeLogFolderBtn = new Button();
             LogViewerTableLayoutPanel = new TableLayoutPanel();
-            LogInfoDataGridView = new DataGridView();
             SaveFolderPathBtn = new Button();
+            LogInfoDataGridView = new DataGridView();
             LogViewerTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)LogInfoDataGridView).BeginInit();
             SuspendLayout();
@@ -96,10 +96,10 @@
             // 
             ErrorSourceFolderPathLabel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LogViewerTableLayoutPanel.SetColumnSpan(ErrorSourceFolderPathLabel, 3);
-            ErrorSourceFolderPathLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            ErrorSourceFolderPathLabel.Location = new Point(134, 11);
+            ErrorSourceFolderPathLabel.Font = new Font("Microsoft JhengHei UI", 10F);
+            ErrorSourceFolderPathLabel.Location = new Point(134, 10);
             ErrorSourceFolderPathLabel.Name = "ErrorSourceFolderPathLabel";
-            ErrorSourceFolderPathLabel.Size = new Size(890, 23);
+            ErrorSourceFolderPathLabel.Size = new Size(890, 24);
             ErrorSourceFolderPathLabel.TabIndex = 1;
             // 
             // StartTimeConditionLable
@@ -224,21 +224,9 @@
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
             LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            LogViewerTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             LogViewerTableLayoutPanel.Size = new Size(1027, 771);
             LogViewerTableLayoutPanel.TabIndex = 0;
-            // 
-            // LogInfoDataGridView
-            // 
-            LogInfoDataGridView.AllowUserToOrderColumns = true;
-            LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            LogInfoDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            LogViewerTableLayoutPanel.SetColumnSpan(LogInfoDataGridView, 4);
-            LogInfoDataGridView.Dock = DockStyle.Fill;
-            LogInfoDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
-            LogInfoDataGridView.Location = new Point(3, 268);
-            LogInfoDataGridView.Name = "LogInfoDataGridView";
-            LogInfoDataGridView.Size = new Size(1021, 500);
-            LogInfoDataGridView.TabIndex = 14;
             // 
             // SaveFolderPathBtn
             // 
@@ -250,6 +238,19 @@
             SaveFolderPathBtn.Text = "SaveFolderPath";
             SaveFolderPathBtn.UseVisualStyleBackColor = true;
             SaveFolderPathBtn.Click += SaveFolderPathBtn_Click;
+            // 
+            // LogInfoDataGridView
+            // 
+            LogInfoDataGridView.AllowUserToOrderColumns = true;
+            LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            LogInfoDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            LogViewerTableLayoutPanel.SetColumnSpan(LogInfoDataGridView, 4);
+            LogInfoDataGridView.Dock = DockStyle.Fill;
+            LogInfoDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
+            LogInfoDataGridView.Location = new Point(3, 268);
+            LogInfoDataGridView.Name = "LogInfoDataGridView";
+            LogInfoDataGridView.Size = new Size(1021, 500);
+            LogInfoDataGridView.TabIndex = 14;
             // 
             // LogViewerControl
             // 

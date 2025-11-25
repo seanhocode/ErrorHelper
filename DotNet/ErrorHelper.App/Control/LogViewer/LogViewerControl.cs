@@ -15,7 +15,7 @@ namespace ErrorHelper.App.Control.LogViewer
         protected IList<LogFile<LogInfo>> LogFileList { get; set; }
         protected IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
-        protected LogQueryConditionViewModel _LogQueryConditionViewModel;
+        protected virtual LogQueryConditionViewModel _LogQueryConditionViewModel { get; set; }
         protected FormControlService controlSrv = new FormControlService();
 
         protected DateTimePicker StartTimePicker;
@@ -44,8 +44,14 @@ namespace ErrorHelper.App.Control.LogViewer
         public Func<LogQueryCondition, IList<LogFile<LogInfo>>> ClickQueryLogBtn;
 
         /// <summary>
-        /// 給繼承Control用之建構子
+        /// 給繼承Control使用的無參建構子
         /// </summary>
+        /// <remarks>
+        /// 若衍生類別的建構子沒有在初始子（constructor initializer）明確呼叫 base(...),
+        /// 編譯器會嘗試呼叫基底類別的無參建構子（前提是該無參建構子存在）。
+        /// 若基底僅提供有參建構子，衍生類必須顯式呼叫 base(... )，否則會編譯錯誤。
+        /// 注意：避免在基底建構子呼叫 virtual 方法，因為衍生類欄位還未初始化，可能導致 NullReference 或未預期行為。
+        /// </remarks>
         protected LogViewerControl()
         {
             Initialize();
@@ -82,6 +88,13 @@ namespace ErrorHelper.App.Control.LogViewer
             EndTimePicker.Format = DateTimePickerFormat.Custom;
             StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
             EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
+
+            //資料Binding完後生成Grid按鈕
+            LogInfoDataGridView.DataBindingComplete += (sender, e) =>
+            {
+                GenGridAction();
+                CustomizeDGVColumn();
+            };
         }
 
         /// <summary>
@@ -179,6 +192,13 @@ namespace ErrorHelper.App.Control.LogViewer
         }
 
         /// <summary>
+        /// 自訂欄位樣式
+        /// </summary>
+        protected virtual void CustomizeDGVColumn(){
+
+        }
+
+        /// <summary>
         /// DGV自訂欄位-打開Detail視窗
         /// </summary>
         /// <param name="logInfo"></param>
@@ -233,6 +253,10 @@ namespace ErrorHelper.App.Control.LogViewer
             }
         }
 
+        /// <summary>
+        /// 將Log Title加入忽略清單
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void AddTitleToIgnoreList(LogInfo logInfo)
         {
             _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);

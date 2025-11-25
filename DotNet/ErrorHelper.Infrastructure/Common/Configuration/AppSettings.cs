@@ -10,6 +10,8 @@ namespace ErrorHelper.Infrastructure.Common.Configuration
     {
         public static BackupSetting BackupSetting { get; private set; } = new BackupSetting();
         public static LogSetting LogSetting { get; private set; } = new LogSetting();
+        public static SystemSetting SystemSetting { get; private set; } = new SystemSetting();
+
         static AppSettings()
         {
             try
@@ -24,22 +26,31 @@ namespace ErrorHelper.Infrastructure.Common.Configuration
 
                 if (root.TryGetProperty("AppSettings", out JsonElement appSettingsElement))
                 {
-                    if (appSettingsElement.TryGetProperty("LogSetting", out JsonElement elmahElement))
+                    if (appSettingsElement.TryGetProperty("LogSetting", out JsonElement logSettingElement))
                     {
-                        LogSetting = JsonSerializer.Deserialize<LogSetting>(elmahElement.GetRawText()) ?? new LogSetting();
+                        LogSetting = JsonSerializer.Deserialize<LogSetting>(logSettingElement.GetRawText()) ?? new LogSetting();
                     }
                     else
                     {
                         LogSetting = new LogSetting();
                     }
 
-                    if (appSettingsElement.TryGetProperty("BackupSetting", out JsonElement backupElement))
+                    if (appSettingsElement.TryGetProperty("BackupSetting", out JsonElement backupSettingElement))
                     {
-                        BackupSetting = JsonSerializer.Deserialize<BackupSetting>(backupElement.GetRawText()) ?? new BackupSetting();
+                        BackupSetting = JsonSerializer.Deserialize<BackupSetting>(backupSettingElement.GetRawText()) ?? new BackupSetting();
                     }
                     else
                     {
                         BackupSetting = new BackupSetting();
+                    }
+
+                    if (appSettingsElement.TryGetProperty("SystemSetting", out JsonElement systemSettingElement))
+                    {
+                        SystemSetting = JsonSerializer.Deserialize<SystemSetting>(systemSettingElement.GetRawText()) ?? new SystemSetting();
+                    }
+                    else
+                    {
+                        SystemSetting = new SystemSetting();
                     }
                 }
             }

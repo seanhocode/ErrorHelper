@@ -34,6 +34,7 @@
             // 
             // SelectComboBox
             // 
+            SelectComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             SelectComboBox.Dock = DockStyle.Fill;
             SelectComboBox.FormattingEnabled = true;
             SelectComboBox.Location = new Point(0, 0);

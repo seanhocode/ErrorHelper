@@ -18,51 +18,72 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             ConcurrentBag<ElmahFile> elmahBag = new ConcurrentBag<ElmahFile>();
             IList<string> filePathList = FileTool.GetAllFileInFolder(elmahQueryCondition.LogSourceFolderPath ?? string.Empty);
 
-            if (filePathList != null)
-            {
-                Parallel.ForEach(filePathList, filePath =>
-                {
-                    //避免Thread之間存取同一個變數，在Parallel裡面才new
-                    DateTime? elmahTime, elmahZipTime;
-                    try
-                    {
-                        //.zip檔
-                        if (filePath.EndsWith(".zip"))
-                        {
-                            //先取得zip日期
-                            elmahZipTime = GetElmahZipDateTime(Path.GetFileName(filePath)) ?? new DateTime(1900, 1, 1);
+            if (filePathList == null || filePathList.Count == 0)
+                return elmahFileList;
 
-                            //zip日期符合時間條件才取得zip裡面的檔案名稱(zip檔時間條件放寬前後一日，因今日的壓縮檔可能隔日才壓縮，壓縮檔名時間會被+1)
-                            if (elmahZipTime >= elmahQueryCondition.StartTime.Date.AddDays(-1) && elmahZipTime <= elmahQueryCondition.EndTime.Date.AddDays(1))
+            //分離出xml與zip，避免不必要的判斷與讓處理更可控
+            IList<string> xmlFiles = filePathList.Where(p => p.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)).ToList()
+                        , zipFiles = filePathList.Where(p => p.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            //限制並行度，避免同時打開過多zip檔造成I/O與ThreadPool壓力
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
+            };
+
+            //處理獨立的xml檔
+            Parallel.ForEach(xmlFiles, parallelOptions, filePath =>
+            {
+                try
+                {
+                    DateTime? elmahTime = GetElmahFileNameData(Path.GetFileName(filePath))?.ElmahTime;
+                    if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
+                        elmahBag.Add(GetLogFile(filePath));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            });
+
+            //處理zip：列出zip內部檔名
+            Parallel.ForEach(zipFiles, parallelOptions, zipPath =>
+            {
+                try
+                {
+                    DateTime? elmahZipTime = GetElmahZipDateTime(Path.GetFileName(zipPath)) ?? new DateTime(1900, 1, 1);
+
+                    if (
+                        (elmahZipTime >= elmahQueryCondition.StartTime.Date.AddDays(-1) && elmahZipTime <= elmahQueryCondition.EndTime.Date.AddDays(1))
+                        || AppSettings.LogSetting.IsSearchAllZipFile
+                    ){
+                        IList<string> innerFile = ZipTool.GetFileNameInZip(zipPath);
+                        if (innerFile == null || innerFile.Count == 0) return;
+
+                        foreach (var fileName in innerFile)
+                        {
+                            try
                             {
-                                foreach (string fileName in ZipTool.GetFileNameInZip(filePath))
+                                if (!fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)) continue;
+
+                                var elmahTime = GetElmahFileNameData(fileName)?.ElmahTime;
+                                if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
                                 {
-                                    if (fileName.EndsWith(".xml"))
-                                    {
-                                        //再取得elmah日期時間
-                                        elmahTime = GetElmahFileNameData(fileName)?.ElmahTime;
-                                        if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
-                                        {
-                                            elmahBag.Add(GetLogFile(fileName, filePath));
-                                        }
-                                    }
+                                    elmahBag.Add(GetLogFile(fileName, zipPath));
                                 }
                             }
-                        }
-                        //一般Elmah
-                        else if (filePath.EndsWith(".xml"))
-                        {
-                            elmahTime = GetElmahFileNameData((Path.GetFileName(filePath)))?.ElmahTime;
-                            if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
-                                elmahBag.Add(GetLogFile(filePath));
+                            catch (Exception innerEx)
+                            {
+                                Debug.WriteLine(innerEx.ToString());
+                            }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.ToString());
-                    }
-                });
-            }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            });
 
             elmahFileList = elmahBag
                         .Where(elmah => elmah.LogInfo != null)

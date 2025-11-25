@@ -10,6 +10,9 @@ namespace ErrorHelper.Core.Model.Common.Configuration.AppSettings
         [DisplayName("預設查詢幾天資料")]
         public int DefaultLogQueryDays { get; set; }
 
+        [DisplayName("是否不限制zip的範圍(時間)")]
+        public bool IsSearchAllZipFile { get; set; }
+
         [DisplayName("Elmah檔案解析RegexPattern")]
         public string ElmahFileNamePattern{ get; set; }
 

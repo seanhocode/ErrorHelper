@@ -6,5 +6,6 @@ namespace ErrorHelper.Core.Common.Configuration
     {
         public static BackupSetting BackupSetting { get; }
         public static LogSetting LogSetting { get; }
+        public static SystemSetting SystemSetting { get; }
     }
 }
