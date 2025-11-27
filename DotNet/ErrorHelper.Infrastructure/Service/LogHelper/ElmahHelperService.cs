@@ -178,7 +178,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
 
             string dateStr = zipFileName.Substring(0, 8); // ex. 20250701
 
-            if (DateTime.TryParseExact(dateStr, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+            if (DateTime.TryParseExact(dateStr, AppSettings.LogSetting.ElmahZipTimeFormatPattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
                 return dt;
 
             return null;
@@ -186,8 +186,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
 
         public (DateTime? ElmahTime, string GUID)? GetElmahFileNameData(string elmahName)
         {
-            string pattern = AppSettings.LogSetting.ElmahFileNamePattern;
-            Match match = Regex.Match(elmahName, pattern);
+            Match match = Regex.Match(elmahName, AppSettings.LogSetting.ElmahFileNamePattern);
 
             if (match.Success && match.Groups.Count >= 3)
                 return (ConvertZFormatToTaiwanTime(match.Groups[1].Value), match.Groups[2].Value);
@@ -214,7 +213,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 try
                 {
                     // 取得台灣的時區資訊(Windows時區ID)
-                    TimeZoneInfo taiwanTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
+                    TimeZoneInfo taiwanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(AppSettings.SystemSetting.TaiwanTimeZoneID);
 
                     // 將UTC時間轉換為台灣時間
                     DateTime taiwanTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, taiwanTimeZone);
@@ -223,7 +222,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 }
                 catch (TimeZoneNotFoundException)
                 {
-                    Debug.WriteLine("找不到台灣時區資訊(Taipei Standard Time)");
+                    Debug.WriteLine($"找不到台灣時區資訊(ID:{AppSettings.SystemSetting.TaiwanTimeZoneID})");
                 }
                 catch (InvalidTimeZoneException)
                 {

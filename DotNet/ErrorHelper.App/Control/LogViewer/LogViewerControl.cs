@@ -65,7 +65,7 @@ namespace ErrorHelper.App.Control.LogViewer
         {
             Initialize();
             _LogQueryConditionViewModel = viewModel;
-            SetViewModel();
+            SetQueryConditionViewModel();
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace ErrorHelper.App.Control.LogViewer
             StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
             EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
 
-            //資料Binding完後生成Grid按鈕
+            //資料Binding完後
             LogInfoDataGridView.DataBindingComplete += (sender, e) =>
             {
                 GenGridAction();
@@ -100,7 +100,8 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <summary>
         /// 綁定 UI 和 ViewModel
         /// </summary>
-        protected virtual void SetViewModel()
+        /// <remarks>需在QueryConditionViewModel初始化後呼叫</remarks>
+        protected virtual void SetQueryConditionViewModel()
         {
             StartTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.EndTime));

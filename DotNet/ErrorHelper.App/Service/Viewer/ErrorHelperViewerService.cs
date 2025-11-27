@@ -47,7 +47,7 @@ namespace ErrorHelper.App.Service.Viewer
 
             openIISLogFolderMenuItem.Click += (sender, e) =>
             {
-                elmahViewerSrv.NewLogQueryPage(tabControl);
+                iiSLogViewerSrv.NewLogQueryPage(tabControl);
             };
 
             backupFolderMenuItem.Click += (sender, e) =>

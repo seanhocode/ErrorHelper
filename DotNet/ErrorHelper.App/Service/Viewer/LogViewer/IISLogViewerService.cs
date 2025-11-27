@@ -18,7 +18,7 @@ namespace ErrorHelper.App.Service.Viewer.LogViewer
 
         public void NewLogQueryPage(TabControl tabControl)
         {
-            IISLogViewerTabPage iisLogViewerTabPage = new IISLogViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);
+            IISLogViewerTabPage iisLogViewerTabPage = new IISLogViewerTabPage(AppSettings.LogSetting.IISLogDefaultLogFolderPath);
             iisLogViewerTabPage.IISLogViewerControl.ClickQueryLogBtn += (iisLogQueryCondition) => ClickQueryLogBtn(iisLogQueryCondition);
             tabControl.TabPages.Add(iisLogViewerTabPage);
             tabControl.SelectedTab = iisLogViewerTabPage;

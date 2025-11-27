@@ -6,5 +6,8 @@ namespace ErrorHelper.Core.Model.Common.Configuration.AppSettings
     {
         [DisplayName("時間格式")]
         public string TimeFormatStr { get; set; }
+
+        [DisplayName("台灣時區ID")]
+        public string TaiwanTimeZoneID { get; set; }
     }
 }

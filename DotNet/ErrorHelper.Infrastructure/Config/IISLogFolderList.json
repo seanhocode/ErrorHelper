@@ -1,0 +1,12 @@
+﻿{
+    "IISLogFolderList": {
+        "Select": {
+            "Key": "Select",
+            "Value": "Select"
+        },
+        "Test": {
+            "Key": "Test",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\WebRoot\\IISLog\\W3SVC1"
+        }
+    }
+}

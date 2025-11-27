@@ -18,7 +18,7 @@ namespace ErrorHelper.App.Service.Viewer.LogViewer
 
         public void NewLogQueryPage(TabControl tabControl)
         {
-            ElmahViewerTabPage elmahViewerTabPage = new ElmahViewerTabPage(AppSettings.LogSetting.DefaultLogFolderPath);
+            ElmahViewerTabPage elmahViewerTabPage = new ElmahViewerTabPage(AppSettings.LogSetting.ElmahDefaultLogFolderPath);
             elmahViewerTabPage.ElmahViewerControl.ClickQueryLogBtn += (elmahQueryCondition) => ClickQueryLogBtn(elmahQueryCondition);
             tabControl.TabPages.Add(elmahViewerTabPage);
             tabControl.SelectedTab = elmahViewerTabPage;

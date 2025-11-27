@@ -1,5 +1,12 @@
-﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+﻿using ErrorHelper.App.Service.FormControl;
+using ErrorHelper.App.View.Common;
+using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+using ErrorHelper.Core.Model.Common.Configuration;
+using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.IISLog;
+using ErrorHelper.Infrastructure.Common.Configuration;
+using ErrorHelper.Tool;
+using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
 {
@@ -8,16 +15,110 @@ namespace ErrorHelper.App.Control.LogViewer
         protected readonly IISLogQueryConditionViewModel _IISLogQueryConditionViewModel;
 
         protected IList<IISLogFile> IISLogFileList { get; set; }
-        protected IList<IISLogInfo> IISLogInfoList => IISLogFileList.Select(iisLogFile => iisLogFile.LogInfo).ToList<IISLogInfo>() ?? [];
+        protected List<IISLogInfo> IISLogInfoList => IISLogFileList
+                                                        .SelectMany(iisLogFile => iisLogFile.LogList)
+                                                        .OrderByDescending(logInfo => logInfo.Time)
+                                                        .ToList() ?? [];
 
         public new Func<IISLogQueryCondition, IList<IISLogFile>> ClickQueryLogBtn;
 
-        public IISLogViewerControl()
+        public IISLogViewerControl(IISLogQueryConditionViewModel viewModel)
         {
-            InitializeComponent();
+            _IISLogQueryConditionViewModel = viewModel;
+            SetQueryConditionViewModel();
+
+            IISLogFileList = new List<IISLogFile>();
+
+            LogInfoDataGridView.DataSource = IISLogInfoList;
+
+            ChangeLogFolder();
         }
 
-        protected override void SetViewModel()
+        private readonly (string FieldName, string HeaderText)[] ColumnOrderAndHeader = new[]
+        {
+            // (屬性名稱, 欄位標題) - 這裡同時定義了順序和標題
+            ("OpenErrorDetailCol", "操作"),
+            ("OpenElmahFolderCol", "操作"),
+            (nameof(IISLogInfo.Time), "時間"),
+            (nameof(IISLogInfo.SCStatus), "狀態碼"),
+            (nameof(IISLogInfo.TimeTaken), "耗時 (ms)"),
+            (nameof(IISLogInfo.ClientIP), "客戶端 IP"),
+            (nameof(IISLogInfo.ClientPort), "客戶端 Port"),
+            (nameof(IISLogInfo.ServerIP), "伺服器 IP"),
+            (nameof(IISLogInfo.ServerPort), "伺服器 Port"),
+            (nameof(IISLogInfo.CSUriStem), "請求路徑")
+        };
+
+        protected override void CustomizeDGVColumn()
+        {
+            base.CustomizeDGVColumn();
+
+            // 獲取所有欄位
+            var columns = LogInfoDataGridView.Columns;
+
+            // 創建一個 HashSet 以快速檢查哪些欄位應該顯示
+            var visibleFieldsSet = new HashSet<string>(
+                ColumnOrderAndHeader.Select(c => c.FieldName),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            // 1. 隱藏所有非白名單欄位
+            foreach (DataGridViewColumn column in columns)
+            {
+                if (!visibleFieldsSet.Contains(column.Name))
+                {
+                    column.Visible = false;
+                }
+            }
+
+            // 2. 設置 DisplayIndex、Visible=true 和 HeaderText
+            int displayIndex = 0;
+
+            foreach (var (fieldName, headerText) in ColumnOrderAndHeader)
+            {
+                // 檢查 DataGridView 是否包含此欄位 (確保屬性名稱正確)
+                if (columns.Contains(fieldName))
+                {
+                    DataGridViewColumn column = columns[fieldName];
+
+                    column.Visible = true;
+                    column.HeaderText = headerText;
+                    column.DisplayIndex = displayIndex;
+
+                    // 處理 Time 欄位的格式設定
+                    if (fieldName == nameof(IISLogInfo.Time))
+                    {
+                        // 假設您的 AppSettings.SystemSetting.TimeFormatStr 存在
+                        column.DefaultCellStyle.Format = AppSettings.SystemSetting.TimeFormatStr;
+                    }
+
+                    displayIndex++;
+                }
+            }
+        }
+
+        protected override void GenGridAction()
+        {
+            if (!LogInfoDataGridView.Columns.Contains("OpenErrorDetailCol"))
+            {
+                controlSrv.GenDataGridViewActionColumn<IISLogInfo>(LogInfoDataGridView
+                , "OpenErrorDetailCol"
+                , "操作", "細節"
+                , 0
+                , (logInfo) => { OpenLogDetail(logInfo); });
+            }
+
+            if (!LogInfoDataGridView.Columns.Contains("OpenElmahFolderCol"))
+            {
+                controlSrv.GenDataGridViewActionColumn<IISLogInfo>(LogInfoDataGridView
+                , "OpenElmahFolderCol"
+                , "操作", "檔案總管顯示"
+                , 0
+                , (logInfo) => { OpenIISLogSourceFolder(logInfo); });
+            }
+        }
+
+        protected override void SetQueryConditionViewModel()
         {
             StartTimePicker.DataBindings.Add("Value", _IISLogQueryConditionViewModel, nameof(_IISLogQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _IISLogQueryConditionViewModel, nameof(_IISLogQueryConditionViewModel.EndTime));
@@ -27,20 +128,84 @@ namespace ErrorHelper.App.Control.LogViewer
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _IISLogQueryConditionViewModel, nameof(_IISLogQueryConditionViewModel.LogSourceFolderPath));
         }
 
-        public IISLogViewerControl(IISLogQueryConditionViewModel viewModel)
+        protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            _IISLogQueryConditionViewModel = viewModel;
-            SetViewModel();
+            _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
+            QueryLog();
+        }
 
-            IISLogFileList = new List<IISLogFile>();
-
+        protected override void QueryLog()
+        {
+            IISLogFileList = ClickQueryLogBtn?.Invoke((IISLogQueryCondition)_IISLogQueryConditionViewModel.LogQueryCondition);
             LogInfoDataGridView.DataSource = IISLogInfoList;
-            //資料Binding完後生成Grid按鈕
-            LogInfoDataGridView.DataBindingComplete += (sender, e) => { GenGridAction(); };
-            LogInfoDataGridView.Columns["LogID"].Visible = false;
-            LogInfoDataGridView.Columns["Message"].Visible = false;
+        }
 
-            ChangeLogFolder();
+        protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
+        {
+            TextForm folderPathAliasForm = new TextForm("Input", "Please enter folder path alias.");
+
+            if (folderPathAliasForm.ShowDialog() == DialogResult.OK)
+            {
+                string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "IISLogFolderList.json");
+                SelectItem item = new SelectItem()
+                {
+                    Key = folderPathAliasForm.InputText,
+                    Value = _IISLogQueryConditionViewModel.LogSourceFolderPath
+                };
+
+                JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "IISLogFolderList", item.Key, item);
+
+                MessageBox.Show("Save successfully.");
+            }
+        }
+
+        protected virtual void OpenLogDetail(IISLogInfo logInfo)
+        {
+            //ToDo: Implement IIS log detail view
+        }
+
+        protected virtual void OpenIISLogSourceFolder(IISLogInfo logInfo)
+        {
+            IISLogFile? selectedErrorFile = IISLogFileList.FirstOrDefault(file => file.FileName == logInfo.LogID);
+
+            if (selectedErrorFile != null)
+            {
+                if (string.IsNullOrEmpty(selectedErrorFile.SourceZIPPath))
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath, selectedErrorFile.FileName)}\"");
+                else
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
+            }
+        }
+
+        protected override void ChangeLogFolder()
+        {
+            SelectForm selectConfigForm = new SelectForm("SelectFolder");
+            Dictionary<string, string> logFolderItems = new Dictionary<string, string>();
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "IISLogFolderList.json");
+
+            foreach (string key in JsonTool.GetJsonSubPropertyList(configFilePath, "IISLogFolderList"))
+                logFolderItems.Add(key, key);
+
+            selectConfigForm.Items = logFolderItems;
+
+            if (selectConfigForm.ShowDialog() == DialogResult.OK)
+            {
+                SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "IISLogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
+                if (selectedItem.Value == "Select")
+                    _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
+                else
+                    _IISLogQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
+            }
+            else
+            {
+                _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
+            }
+        }
+
+        protected override void AddTitleToIgnoreList(LogInfo logInfo)
+        {
+            _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            QueryLog();
         }
     }
 }
