@@ -3,6 +3,7 @@ using ErrorHelper.Infrastructure.Common.Configuration;
 using ErrorHelper.Tool;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
@@ -34,9 +35,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                     DateTime? logDateTime = GetIISLogFileTime(Path.GetFileName(logPath)) ?? new DateTime(1900, 1, 1);
 
                     if (logDateTime >= iisLogQueryCondition.StartTime.Date && logDateTime <= iisLogQueryCondition.EndTime.Date)
-                    {
                         iisLogBag.Add(GetLogFile(logPath, iisLogQueryCondition));
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -118,7 +117,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 {"sc-status", (log, value) => log.SCStatus = value},                    // HTTP Status Code (200, 404, 500, etc.)
                 {"sc-substatus", (log, value) => log.SCSubstatus = value},              // Substatus code (e.g., 401.2)
                 {"sc-win32-status", (log, value) => log.SCWin32Status = value},         // Win32 Error Code
-                {"time-taken", (log, value) => log.TimeTaken = value},                  // Time taken to process the request (milliseconds)
+                {"time-taken", (log, value) => log.TimeTaken = int.Parse(value)},       // Time taken to process the request (milliseconds)
 
                 //傳輸位元組數
                 {"sc-bytes", (log, value) => log.SCBytes = value},                      // Server to Client bytes sent (Response size)
@@ -155,7 +154,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                         continue;
                     }
 
-                    //如果在資料行之前沒有找到 #Fields:，則無法解析，跳過檔案
+                    //如果在資料行之前沒有找到#Fields:，則無法解析，跳過檔案
                     if (fieldNames.Length == 0) continue;
 
                     //解析資料行，StringSplitOptions.RemoveEmptyEntries處理多個連續空格
@@ -167,7 +166,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                     string dateString = string.Empty;
                     string timeString = string.Empty;
 
-                    //根據欄位名稱，將值設置到 IisLogInfo 物件中
+                    //根據欄位名稱，將值設置到IisLogInfo物件中
                     for (int i = 0; i < fieldNames.Length; i++)
                     {
                         string fieldName = fieldNames[i];
@@ -180,14 +179,21 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                             targetFields[fieldName].Invoke(currentLog, value);
                     }
 
+                    //解析LogTime為DateTime，IIS Log格式通常為yyyy-MM-dd和HH:mm:ss
                     if (!string.IsNullOrEmpty(dateString) && !string.IsNullOrEmpty(timeString))
-                        //解析為DateTime，IIS Log格式通常為yyyy-MM-dd和HH:mm:ss
                         if (DateTime.TryParse($"{dateString} {timeString}", out DateTime parsedUTCTime))
                             currentLog.Time = TimeZoneInfo.ConvertTimeFromUtc(parsedUTCTime, taiwanTimeZone);
 
                     currentLog.LogID = Path.GetFileName(logPath);
 
-                    if (currentLog.Time >= iisLogQueryCondition.StartTime && currentLog.Time <= iisLogQueryCondition.EndTime)
+                    if (
+                        currentLog.Time >= iisLogQueryCondition.StartTime 
+                        && currentLog.Time <= iisLogQueryCondition.EndTime
+                        && (currentLog.SCStatus == iisLogQueryCondition.SCStatus || string.IsNullOrEmpty(iisLogQueryCondition.SCStatus))
+                        && currentLog.CSUriStem.Contains(iisLogQueryCondition.CSUriStem)
+                        && iisLogQueryCondition.IgnoreUriList.All(ignoreUri => currentLog.CSUriStem != ignoreUri)
+                        && currentLog.TimeTaken >= iisLogQueryCondition.TimeTaken
+                    )
                         result.Add(currentLog);
                 }
             }

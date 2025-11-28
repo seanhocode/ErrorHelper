@@ -3,7 +3,7 @@ using ErrorHelper.Infrastructure.Common.Configuration;
 
 namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
 {
-    public class ElmahQueryConditionViewModel : LogQueryConditionViewModel
+    public class ElmahQueryConditionViewModel : LogQueryConditionViewModel<ElmahQueryCondition>
     {
         public ElmahQueryConditionViewModel(ElmahQueryCondition elmahQueryCondition) : base(elmahQueryCondition) 
         {

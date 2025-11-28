@@ -30,15 +30,15 @@
         {
             StartTimePicker = new DateTimePicker();
             EndTimePicker = new DateTimePicker();
-            FileNameTextBox = new TextBox();
-            MessageTextBox = new TextBox();
-            DetailTextBox = new TextBox();
+            LogQueryCondition1TextBox = new TextBox();
+            LogQueryCondition2TextBox = new TextBox();
+            LogQueryCondition3TextBox = new TextBox();
             ErrorSourceFolderPathLabel = new Label();
             StartTimeConditionLable = new Label();
             EndTimeConditionLabel = new Label();
-            FileNameConditionLabel = new Label();
-            MessageConditionLabel = new Label();
-            DetailConditionLabel = new Label();
+            LogQueryCondition1Label = new Label();
+            LogQueryCondition2Label = new Label();
+            LogQueryCondition3Label = new Label();
             FolderPathConditionLabel = new Label();
             QueryLogBtn = new Button();
             ChangeLogFolderBtn = new Button();
@@ -65,36 +65,36 @@
             EndTimePicker.Size = new Size(200, 23);
             EndTimePicker.TabIndex = 5;
             // 
-            // FileNameTextBox
+            // LogQueryCondition1TextBox
             // 
-            FileNameTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            LogViewerTableLayoutPanel.SetColumnSpan(FileNameTextBox, 3);
-            FileNameTextBox.Location = new Point(134, 93);
-            FileNameTextBox.Name = "FileNameTextBox";
-            FileNameTextBox.Size = new Size(890, 23);
-            FileNameTextBox.TabIndex = 7;
+            LogQueryCondition1TextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            LogViewerTableLayoutPanel.SetColumnSpan(LogQueryCondition1TextBox, 3);
+            LogQueryCondition1TextBox.Location = new Point(134, 93);
+            LogQueryCondition1TextBox.Name = "LogQueryCondition1TextBox";
+            LogQueryCondition1TextBox.Size = new Size(890, 23);
+            LogQueryCondition1TextBox.TabIndex = 7;
             // 
-            // MessageTextBox
+            // LogQueryCondition2TextBox
             // 
-            MessageTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            LogViewerTableLayoutPanel.SetColumnSpan(MessageTextBox, 3);
-            MessageTextBox.Location = new Point(134, 133);
-            MessageTextBox.Name = "MessageTextBox";
-            MessageTextBox.Size = new Size(890, 23);
-            MessageTextBox.TabIndex = 9;
+            LogQueryCondition2TextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            LogViewerTableLayoutPanel.SetColumnSpan(LogQueryCondition2TextBox, 3);
+            LogQueryCondition2TextBox.Location = new Point(134, 133);
+            LogQueryCondition2TextBox.Name = "LogQueryCondition2TextBox";
+            LogQueryCondition2TextBox.Size = new Size(890, 23);
+            LogQueryCondition2TextBox.TabIndex = 9;
             // 
-            // DetailTextBox
+            // LogQueryCondition3TextBox
             // 
-            DetailTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            LogViewerTableLayoutPanel.SetColumnSpan(DetailTextBox, 3);
-            DetailTextBox.Location = new Point(134, 173);
-            DetailTextBox.Name = "DetailTextBox";
-            DetailTextBox.Size = new Size(890, 23);
-            DetailTextBox.TabIndex = 11;
+            LogQueryCondition3TextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            LogViewerTableLayoutPanel.SetColumnSpan(LogQueryCondition3TextBox, 3);
+            LogQueryCondition3TextBox.Location = new Point(134, 173);
+            LogQueryCondition3TextBox.Name = "LogQueryCondition3TextBox";
+            LogQueryCondition3TextBox.Size = new Size(890, 23);
+            LogQueryCondition3TextBox.TabIndex = 11;
             // 
             // ErrorSourceFolderPathLabel
             // 
-            ErrorSourceFolderPathLabel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            ErrorSourceFolderPathLabel.Anchor = AnchorStyles.Left;
             LogViewerTableLayoutPanel.SetColumnSpan(ErrorSourceFolderPathLabel, 3);
             ErrorSourceFolderPathLabel.Font = new Font("Microsoft JhengHei UI", 10F);
             ErrorSourceFolderPathLabel.Location = new Point(134, 10);
@@ -104,10 +104,10 @@
             // 
             // StartTimeConditionLable
             // 
-            StartTimeConditionLable.Anchor = AnchorStyles.Left;
+            StartTimeConditionLable.Anchor = AnchorStyles.None;
             StartTimeConditionLable.AutoSize = true;
             StartTimeConditionLable.Font = new Font("Microsoft JhengHei UI", 15F);
-            StartTimeConditionLable.Location = new Point(3, 52);
+            StartTimeConditionLable.Location = new Point(12, 52);
             StartTimeConditionLable.Name = "StartTimeConditionLable";
             StartTimeConditionLable.Size = new Size(106, 25);
             StartTimeConditionLable.TabIndex = 2;
@@ -115,54 +115,54 @@
             // 
             // EndTimeConditionLabel
             // 
-            EndTimeConditionLabel.Anchor = AnchorStyles.Left;
+            EndTimeConditionLabel.Anchor = AnchorStyles.None;
             EndTimeConditionLabel.AutoSize = true;
             EndTimeConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            EndTimeConditionLabel.Location = new Point(363, 52);
+            EndTimeConditionLabel.Location = new Point(376, 52);
             EndTimeConditionLabel.Name = "EndTimeConditionLabel";
             EndTimeConditionLabel.Size = new Size(99, 25);
             EndTimeConditionLabel.TabIndex = 4;
             EndTimeConditionLabel.Text = "EndTime:";
             // 
-            // FileNameConditionLabel
+            // LogQueryCondition1Label
             // 
-            FileNameConditionLabel.Anchor = AnchorStyles.Left;
-            FileNameConditionLabel.AutoSize = true;
-            FileNameConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            FileNameConditionLabel.Location = new Point(3, 92);
-            FileNameConditionLabel.Name = "FileNameConditionLabel";
-            FileNameConditionLabel.Size = new Size(106, 25);
-            FileNameConditionLabel.TabIndex = 6;
-            FileNameConditionLabel.Text = "FileName:";
+            LogQueryCondition1Label.Anchor = AnchorStyles.None;
+            LogQueryCondition1Label.AutoSize = true;
+            LogQueryCondition1Label.Font = new Font("Microsoft JhengHei UI", 15F);
+            LogQueryCondition1Label.Location = new Point(34, 92);
+            LogQueryCondition1Label.Name = "LogQueryCondition1Label";
+            LogQueryCondition1Label.Size = new Size(63, 25);
+            LogQueryCondition1Label.TabIndex = 6;
+            LogQueryCondition1Label.Text = "LQC1";
             // 
-            // MessageConditionLabel
+            // LogQueryCondition2Label
             // 
-            MessageConditionLabel.Anchor = AnchorStyles.Left;
-            MessageConditionLabel.AutoSize = true;
-            MessageConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            MessageConditionLabel.Location = new Point(3, 132);
-            MessageConditionLabel.Name = "MessageConditionLabel";
-            MessageConditionLabel.Size = new Size(100, 25);
-            MessageConditionLabel.TabIndex = 8;
-            MessageConditionLabel.Text = "Message:";
+            LogQueryCondition2Label.Anchor = AnchorStyles.None;
+            LogQueryCondition2Label.AutoSize = true;
+            LogQueryCondition2Label.Font = new Font("Microsoft JhengHei UI", 15F);
+            LogQueryCondition2Label.Location = new Point(34, 132);
+            LogQueryCondition2Label.Name = "LogQueryCondition2Label";
+            LogQueryCondition2Label.Size = new Size(63, 25);
+            LogQueryCondition2Label.TabIndex = 8;
+            LogQueryCondition2Label.Text = "LQC2";
             // 
-            // DetailConditionLabel
+            // LogQueryCondition3Label
             // 
-            DetailConditionLabel.Anchor = AnchorStyles.Left;
-            DetailConditionLabel.AutoSize = true;
-            DetailConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            DetailConditionLabel.Location = new Point(3, 172);
-            DetailConditionLabel.Name = "DetailConditionLabel";
-            DetailConditionLabel.Size = new Size(71, 25);
-            DetailConditionLabel.TabIndex = 10;
-            DetailConditionLabel.Text = "Detail:";
+            LogQueryCondition3Label.Anchor = AnchorStyles.None;
+            LogQueryCondition3Label.AutoSize = true;
+            LogQueryCondition3Label.Font = new Font("Microsoft JhengHei UI", 15F);
+            LogQueryCondition3Label.Location = new Point(34, 172);
+            LogQueryCondition3Label.Name = "LogQueryCondition3Label";
+            LogQueryCondition3Label.Size = new Size(63, 25);
+            LogQueryCondition3Label.TabIndex = 10;
+            LogQueryCondition3Label.Text = "LQC3";
             // 
             // FolderPathConditionLabel
             // 
-            FolderPathConditionLabel.Anchor = AnchorStyles.Left;
+            FolderPathConditionLabel.Anchor = AnchorStyles.None;
             FolderPathConditionLabel.AutoSize = true;
             FolderPathConditionLabel.Font = new Font("Microsoft JhengHei UI", 15F);
-            FolderPathConditionLabel.Location = new Point(3, 10);
+            FolderPathConditionLabel.Location = new Point(6, 10);
             FolderPathConditionLabel.Name = "FolderPathConditionLabel";
             FolderPathConditionLabel.Size = new Size(119, 25);
             FolderPathConditionLabel.TabIndex = 0;
@@ -204,12 +204,12 @@
             LogViewerTableLayoutPanel.Controls.Add(StartTimePicker, 1, 1);
             LogViewerTableLayoutPanel.Controls.Add(EndTimeConditionLabel, 2, 1);
             LogViewerTableLayoutPanel.Controls.Add(EndTimePicker, 3, 1);
-            LogViewerTableLayoutPanel.Controls.Add(FileNameConditionLabel, 0, 2);
-            LogViewerTableLayoutPanel.Controls.Add(FileNameTextBox, 1, 2);
-            LogViewerTableLayoutPanel.Controls.Add(MessageConditionLabel, 0, 3);
-            LogViewerTableLayoutPanel.Controls.Add(MessageTextBox, 1, 3);
-            LogViewerTableLayoutPanel.Controls.Add(DetailConditionLabel, 0, 4);
-            LogViewerTableLayoutPanel.Controls.Add(DetailTextBox, 1, 4);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition1Label, 0, 2);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition1TextBox, 1, 2);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition2Label, 0, 3);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition2TextBox, 1, 3);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition3Label, 0, 4);
+            LogViewerTableLayoutPanel.Controls.Add(LogQueryCondition3TextBox, 1, 4);
             LogViewerTableLayoutPanel.Controls.Add(QueryLogBtn, 0, 5);
             LogViewerTableLayoutPanel.Controls.Add(ChangeLogFolderBtn, 1, 5);
             LogViewerTableLayoutPanel.Controls.Add(LogInfoDataGridView, 0, 6);

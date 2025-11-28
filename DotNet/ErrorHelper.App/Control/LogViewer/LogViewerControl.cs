@@ -4,6 +4,7 @@ using ErrorHelper.App.View.LogViewer;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
+using ErrorHelper.Infrastructure.Common.Configuration;
 using ErrorHelper.Tool;
 using System.Diagnostics;
 
@@ -11,23 +12,22 @@ namespace ErrorHelper.App.Control.LogViewer
 {
     public partial class LogViewerControl : UserControl
     {
-        private const string CustomDateTimePickerFormat = "yyyy/MM/dd HH:mm:ss";
         protected IList<LogFile<LogInfo>> LogFileList { get; set; }
         protected IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
-        protected virtual LogQueryConditionViewModel _LogQueryConditionViewModel { get; set; }
+        protected virtual LogQueryConditionViewModel<LogQueryCondition> _LogQueryConditionViewModel { get; set; }
         protected FormControlService controlSrv = new FormControlService();
 
         protected DateTimePicker StartTimePicker;
         protected DateTimePicker EndTimePicker;
-        protected TextBox FileNameTextBox;
-        protected TextBox MessageTextBox;
-        protected TextBox DetailTextBox;
+        protected TextBox LogQueryCondition1TextBox;
+        protected TextBox LogQueryCondition2TextBox;
+        protected TextBox LogQueryCondition3TextBox;
         protected Label StartTimeConditionLable;
         protected Label EndTimeConditionLabel;
-        protected Label FileNameConditionLabel;
-        protected Label MessageConditionLabel;
-        protected Label DetailConditionLabel;
+        protected Label LogQueryCondition1Label;
+        protected Label LogQueryCondition2Label;
+        protected Label LogQueryCondition3Label;
         protected Label FolderPathConditionLabel;
         protected Button QueryLogBtn;
         protected Button ChangeLogFolderBtn;
@@ -36,6 +36,8 @@ namespace ErrorHelper.App.Control.LogViewer
         protected Label ErrorSourceFolderPathLabel;
         protected LogDetailForm LogDetailForm;
         protected Button SaveFolderPathBtn;
+
+        protected virtual (string FieldName, string HeaderText)[] ColumnOrderAndHeader { get; set; }
 
         /// <summary>
         /// 點QueryBtn後執行的Method
@@ -61,7 +63,7 @@ namespace ErrorHelper.App.Control.LogViewer
         /// 建構子
         /// </summary>
         /// <param name="viewModel"></param>
-        public LogViewerControl(LogQueryConditionViewModel viewModel)
+        public LogViewerControl(LogQueryConditionViewModel<LogQueryCondition> viewModel)
         {
             Initialize();
             _LogQueryConditionViewModel = viewModel;
@@ -82,18 +84,21 @@ namespace ErrorHelper.App.Control.LogViewer
         /// </summary>
         protected virtual void InitializeOtherControl()
         {
+            LogQueryCondition1Label.Text = "FileName:";
+            LogQueryCondition2Label.Text = "Title:";
+            LogQueryCondition3Label.Text = "Detail:";
             LogDetailForm = new LogDetailForm();
             //設計工具常常覆蓋DateTimePickerFormat設定，手動設定
             StartTimePicker.Format = DateTimePickerFormat.Custom;
             EndTimePicker.Format = DateTimePickerFormat.Custom;
-            StartTimePicker.CustomFormat = CustomDateTimePickerFormat;
-            EndTimePicker.CustomFormat = CustomDateTimePickerFormat;
+            StartTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
+            EndTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
 
             //資料Binding完後
             LogInfoDataGridView.DataBindingComplete += (sender, e) =>
             {
                 GenGridAction();
-                CustomizeDGVColumn();
+                LoadDGVColumn();
             };
         }
 
@@ -105,9 +110,9 @@ namespace ErrorHelper.App.Control.LogViewer
         {
             StartTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.EndTime));
-            FileNameTextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.FileName));
-            MessageTextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.Message));
-            DetailTextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.Detail));
+            LogQueryCondition1TextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.FileName));
+            LogQueryCondition2TextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.Message));
+            LogQueryCondition3TextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.Detail));
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.LogSourceFolderPath));
         }
 
@@ -195,8 +200,62 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <summary>
         /// 自訂欄位樣式
         /// </summary>
-        protected virtual void CustomizeDGVColumn(){
+        /// <remarks>(屬性名稱, 欄位標題) - 這裡同時定義了順序和標題</remarks>
+        protected virtual void DefineDGVColumn()
+        {
+            ColumnOrderAndHeader = new[]{
+                ("OpenErrorDetailCol", "操作"),
+                ("OpenElmahFolderCol", "操作"),
+                ("AddTitleToIgnoreList", "操作"),
+                (nameof(LogInfo.Time), "時間"),
+                (nameof(LogInfo.LogID), "ID"),
+                (nameof(LogInfo.Title), "Title")
+            };
+        }
 
+        /// <summary>
+        /// 設定欄位格式
+        /// </summary>
+        protected virtual void SetDGVColumnFormat()
+        {
+            LogInfoDataGridView.Columns[nameof(LogInfo.Time)].DefaultCellStyle.Format = AppSettings.SystemSetting.TimeFormatStr;
+        }
+
+        /// <summary>
+        /// 自訂欄位樣式
+        /// </summary>
+        protected virtual void LoadDGVColumn(){
+            DefineDGVColumn();
+
+            int displayIndex = 0;
+
+            //獲取所有欄位
+            DataGridViewColumnCollection columns = LogInfoDataGridView.Columns;
+
+            //創建一個HashSet以快速檢查哪些欄位應該顯示
+            HashSet<string> visibleFieldsSet = new HashSet<string>(
+                ColumnOrderAndHeader.Select(c => c.FieldName),
+                StringComparer.OrdinalIgnoreCase//使用序數（binary）比較，且忽略大小寫
+            );
+
+            //隱藏所有非白名單欄位
+            foreach (DataGridViewColumn column in columns)
+                if (!visibleFieldsSet.Contains(column.Name))
+                    column.Visible = false;
+
+            foreach ((string fieldName, string headerText) in ColumnOrderAndHeader)
+            {
+                if (columns.Contains(fieldName))
+                {
+                    columns[fieldName].Visible = true;
+                    columns[fieldName].HeaderText = headerText;
+                    columns[fieldName].DisplayIndex = displayIndex;
+
+                    displayIndex++;
+                }
+            }
+
+            SetDGVColumnFormat();
         }
 
         /// <summary>

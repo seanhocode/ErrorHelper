@@ -4,7 +4,7 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
-using ErrorHelper.Infrastructure.Common.Configuration;
+using ErrorHelper.Core.Model.LogHelper.IISLog;
 using ErrorHelper.Tool;
 using System.Diagnostics;
 
@@ -30,22 +30,32 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
             ChangeLogFolder();
         }
 
-        protected override void CustomizeDGVColumn()
+        protected override void DefineDGVColumn()
         {
-            base.CustomizeDGVColumn();
+            ColumnOrderAndHeader = new[]{
+                ("OpenErrorDetailCol", "操作"),
+                ("OpenElmahFolderCol", "操作"),
+                ("AddTitleToIgnoreList", "操作"),
+                (nameof(LogInfo.Time), "時間"),
+                (nameof(IISLogInfo.Title), "錯誤說明")
+            };
+        }
 
-            LogInfoDataGridView.Columns["LogID"].Visible = false;
-            LogInfoDataGridView.Columns["Message"].Visible = false;
-            LogInfoDataGridView.Columns["Time"].DefaultCellStyle.Format = AppSettings.SystemSetting.TimeFormatStr;
+        protected override void InitializeOtherControl()
+        {
+            base.InitializeOtherControl();
+            LogQueryCondition1Label.Text = "檔案名稱:";
+            LogQueryCondition2Label.Text = "錯誤說明:";
+            LogQueryCondition3Label.Text = "錯誤資訊:";
         }
 
         protected override void SetQueryConditionViewModel()
         {
             StartTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.EndTime));
-            FileNameTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.FileName));
-            MessageTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Message));
-            DetailTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Detail));
+            LogQueryCondition1TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.FileName));
+            LogQueryCondition2TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Message));
+            LogQueryCondition3TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Detail));
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.LogSourceFolderPath));
         }
 

@@ -32,11 +32,11 @@
             // 
             // MessageTextBox
             // 
-            LogViewerTableLayoutPanel.SetColumnSpan(MessageTextBox, 3);
+            LogViewerTableLayoutPanel.SetColumnSpan(LogQueryCondition2TextBox, 3);
             // 
             // DetailTextBox
             // 
-            LogViewerTableLayoutPanel.SetColumnSpan(DetailTextBox, 3);
+            LogViewerTableLayoutPanel.SetColumnSpan(LogQueryCondition3TextBox, 3);
             // 
             // IISLogViewerControl
             // 

@@ -6,7 +6,7 @@
         },
         "Test": {
             "Key": "Test",
-            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\WebRoot\\IISLog\\W3SVC1"
+            "Value": "C:\\Code\\ErrorHelper\\Doc\\TestData\\IISLog"
         }
     }
 }

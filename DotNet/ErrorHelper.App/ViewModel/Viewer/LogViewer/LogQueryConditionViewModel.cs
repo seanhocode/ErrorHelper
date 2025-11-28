@@ -2,11 +2,11 @@
 
 namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
 {
-    public class LogQueryConditionViewModel : ViewModelBase
+    public class LogQueryConditionViewModel<T> : ViewModelBase where T : LogQueryCondition
     {
-        protected readonly LogQueryCondition _LogQueryCondition;
+        protected readonly T _LogQueryCondition;
 
-        public LogQueryConditionViewModel(LogQueryCondition logQueryCondition)
+        public LogQueryConditionViewModel(T logQueryCondition)
         {
             _LogQueryCondition = logQueryCondition;
         }
@@ -26,7 +26,7 @@ namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
         public virtual string FileName
         {
             get => _LogQueryCondition.FileName;
-            set { if (_LogQueryCondition.FileName != value) { _LogQueryCondition.FileName = value?.Trim(); OnPropertyChanged(nameof(FileName)); } }
+            set { if (_LogQueryCondition.FileName != value) { _LogQueryCondition.FileName = value; OnPropertyChanged(nameof(FileName)); } }
         }
 
         public virtual string Message
@@ -47,6 +47,6 @@ namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
             set { if (_LogQueryCondition.LogSourceFolderPath != value) { _LogQueryCondition.LogSourceFolderPath = value; OnPropertyChanged(nameof(LogSourceFolderPath)); } }
         }
 
-        public virtual LogQueryCondition LogQueryCondition => _LogQueryCondition;
+        public virtual T LogQueryCondition => _LogQueryCondition;
     }
 }

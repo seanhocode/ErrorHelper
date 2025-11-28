@@ -81,7 +81,7 @@ namespace ErrorHelper.Core.Model.LogHelper.IISLog
         /// <summary>
         /// 處理請求所花費的時間 (毫秒) (time-taken)
         /// </summary>
-        public string TimeTaken { get; set; } = string.Empty;
+        public int TimeTaken { get; set; } = 0;
 
         /// <summary>
         /// 伺服器傳送到客戶端的位元組數 (Response size) (sc-bytes)
