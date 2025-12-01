@@ -41,11 +41,11 @@ namespace ErrorHelper.App.Control.LogViewer
                 ("AddUriToIgnoreList", "操作"),
                 (nameof(IISLogInfo.Time), "時間"),
                 (nameof(IISLogInfo.SCStatus), "狀態碼"),
-                (nameof(IISLogInfo.TimeTaken), "耗時 (ms)"),
-                (nameof(IISLogInfo.ClientIP), "客戶端 IP"),
-                (nameof(IISLogInfo.ClientPort), "客戶端 Port"),
-                (nameof(IISLogInfo.ServerIP), "伺服器 IP"),
-                (nameof(IISLogInfo.ServerPort), "伺服器 Port"),
+                (nameof(IISLogInfo.TimeTaken), "耗時(ms)"),
+                //(nameof(IISLogInfo.ClientIP), "請求端 IP"),
+                //(nameof(IISLogInfo.ClientPort), "客戶端 Port"),
+                //(nameof(IISLogInfo.ServerIP), "伺服器 IP"),
+                //(nameof(IISLogInfo.ServerPort), "伺服器 Port"),
                 (nameof(IISLogInfo.CSUriStem), "請求路徑")
             };
         }
@@ -137,7 +137,8 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected virtual void OpenLogDetail(IISLogInfo logInfo)
         {
-            //ToDo: Implement IIS log detail view
+            IISLogInfoViewModel viewModel = new IISLogInfoViewModel(logInfo);
+            viewModel.OpenViewWindow();
         }
 
         protected virtual void OpenIISLogSourceFolder(IISLogInfo logInfo)

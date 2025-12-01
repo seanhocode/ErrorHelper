@@ -1,5 +1,4 @@
-﻿using ErrorHelper.App.Service.FormControl;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Reflection;
 
 namespace ErrorHelper.App.Core.Model
@@ -59,19 +58,37 @@ namespace ErrorHelper.App.Core.Model
         /// </summary>
         /// <remarks>回傳前先重新Load Editor的值</remarks>
         /// <returns>編輯Model畫面的GroupBox</returns>
-        public GroupBox GetEditorGroupBox(Button customizeAction = null)
+        public GroupBox GetEditorGroupBox()
         {
             if (EditorGroupBox == null)
             {
                 PropertyEditorList = GenNewPropertyEditorList(PropertyInfoList);
                 LoadModelEditorValue(PropertyEditorList, PropertyInfoList);
                 SetPropertyEditorLocation(PropertyEditorList);
-                EditorGroupBox = GenNewEditorGroupBox(PropertyEditorList, PropertyInfoList, customizeAction);
+                EditorGroupBox = GenNewEditorGroupBox(PropertyEditorList, PropertyInfoList);
             }
 
             return EditorGroupBox;
         }
 
+        /// <summary>
+        /// 編輯畫面增加自定義按鈕
+        /// </summary>
+        /// <param name="customizeBtn"></param>
+        public void AddCustomizeBtn(Button customizeBtn)
+        {
+            if (EditorGroupBox == null) EditorGroupBox = GetEditorGroupBox();
+
+            if (customizeBtn != null)
+            {
+                customizeBtn.Top = (PropertyEditorList ?? new List<PropertyEditor>()).DefaultIfEmpty().Max(editor => editor?.ShowNameLabel?.Top ?? 0) + DefaultY;
+                EditorGroupBox.Controls.Add(customizeBtn);
+            }
+        }
+
+        /// <summary>
+        /// 將子Model上的值帶入EditControl
+        /// </summary>
         public void LoadModelEditorValue()
         {
             LoadModelEditorValue(PropertyEditorList, PropertyInfoList);
@@ -80,6 +97,8 @@ namespace ErrorHelper.App.Core.Model
         /// <summary>
         /// 將子Model上的值帶入EditControl
         /// </summary>
+        /// <param name="propertyEditorList"></param>
+        /// <param name="propertyInfoList"></param>
         private void LoadModelEditorValue(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList)
         {
             foreach (PropertyInfo propInfo in propertyInfoList)
@@ -102,6 +121,9 @@ namespace ErrorHelper.App.Core.Model
             }
         }
 
+        /// <summary>
+        /// 將EditControl的值寫回子Model
+        /// </summary>
         public void SaveModelEditorValue()
         {
             SaveModelEditorValue(PropertyEditorList, PropertyInfoList);
@@ -110,6 +132,8 @@ namespace ErrorHelper.App.Core.Model
         /// <summary>
         /// 將EditControl的值寫回子Model
         /// </summary>
+        /// <param name="propertyEditorList"></param>
+        /// <param name="propertyInfoList"></param>
         private void SaveModelEditorValue(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList)
         {
             foreach (PropertyInfo propInfo in propertyInfoList)
@@ -143,13 +167,29 @@ namespace ErrorHelper.App.Core.Model
         /// <summary>
         /// 直接開新視窗
         /// </summary>
-        public bool OpenEditWindow(Button customizeAction = null)
+        /// <returns></returns>
+        public bool OpenEditWindow()
         {
-            DialogResult result = new ModelEditorForm(GetEditorGroupBox(customizeAction)).ShowDialog();
+            GetEditorGroupBox();
+            SwitchToEditorMode();
+
+            DialogResult result = new ModelEditorForm(GetEditorGroupBox()).ShowDialog();
+
             if (result == DialogResult.OK)
             {
                 SaveModelEditorValue(PropertyEditorList, PropertyInfoList);
             }
+
+            return result == DialogResult.OK; // 點按鈕回傳 true，直接 X 回傳 false
+        }
+
+        public bool OpenViewWindow()
+        {
+            GetEditorGroupBox();
+            SwitchToViewerMode();
+
+            DialogResult result = new ModelEditorForm(GetEditorGroupBox()).ShowDialog();
+
             return result == DialogResult.OK; // 點按鈕回傳 true，直接 X 回傳 false
         }
 
@@ -174,7 +214,7 @@ namespace ErrorHelper.App.Core.Model
         /// 且如果有傳入子Model辨識別名則在後面加上.[子Model辨識別名]。
         /// Name預設為Edit[GetType().Name](.[子Model辨識別名])GroupBox
         /// </remarks>
-        private GroupBox GenNewEditorGroupBox(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList, Button customizeAction = null)
+        private GroupBox GenNewEditorGroupBox(IList<PropertyEditor> propertyEditorList, PropertyInfo[] propertyInfoList)
         {
 
             //Button saveButton = new Button() { Text = "Save" };
@@ -207,20 +247,6 @@ namespace ErrorHelper.App.Core.Model
                     if (editor.SelectButton != null)
                         editorGroupBox.Controls.Add(editor.SelectButton);
                 }
-            }
-
-            //Step.2 將saveButton放入GroupBox
-            //saveButton.Top = (propertyEditorList ?? new List<PropertyEditor>()).Max(editor => editor.ShowNameLabel.Top) + DefaultY;
-            //saveButton.Click += (sender, e) =>
-            //{
-            //    SaveModelEditorValue(propertyEditorList, propertyInfoList);
-            //    MessageBox.Show("Saved");
-            //};
-
-            if (customizeAction != null)
-            {
-                customizeAction.Top = (propertyEditorList ?? new List<PropertyEditor>()).Max(editor => editor.ShowNameLabel.Top) + DefaultY;
-                editorGroupBox.Controls.Add(customizeAction);
             }
 
             return editorGroupBox;
@@ -272,6 +298,26 @@ namespace ErrorHelper.App.Core.Model
                 }
 
                 positionY += DefaultY;
+            }
+        }
+
+        private void SwitchToViewerMode(){
+            foreach(PropertyEditor editor in PropertyEditorList)
+            {
+                editor.EditControl.Enabled = false;
+                if (editor.SelectButton != null)
+                    editor.SelectButton.Visible = false;
+            }
+
+
+        }
+
+        private void SwitchToEditorMode(){
+            foreach(PropertyEditor editor in PropertyEditorList)
+            {
+                editor.EditControl.Enabled = true;
+                if (editor.SelectButton != null)
+                    editor.SelectButton.Visible = true;
             }
         }
     }

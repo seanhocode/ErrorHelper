@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using ErrorHelper.App.Core.Model;
+using System.ComponentModel;
 
-namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
+namespace ErrorHelper.App.ViewModel
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public class ViewModelBase : ModelEditor, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

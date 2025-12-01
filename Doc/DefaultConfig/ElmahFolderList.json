@@ -4,6 +4,10 @@
             "Key": "Select",
             "Value": "Select"
         },
+        "Test": {
+            "Key": "Test",
+            "Value": "C:\\Code\\ErrorHelper\\Doc\\TestData\\Elmah"
+        },
         "GSS-Radar": {
             "Key": "GSS-Radar",
             "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"

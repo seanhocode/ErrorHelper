@@ -3,7 +3,6 @@ using ErrorHelper.Infrastructure.Common.Configuration;
 using ErrorHelper.Tool;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
@@ -95,6 +94,9 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             //定義欄位在IisLogInfo類別中的名稱，解析時能透過欄位名稱找到對應的屬性
             Dictionary<string, Action<IISLogInfo, string>> targetFields = new Dictionary<string, Action<IISLogInfo, string>>
             {
+                {"date", (log, value) => log.DateStr = value},
+                {"time", (log, value) => log.TimeStr = value},
+
                 //客戶端與伺服器連線資訊
                 {"c-ip", (log, value) => log.ClientIP = value},                         // Client IP Address
                 {"s-ip", (log, value) => log.ServerIP = value},                         // Server IP Address
@@ -148,7 +150,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                             //分隔並去除 #Fields: 前綴，然後去除空白並轉換為陣列
                             fieldNames = line.Substring("#Fields:".Length)
                                              .Split(separator, StringSplitOptions.RemoveEmptyEntries)
-                                             .Select(f => f.ToLowerInvariant()) // 統一轉為小寫以便匹配
+                                             //.Select(f => f.ToLowerInvariant()) // 統一轉為小寫以便匹配
                                              .ToArray();
                         }
                         continue;
@@ -169,14 +171,11 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                     //根據欄位名稱，將值設置到IisLogInfo物件中
                     for (int i = 0; i < fieldNames.Length; i++)
                     {
-                        string fieldName = fieldNames[i];
-                        string value = values[i];
-
-                        if (fieldName == "date") dateString = value;
-                        else if (fieldName == "time") timeString = value;
-                        else if (targetFields.ContainsKey(fieldName))
+                        if (fieldNames[i] == "date") dateString = values[i];
+                        if (fieldNames[i] == "time") timeString = values[i];
+                        if (targetFields.ContainsKey(fieldNames[i]))
                             // 使用Action<IisLogInfo, string> 委派來設置對應的屬性
-                            targetFields[fieldName].Invoke(currentLog, value);
+                            targetFields[fieldNames[i]].Invoke(currentLog, values[i]);
                     }
 
                     //解析LogTime為DateTime，IIS Log格式通常為yyyy-MM-dd和HH:mm:ss
@@ -187,8 +186,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                     currentLog.LogID = Path.GetFileName(logPath);
 
                     if (
-                        currentLog.Time >= iisLogQueryCondition.StartTime 
-                        && currentLog.Time <= iisLogQueryCondition.EndTime
+                        currentLog.Time >= iisLogQueryCondition.StartTime && currentLog.Time <= iisLogQueryCondition.EndTime
                         && (currentLog.SCStatus == iisLogQueryCondition.SCStatus || string.IsNullOrEmpty(iisLogQueryCondition.SCStatus))
                         && currentLog.CSUriStem.Contains(iisLogQueryCondition.CSUriStem)
                         && iisLogQueryCondition.IgnoreUriList.All(ignoreUri => currentLog.CSUriStem != ignoreUri)

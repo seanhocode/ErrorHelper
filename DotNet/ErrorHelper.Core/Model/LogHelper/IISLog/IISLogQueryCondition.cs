@@ -1,7 +1,4 @@
-﻿
-using System.Net.NetworkInformation;
-
-namespace ErrorHelper.Core.Model.LogHelper.IISLog
+﻿namespace ErrorHelper.Core.Model.LogHelper.IISLog
 {
     public class IISLogQueryCondition : LogQueryCondition
     {

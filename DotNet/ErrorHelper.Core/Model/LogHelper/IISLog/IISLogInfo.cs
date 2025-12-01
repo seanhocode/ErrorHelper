@@ -1,8 +1,17 @@
-﻿
-namespace ErrorHelper.Core.Model.LogHelper.IISLog
+﻿namespace ErrorHelper.Core.Model.LogHelper.IISLog
 {
     public class IISLogInfo : LogInfo
     {
+        /// <summary>
+        /// Date
+        /// </summary>
+        public string DateStr { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Time
+        /// </summary>
+        public string TimeStr { get; set; } = string.Empty;
+
         /// <summary>
         /// 客戶端 IP 地址 (c-ip)
         /// </summary>
