@@ -1,11 +1,12 @@
 ﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
-using ErrorHelper.Tool;
+using ErrorHelper.Infrastructure.Common.Configuration;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
@@ -17,51 +18,72 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             ConcurrentBag<ElmahFile> elmahBag = new ConcurrentBag<ElmahFile>();
             IList<string> filePathList = FileTool.GetAllFileInFolder(elmahQueryCondition.LogSourceFolderPath ?? string.Empty);
 
-            if (filePathList != null)
-            {
-                Parallel.ForEach(filePathList, filePath =>
-                {
-                    //避免Thread之間存取同一個變數，在Parallel裡面才new
-                    DateTime? elmahTime, elmahZipTime;
-                    try
-                    {
-                        //.zip檔
-                        if (filePath.EndsWith(".zip"))
-                        {
-                            //先取得zip日期
-                            elmahZipTime = GetElmahZipDateTime(Path.GetFileName(filePath)) ?? new DateTime(1900, 1, 1);
+            if (filePathList == null || filePathList.Count == 0)
+                return elmahFileList;
 
-                            //zip日期符合時間條件才取得zip裡面的檔案名稱(zip檔時間條件放寬前後一日，因今日的壓縮檔可能隔日才壓縮，壓縮檔名時間會被+1)
-                            if (elmahZipTime >= elmahQueryCondition.StartTime.Date.AddDays(-1) && elmahZipTime <= elmahQueryCondition.EndTime.Date.AddDays(1))
+            //分離出xml與zip，避免不必要的判斷與讓處理更可控
+            IList<string> xmlFiles = filePathList.Where(p => p.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)).ToList()
+                        , zipFiles = filePathList.Where(p => p.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            //限制並行度，避免同時打開過多zip檔造成I/O與ThreadPool壓力
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Max(1, Environment.ProcessorCount - 1)
+            };
+
+            //處理獨立的xml檔
+            Parallel.ForEach(xmlFiles, parallelOptions, filePath =>
+            {
+                try
+                {
+                    DateTime? elmahTime = GetElmahFileNameData(Path.GetFileName(filePath))?.ElmahTime;
+                    if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
+                        elmahBag.Add(GetLogFile(filePath));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            });
+
+            //處理zip：列出zip內部檔名
+            Parallel.ForEach(zipFiles, parallelOptions, zipPath =>
+            {
+                try
+                {
+                    DateTime? elmahZipTime = GetElmahZipDateTime(Path.GetFileName(zipPath)) ?? new DateTime(1900, 1, 1);
+
+                    if (
+                        (elmahZipTime >= elmahQueryCondition.StartTime.Date.AddDays(-1) && elmahZipTime <= elmahQueryCondition.EndTime.Date.AddDays(1))
+                        || AppSettings.LogSetting.IsSearchAllZipFile
+                    ){
+                        IList<string> innerFile = ZipTool.GetFileNameInZip(zipPath);
+                        if (innerFile == null || innerFile.Count == 0) return;
+
+                        foreach (var fileName in innerFile)
+                        {
+                            try
                             {
-                                foreach (string fileName in ZipTool.GetFileNameInZip(filePath))
+                                if (!fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)) continue;
+
+                                var elmahTime = GetElmahFileNameData(fileName)?.ElmahTime;
+                                if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
                                 {
-                                    if (fileName.EndsWith(".xml"))
-                                    {
-                                        //再取得elmah日期時間
-                                        elmahTime = GetElmahFileNameData(fileName)?.ElmahTime;
-                                        if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
-                                        {
-                                            elmahBag.Add(GetLogFile(fileName, filePath));
-                                        }
-                                    }
+                                    elmahBag.Add(GetLogFile(fileName, zipPath));
                                 }
                             }
-                        }
-                        //一般Elmah
-                        else if (filePath.EndsWith(".xml"))
-                        {
-                            elmahTime = GetElmahFileNameData((Path.GetFileName(filePath)))?.ElmahTime;
-                            if (elmahTime >= elmahQueryCondition.StartTime && elmahTime <= elmahQueryCondition.EndTime)
-                                elmahBag.Add(GetLogFile(filePath));
+                            catch (Exception innerEx)
+                            {
+                                Debug.WriteLine(innerEx.ToString());
+                            }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.ToString());
-                    }
-                });
-            }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            });
 
             elmahFileList = elmahBag
                         .Where(elmah => elmah.LogInfo != null)
@@ -156,7 +178,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
 
             string dateStr = zipFileName.Substring(0, 8); // ex. 20250701
 
-            if (DateTime.TryParseExact(dateStr, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+            if (DateTime.TryParseExact(dateStr, AppSettings.LogSetting.ElmahZipTimeFormatPattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
                 return dt;
 
             return null;
@@ -164,11 +186,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
 
         public (DateTime? ElmahTime, string GUID)? GetElmahFileNameData(string elmahName)
         {
-            // Regex說明：
-            // 1. 時間戳記：4位數年份-2位月-2位日 + 6位時分秒 + 'Z'
-            // 2. GUID：標準 8-4-4-4-12 格式的 UUID
-            string pattern = @"(\d{4}-\d{2}-\d{2}\d{6}Z)-([0-9a-fA-F\-]{36})";
-            Match match = Regex.Match(elmahName, pattern);
+            Match match = Regex.Match(elmahName, AppSettings.LogSetting.ElmahFileNamePattern);
 
             if (match.Success && match.Groups.Count >= 3)
                 return (ConvertZFormatToTaiwanTime(match.Groups[1].Value), match.Groups[2].Value);
@@ -183,13 +201,10 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
         /// <returns>轉換後的台灣時間(DateTime)，若格式錯誤則回傳 null</returns>
         public DateTime? ConvertZFormatToTaiwanTime(string zTimeStr)
         {
-            //定義輸入時間的格式('Z' 是字面值，需加上單引號)
-            const string format = "yyyy-MM-ddHHmmss'Z'";
-
             // 嘗試將輸入字串解析為 DateTime 物件(UTC)
             if (DateTime.TryParseExact(
                     zTimeStr
-                    , format
+                    , AppSettings.LogSetting.ElmahFileTimeFormatPattern //定義輸入時間的格式('Z' 是字面值，需加上單引號)
                     , CultureInfo.InvariantCulture //文化資訊，InvariantCulture確保解析不受本地文化影響
                     , DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal //說明輸入字串為UTC，並將結果轉為UTC
                     , out DateTime utcDateTime
@@ -198,7 +213,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 try
                 {
                     // 取得台灣的時區資訊(Windows時區ID)
-                    TimeZoneInfo taiwanTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
+                    TimeZoneInfo taiwanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(AppSettings.SystemSetting.TaiwanTimeZoneID);
 
                     // 將UTC時間轉換為台灣時間
                     DateTime taiwanTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, taiwanTimeZone);
@@ -207,7 +222,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 }
                 catch (TimeZoneNotFoundException)
                 {
-                    Debug.WriteLine("找不到台灣時區資訊(Taipei Standard Time)");
+                    Debug.WriteLine($"找不到台灣時區資訊(ID:{AppSettings.SystemSetting.TaiwanTimeZoneID})");
                 }
                 catch (InvalidTimeZoneException)
                 {

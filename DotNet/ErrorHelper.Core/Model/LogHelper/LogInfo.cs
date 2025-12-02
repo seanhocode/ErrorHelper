@@ -1,6 +1,4 @@
-﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
-
-namespace ErrorHelper.Core.Model.LogHelper
+﻿namespace ErrorHelper.Core.Model.LogHelper
 {
     public class LogInfo
     {

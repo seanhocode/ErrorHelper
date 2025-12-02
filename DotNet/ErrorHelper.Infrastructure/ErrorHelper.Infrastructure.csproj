@@ -7,12 +7,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SeanTool.CSharp.Net8.FileTool" Version="0.0.1" />
+    <PackageReference Include="SeanTool.CSharp.Net8.JsonTool" Version="0.0.1" />
+    <PackageReference Include="SeanTool.CSharp.Net8.XMLTool" Version="0.0.1" />
+    <PackageReference Include="SeanTool.CSharp.Net8.ZipTool" Version="0.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ErrorHelper.Core\ErrorHelper.Core.csproj" />
-    <ProjectReference Include="..\ErrorHelper.Tool\ErrorHelper.Tool.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Config\AppSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="Config\IISLogFolderList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="Config\ElmahFolderList.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>

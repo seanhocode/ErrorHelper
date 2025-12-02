@@ -1,0 +1,132 @@
+﻿{
+    "LogFolderList": {
+        "Select": {
+            "Key": "Select",
+            "Value": "Select"
+        },
+        "Test": {
+            "Key": "Test",
+            "Value": "C:\\Code\\ErrorHelper\\Doc\\TestData\\Elmah"
+        },
+        "GSS-Radar": {
+            "Key": "GSS-Radar",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"
+        },
+        "GSS-DataHub": {
+            "Key": "GSS-DataHub",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR-DATAHUB\\Source\\GSS.Radar.DataHub\\App_Data\\Elmah.Errors"
+        },
+        "GSS-eServices": {
+            "Key": "GSS-eServices",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR-ESERVICES\\eServices\\GSS.eServices.Web\\GSS.eServices.Web\\App_Data\\Elmah.Errors"
+        },
+        "GSS-Lol": {
+            "Key": "GSS-Lol",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR-LOL\\Lol\\GSS.Lol.Web\\GSS.Lol.Web\\App_Data\\Elmah.Errors"
+        },
+        "GSS-Mtb": {
+            "Key": "GSS-Mtb",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR-MTB\\Mtb\\GSS.Mtb.Web\\GSS.Mtb.Web\\App_Data\\Elmah.Errors"
+        },
+        "GSS-Portal": {
+            "Key": "GSS-Portal",
+            "Value": "C:\\GSS\\Radar\\Project\\GSS\\GSS_RADAR-PORTAL\\Portal\\GSS.Portal\\App_Data\\Elmah.Errors"
+        },
+        "BOP-Radar": {
+            "Key": "BOP-Radar",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"
+        },
+        "BOP-DataHub": {
+            "Key": "BOP-DataHub",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR-DATAHUB\\Source\\GSS.Radar.DataHub\\App_Data\\Elmah.Errors"
+        },
+        "BOP-eServices": {
+            "Key": "BOP-eServices",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR-ESERVICES\\eServices\\GSS.eServices.Web\\GSS.eServices.Web\\App_Data\\Elmah.Errors"
+        },
+        "BOP-Lol": {
+            "Key": "BOP-Lol",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR-LOL\\Lol\\GSS.Lol.Web\\GSS.Lol.Web\\App_Data\\Elmah.Errors"
+        },
+        "BOP-Mtb": {
+            "Key": "BOP-Mtb",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR-MTB\\Mtb\\GSS.Mtb.Web\\GSS.Mtb.Web\\App_Data\\Elmah.Errors"
+        },
+        "BOP-Portal": {
+            "Key": "BOP-Portal",
+            "Value": "C:\\GSS\\Radar\\Project\\BOP\\BOP_RADAR-PORTAL\\Portal\\GSS.Portal\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-Radar": {
+            "Key": "ECOVE-ESC-Radar",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-DataHub": {
+            "Key": "ECOVE-ESC-DataHub",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR-DATAHUB\\Source\\GSS.Radar.DataHub\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-eServices": {
+            "Key": "ECOVE-ESC-eServices",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR-ESERVICES\\eServices\\GSS.eServices.Web\\GSS.eServices.Web\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-Lol": {
+            "Key": "ECOVE-ESC-Lol",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR-LOL\\Lol\\GSS.Lol.Web\\GSS.Lol.Web\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-Mtb": {
+            "Key": "ECOVE-ESC-Mtb",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR-MTB\\Mtb\\GSS.Mtb.Web\\GSS.Mtb.Web\\App_Data\\Elmah.Errors"
+        },
+        "ECOVE-ESC-Portal": {
+            "Key": "ECOVE-ESC-Portal",
+            "Value": "C:\\GSS\\Radar\\Project\\ECOVE-ESC\\ECOVE-ESC_RADAR-PORTAL\\Portal\\GSS.Portal\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-Radar": {
+            "Key": "SINOPAC-Radar",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-DataHub": {
+            "Key": "SINOPAC-DataHub",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR-DATAHUB\\Source\\GSS.Radar.DataHub\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-eServices": {
+            "Key": "SINOPAC-eServices",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR-ESERVICES\\eServices\\GSS.eServices.Web\\GSS.eServices.Web\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-Lol": {
+            "Key": "SINOPAC-Lol",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR-LOL\\Lol\\GSS.Lol.Web\\GSS.Lol.Web\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-Mtb": {
+            "Key": "SINOPAC-Mtb",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR-MTB\\Mtb\\GSS.Mtb.Web\\GSS.Mtb.Web\\App_Data\\Elmah.Errors"
+        },
+        "SINOPAC-Portal": {
+            "Key": "SINOPAC-Portal",
+            "Value": "C:\\GSS\\Radar\\Project\\SINOPAC\\SINOPAC_RADAR-PORTAL\\Portal\\GSS.Portal\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-Radar": {
+            "Key": "TSFHC-Radar",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR\\NewRadar\\GSS.Radar.Web\\GSS.Radar.Web\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-DataHub": {
+            "Key": "TSFHC-DataHub",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR-DATAHUB\\Source\\GSS.Radar.DataHub\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-eServices": {
+            "Key": "TSFHC-eServices",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR-ESERVICES\\eServices\\GSS.eServices.Web\\GSS.eServices.Web\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-Lol": {
+            "Key": "TSFHC-Lol",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR-LOL\\Lol\\GSS.Lol.Web\\GSS.Lol.Web\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-Mtb": {
+            "Key": "TSFHC-Mtb",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR-MTB\\Mtb\\GSS.Mtb.Web\\GSS.Mtb.Web\\App_Data\\Elmah.Errors"
+        },
+        "TSFHC-Portal": {
+            "Key": "TSFHC-Portal",
+            "Value": "C:\\GSS\\Radar\\Project\\TSFHC\\TSFHC_RADAR-PORTAL\\Portal\\GSS.Portal\\App_Data\\Elmah.Errors"
+        }
+    }
+}

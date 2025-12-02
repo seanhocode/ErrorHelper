@@ -4,10 +4,11 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
-using ErrorHelper.Tool;
+using ErrorHelper.Core.Model.LogHelper.IISLog;
 using System.Diagnostics;
+using SeanTool.Tools;
 
-namespace ErrorHelper.App.Control.LogViewer
+namespace ErrorHelper.App.Control.LogViewer.Elmah
 {
     public partial class ElmahViewerControl : LogViewerControl
     {
@@ -20,58 +21,73 @@ namespace ErrorHelper.App.Control.LogViewer
         public ElmahViewerControl(ElmahQueryConditionViewModel viewModel)
         {
             _ElmahQueryConditionViewModel = viewModel;
-            SetViewModel();
+            SetQueryConditionViewModel();
 
             ElmahFileList = new List<ElmahFile>();
 
             LogInfoDataGridView.DataSource = ElmahInfoList;
-            //資料Binding完後生成Grid按鈕
-            LogInfoDataGridView.DataBindingComplete += (sender, e) => { GenGridAction(); };
-            LogInfoDataGridView.Columns["LogID"].Visible = false;
-            LogInfoDataGridView.Columns["Message"].Visible = false;
 
             ChangeLogFolder();
         }
 
-        protected override void SetViewModel()
+        protected override void DefineDGVColumn()
+        {
+            ColumnOrderAndHeader = new[]{
+                ("OpenErrorDetailCol", "操作"),
+                ("OpenElmahFolderCol", "操作"),
+                ("AddTitleToIgnoreList", "操作"),
+                (nameof(LogInfo.Time), "時間"),
+                (nameof(IISLogInfo.Title), "錯誤說明")
+            };
+        }
+
+        protected override void InitializeOtherControl()
+        {
+            base.InitializeOtherControl();
+            LogQueryCondition1Label.Text = "檔案名稱:";
+            LogQueryCondition2Label.Text = "錯誤說明:";
+            LogQueryCondition3Label.Text = "錯誤資訊:";
+        }
+
+        protected override void SetQueryConditionViewModel()
         {
             StartTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.StartTime));
             EndTimePicker.DataBindings.Add("Value", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.EndTime));
-            FileNameTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.FileName));
-            MessageTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Message));
-            DetailTextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Detail));
+            LogQueryCondition1TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.FileName));
+            LogQueryCondition2TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Message));
+            LogQueryCondition3TextBox.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.Detail));
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _ElmahQueryConditionViewModel, nameof(_ElmahQueryConditionViewModel.LogSourceFolderPath));
         }
 
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
-            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList = new List<string>();
+            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
             QueryLog();
         }
 
         protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
         {
-            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
-            SelectItem item = new SelectItem()
-            {
-                Key = _ElmahQueryConditionViewModel.LogSourceFolderPath,
-                Value = _ElmahQueryConditionViewModel.LogSourceFolderPath
-            };
+            TextForm folderPathAliasForm = new TextForm("Input", "Please enter folder path alias.");
 
-            JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "LogFolderList", item.Key, item);
+            if (folderPathAliasForm.ShowDialog() == DialogResult.OK)
+            {
+                string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "ElmahFolderList.json");
+                SelectItem item = new SelectItem()
+                {
+                    Key = folderPathAliasForm.InputText,
+                    Value = _ElmahQueryConditionViewModel.LogSourceFolderPath
+                };
+
+                JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "ElmahFolderList", item.Key, item);
+
+                MessageBox.Show("Save successfully.");
+            }
         }
 
         protected override void QueryLog()
         {
-            ElmahFileList = ClickQueryLogBtn?.Invoke(_ElmahQueryConditionViewModel.ElmahQueryCondition);
+            ElmahFileList = ClickQueryLogBtn?.Invoke((ElmahQueryCondition)_ElmahQueryConditionViewModel.LogQueryCondition);
             LogInfoDataGridView.DataSource = ElmahInfoList;
-        }
-
-        protected override void ChangeLogFolderBtn_Click(object sender, EventArgs e)
-        {
-            ChangeLogFolder();
-
-            QueryLog();
         }
 
         protected override void OpenLogSourceFolder(LogInfo logInfo)
@@ -91,16 +107,16 @@ namespace ErrorHelper.App.Control.LogViewer
         {
             SelectForm selectConfigForm = new SelectForm("SelectFolder");
             Dictionary<string, string> logFolderItems = new Dictionary<string, string>();
-            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
+            string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "ElmahFolderList.json");
 
-            foreach (string key in JsonTool.GetJsonSubPropertyList(configFilePath, "LogFolderList"))
+            foreach (string key in JsonTool.GetJsonSubPropertyList(configFilePath, "ElmahFolderList"))
                 logFolderItems.Add(key, key);
 
             selectConfigForm.Items = logFolderItems;
 
             if (selectConfigForm.ShowDialog() == DialogResult.OK)
             {
-                SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "LogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
+                SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "ElmahFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
                 if (selectedItem.Value == "Select")
                     _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
                 else
@@ -114,7 +130,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
         protected override void AddTitleToIgnoreList(LogInfo logInfo)
         {
-            _ElmahQueryConditionViewModel.ElmahQueryCondition.IgnoreMessageList.Add(logInfo.Title);
+            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
             QueryLog();
         }
     }

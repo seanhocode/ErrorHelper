@@ -6,6 +6,6 @@ namespace ErrorHelper.App.Service.Viewer
 {
     public class ViewerServiceBase : IViewerServiceBase
     {
-        protected IFormControlService controlService { get { return DIHelper.GetService<IFormControlService>(); } }
+        protected IFormControlService controlSrv { get { return DIHelper.GetService<IFormControlService>(); } }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-namespace ErrorHelper.Core.Model.Common.Configuration
+﻿namespace ErrorHelper.Core.Model.Common.Configuration
 {
     public class SelectItem
     {

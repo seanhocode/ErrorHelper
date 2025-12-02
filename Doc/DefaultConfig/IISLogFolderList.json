@@ -1,0 +1,12 @@
+﻿{
+    "IISLogFolderList": {
+        "Select": {
+            "Key": "Select",
+            "Value": "Select"
+        },
+        "Test": {
+            "Key": "Test",
+            "Value": "C:\\Code\\ErrorHelper\\Doc\\TestData\\IISLog"
+        }
+    }
+}

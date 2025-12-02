@@ -1,11 +1,9 @@
-﻿using ErrorHelper.App.Core.Model;
-using ErrorHelper.Core.Model.BackupHelper;
+﻿using ErrorHelper.Core.Model.BackupHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using System.ComponentModel;
 
 namespace ErrorHelper.App.ViewModel.Backup
 {
-    public class BackupFolderViewModel : ModelEditor, INotifyPropertyChanged
+    public class BackupFolderViewModel : ViewModelBase
     {
         private readonly BackupFolder _BackupFolder;
 
@@ -36,9 +34,5 @@ namespace ErrorHelper.App.ViewModel.Backup
         }
 
         public BackupFolder BackupFolder => _BackupFolder;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

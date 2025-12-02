@@ -1,5 +1,6 @@
 ﻿using ErrorHelper.Core.Model.BackupHelper;
-using ErrorHelper.Tool;
+using System.Collections.Concurrent;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Service.BackupHelper
 {
@@ -7,42 +8,50 @@ namespace ErrorHelper.Infrastructure.Service.BackupHelper
     {
         public void BackupFolderByTemp(BackupFolder backupFolder)
         {
-            List<string> tempFolderFilePathList = FileTool.GetAllFileInFolder(backupFolder.TempFolderPath, true);
-            string sourceFilePath, backupFilePath = string.Empty, successMsg = string.Empty, notFoundMsg = string.Empty;
-            List<(string Source, string Backup)> successFile = new List<(string Source, string Backup)>();
-            int maxLeftLength = 0;
+            IList<string> tempFolderFilePathList = FileTool.GetAllFileInFolder(backupFolder.TempFolderPath, true);
+
+            ConcurrentBag<(string Source, string Backup)> successFiles = new ConcurrentBag<(string Source, string Backup)>();
+            ConcurrentBag<string> notFoundFiles = new ConcurrentBag<string>();
 
             //建立Backup資料夾
             FileTool.CheckFolderExist(backupFolder.BackupFolderPath, true);
 
-            foreach (string tempFilePath in tempFolderFilePathList)
+            //平行處理複製
+            Parallel.ForEach(tempFolderFilePathList, tempFilePath =>
             {
-                sourceFilePath = tempFilePath.Replace(backupFolder.TempFolderPath, backupFolder.SourceFolderPath);
-                backupFilePath = tempFilePath.Replace(backupFolder.TempFolderPath, backupFolder.BackupFolderPath);
+                string sourceFilePath = tempFilePath.Replace(backupFolder.TempFolderPath, backupFolder.SourceFolderPath)
+                    ,  backupFilePath = tempFilePath.Replace(backupFolder.TempFolderPath, backupFolder.BackupFolderPath);
 
-                //如果source有檔案才備份
                 if (FileTool.CheckFileExist(sourceFilePath))
                 {
-                    FileTool.CheckFolderExist(Path.GetDirectoryName(backupFilePath), true);
+                    //確保備份資料夾存在（multiple thread 安全）
+                    Directory.CreateDirectory(Path.GetDirectoryName(backupFilePath)!);
+
                     File.Copy(sourceFilePath, backupFilePath, true);
-                    successFile.Add((sourceFilePath, backupFilePath));
+                    successFiles.Add((sourceFilePath, backupFilePath));
                 }
                 else
                 {
-                    notFoundMsg += $"{sourceFilePath}\r\n";
+                    notFoundFiles.Add(sourceFilePath);
                 }
-            }
+            });
 
-            if( successFile.Count > 0 ) 
-                maxLeftLength = successFile.Where(file => !string.IsNullOrEmpty(file.Source)).Max(file => file.Source.Length);
-            else
-                maxLeftLength = 0;
+            int maxLeftLength =
+                successFiles.Any()
+                ? successFiles.Max(file => file.Source.Length)
+                : 0;
 
-                successMsg = string.Join(Environment.NewLine
-                    , successFile.Select(file => $"{file.Source.PadRight(maxLeftLength)} => {file.Backup}"));
+            string successMsg = string.Join(
+                Environment.NewLine,
+                successFiles.Select(file =>
+                    $"{file.Source.PadRight(maxLeftLength)} => {file.Backup}")
+            );
+
+            string notFoundMsg = string.Join(Environment.NewLine, notFoundFiles);
 
             if (!string.IsNullOrEmpty(successMsg))
                 File.WriteAllText(Path.Combine(backupFolder.BackupFolderPath, "Success.txt"), successMsg);
+
             if (!string.IsNullOrEmpty(notFoundMsg))
                 File.WriteAllText(Path.Combine(backupFolder.BackupFolderPath, "NotFound.txt"), notFoundMsg);
         }

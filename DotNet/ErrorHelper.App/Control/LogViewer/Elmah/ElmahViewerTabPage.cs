@@ -1,7 +1,7 @@
 ﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
 
-namespace ErrorHelper.App.Control.LogViewer
+namespace ErrorHelper.App.Control.LogViewer.Elmah
 {
     public class ElmahViewerTabPage : TabPage
     {

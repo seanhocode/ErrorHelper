@@ -7,5 +7,7 @@
         ToolStripMenuItem NewToolStripMenuItem(string toolStripMenuItemName, string toolStripMenuItemText, EventHandler clickHandler = null);
         ToolStripMenuItem NewToolStripMenuItemDropDownList(string toolStripMenuItemName, string toolStripMenuItemText, ToolStripMenuItem[] dorpDownList);
         TabControl NewTabControl(string tabControlName);
+
+        void GenDataGridViewActionColumn<T>(DataGridView dataGridView, string dataGridViewButtonColumnName, string actionColName, string btnText, int index, Action<T> callback);
     }
 }
