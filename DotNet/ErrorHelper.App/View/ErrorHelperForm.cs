@@ -11,6 +11,9 @@ namespace ErrorHelper.App.View
         public ErrorHelperForm()
         {
             InitializeComponent();
+
+            // 設置表單在螢幕中央開啟
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private void ErrorHelperForm_Load(object sender, EventArgs e)

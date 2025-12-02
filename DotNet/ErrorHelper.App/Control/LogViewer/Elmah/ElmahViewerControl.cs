@@ -4,7 +4,6 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
-using ErrorHelper.Core.Model.LogHelper.IISLog;
 using SeanTool.Tools;
 using System.Diagnostics;
 
@@ -51,12 +50,11 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
         # endregion
 
         # region DGV相關設定
-        protected override void LogInfoDGV_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        protected override void LogInfoDGV_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int modelIndex = VisibleIndexes[e.RowIndex];
-            LogInfo log = ElmahInfoList[modelIndex];
+            LogInfo log = ElmahInfoList[e.RowIndex];
             string col = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
 
             switch (col)
@@ -67,43 +65,43 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
                 case nameof(LogInfo.Title):
                     e.Value = log.Title;
                     break;
-                case "OpenErrorDetailCol":
+                case "OpenErrorDetailBtnCol":
                     e.Value = "細節";
                     break;
-                case "OpenElmahFolderCol":
+                case "OpenElmahFolderBtnCol":
                     e.Value = "檔案總管顯示";
                     break;
-                case "AddTitleToIgnoreList":
+                case "AddTitleToIgnoreListBtnCol":
                     e.Value = "忽略此類型";
                     break;
             }
         }
 
-        protected override void LogInfoDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        protected override void LogInfoDGV_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
             var colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
             var log = ElmahInfoList[e.RowIndex];
 
-            if (colName == "OpenErrorDetailCol")
+            if (colName == "OpenErrorDetailBtnCol")
                 OpenLogDetail(log);
 
-            else if (colName == "OpenElmahFolderCol")
+            else if (colName == "OpenElmahFolderBtnCol")
                 OpenLogSourceFolder(log);
 
-            else if (colName == "AddTitleToIgnoreList")
+            else if (colName == "AddTitleToIgnoreListBtnCol")
                 AddTitleToIgnoreList(log);
         }
 
         protected override void DefineDGVColumn()
         {
             ColumnOrderAndHeader = new[]{
-                ("OpenErrorDetailCol", "操作"),
-                ("OpenElmahFolderCol", "操作"),
-                ("AddTitleToIgnoreList", "操作"),
-                (nameof(LogInfo.Time), "時間"),
-                (nameof(LogInfo.Title), "錯誤說明")
+                ("OpenErrorDetailBtnCol", "操作", 50, DataGridViewContentAlignment.MiddleCenter),
+                ("OpenElmahFolderBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                ("AddTitleToIgnoreListBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(LogInfo.Time), "時間", 175, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(LogInfo.Title), "錯誤說明", 1000, DataGridViewContentAlignment.MiddleLeft)
             };
         }
         # endregion
@@ -112,7 +110,7 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
             _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
-            QueryLog();
+            _ = QueryLog();
         }
 
         protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
@@ -136,35 +134,38 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
         # endregion
 
         # region Service
-        protected override void QueryLog()
+        protected override async Task QueryLog()
         {
-            LogInfoDataGridView.Rows.Clear();
+            QueryLogBtn.Text = "Loading...";
+            QueryLogBtn.Enabled = false;
+            LogInfoDataGridView.RowCount = 0;
 
-            ElmahFileList = ClickQueryLogBtn?.Invoke((ElmahQueryCondition)_ElmahQueryConditionViewModel.LogQueryCondition);
+            ElmahInfoList = await Task.Run(() =>
+            {
+                ElmahFileList = ClickQueryLogBtn?.Invoke((ElmahQueryCondition)_ElmahQueryConditionViewModel.LogQueryCondition) ?? new List<ElmahFile>();
+                return ElmahFileList.Select(elmahFile => elmahFile.LogInfo ?? new LogInfo()).ToList() ?? [];
+            });
 
-            ElmahInfoList = ElmahFileList.Select(elmahFile => elmahFile.LogInfo).ToList<LogInfo>() ?? [];
-
-            VisibleIndexes = Enumerable.Range(0, ElmahInfoList.Count)
-                            .Take(MaxVisibleRows)
-                            .ToList();
+            if (ElmahInfoList != null && ElmahInfoList.Count > 0)
+                LogInfoDataGridView.RowCount = ElmahInfoList.Count;
+            else
+                MessageBox.Show("No log found.");
 
             LogInfoDataGridView.Invalidate();
-            LogInfoDataGridView.Refresh();
-
-            if (ElmahInfoList.Count > 0)
-                LogInfoDataGridView.RowCount = VisibleIndexes.Count;
+            QueryLogBtn.Text = "Query";
+            QueryLogBtn.Enabled = true;
         }
 
         protected override void OpenLogSourceFolder(LogInfo logInfo)
         {
-            ElmahFile? selectedErrorFile = ElmahFileList.FirstOrDefault(file => file.LogInfo.LogID == logInfo.LogID);
+            ElmahFile? selectedErrorFile = ElmahFileList.FirstOrDefault(file => file.LogInfo?.LogID == logInfo.LogID);
 
             if (selectedErrorFile != null)
             {
                 if (string.IsNullOrEmpty(selectedErrorFile.SourceZIPPath))
-                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath, selectedErrorFile.FileName)}\"");
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath ?? string.Empty, selectedErrorFile.FileName ?? string.Empty)}\"");
                 else
-                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName ?? string.Empty)}\"");
             }
         }
 
@@ -195,8 +196,8 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
 
         protected override void AddTitleToIgnoreList(LogInfo logInfo)
         {
-            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
-            QueryLog();
+            _ElmahQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title ?? string.Empty);
+            _ = QueryLog();
         }
         # endregion
     }

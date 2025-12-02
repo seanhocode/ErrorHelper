@@ -242,7 +242,6 @@
             // LogInfoDataGridView
             // 
             LogInfoDataGridView.AllowUserToOrderColumns = true;
-            LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             LogInfoDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             LogViewerTableLayoutPanel.SetColumnSpan(LogInfoDataGridView, 4);
             LogInfoDataGridView.Dock = DockStyle.Fill;

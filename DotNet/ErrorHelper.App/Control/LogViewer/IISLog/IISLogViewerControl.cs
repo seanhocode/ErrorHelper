@@ -5,7 +5,6 @@ using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper.IISLog;
 using SeanTool.Tools;
 using System.Diagnostics;
-using System.Windows.Forms;
 
 namespace ErrorHelper.App.Control.LogViewer
 {
@@ -52,12 +51,11 @@ namespace ErrorHelper.App.Control.LogViewer
         # endregion
 
         # region DGV相關設定
-        protected override void LogInfoDGV_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        protected override void LogInfoDGV_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int modelIndex = VisibleIndexes[e.RowIndex];
-            IISLogInfo log = IISLogInfoList[modelIndex];
+            IISLogInfo log = IISLogInfoList[e.RowIndex];
             string col = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
 
             switch (col)
@@ -77,47 +75,47 @@ namespace ErrorHelper.App.Control.LogViewer
                 case nameof(IISLogInfo.CSUriStem):
                     e.Value = log.CSUriStem;
                     break;
-                case "OpenIISErrorDetailCol":
+                case "OpenIISErrorDetailBtnCol":
                     e.Value = "細節";
                     break;
 
-                case "OpenIISLogFolderCol":
+                case "OpenIISLogFolderBtnCol":
                     e.Value = "檔案總管顯示";
                     break;
 
-                case "AddUriToIgnoreList":
+                case "AddUriToIgnoreListBtnCol":
                     e.Value = "忽略此類型";
                     break;
             }
         }
 
-        protected override void LogInfoDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        protected override void LogInfoDGV_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            var colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
-            var log = IISLogInfoList[e.RowIndex];
+            IISLogInfo log = IISLogInfoList[e.RowIndex];
+            string colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
 
-            if (colName == "OpenIISErrorDetailCol")
+            if (colName == "OpenIISErrorDetailBtnCol")
                 OpenLogDetail(log);
 
-            else if (colName == "OpenIISLogFolderCol")
+            else if (colName == "OpenIISLogFolderBtnCol")
                 OpenIISLogSourceFolder(log);
 
-            else if (colName == "AddUriToIgnoreList")
+            else if (colName == "AddUriToIgnoreListBtnCol")
                 AddUriToIgnoreList(log);
         }
 
         protected override void DefineDGVColumn()
         {
             ColumnOrderAndHeader = new[]{
-                ("OpenIISErrorDetailCol", "操作"),
-                ("OpenIISLogFolderCol", "操作"),
-                ("AddUriToIgnoreList", "操作"),
-                (nameof(IISLogInfo.Time), "時間"),
-                (nameof(IISLogInfo.SCStatus), "狀態碼"),
-                (nameof(IISLogInfo.TimeTaken), "耗時(ms)"),
-                (nameof(IISLogInfo.CSUriStem), "請求路徑")
+                ("OpenIISErrorDetailBtnCol", "操作", 50, DataGridViewContentAlignment.MiddleCenter),
+                ("OpenIISLogFolderBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                ("AddUriToIgnoreListBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(IISLogInfo.Time), "時間", 175, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(IISLogInfo.SCStatus), "狀態碼", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(IISLogInfo.TimeTaken), "耗時(ms)", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(IISLogInfo.CSUriStem), "請求路徑", 1000, DataGridViewContentAlignment.MiddleLeft)
             };
         }
         # endregion
@@ -126,7 +124,7 @@ namespace ErrorHelper.App.Control.LogViewer
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
             _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreUriList = new List<string>();
-            QueryLog();
+            _ = QueryLog();
         }
 
         protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
@@ -150,40 +148,54 @@ namespace ErrorHelper.App.Control.LogViewer
         # endregion
 
         # region Service
+        /// <summary>
+        /// 將Log Uri加入忽略清單
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void AddUriToIgnoreList(IISLogInfo logInfo)
         {
             _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreUriList.Add(logInfo.CSUriStem);
-            QueryLog();
+            _ = QueryLog();
         }
         
-        protected override void QueryLog()
+        protected override async Task QueryLog()
         {
-            LogInfoDataGridView.Rows.Clear();
+            QueryLogBtn.Text = "Loading...";
+            QueryLogBtn.Enabled = false;
+            LogInfoDataGridView.RowCount = 0;
 
-            IISLogFileList = ClickQueryLogBtn?.Invoke((IISLogQueryCondition)_IISLogQueryConditionViewModel.LogQueryCondition);
-
-            IISLogInfoList = IISLogFileList
-                                    .SelectMany(iisLogFile => iisLogFile.LogList)
+            IISLogInfoList = await Task.Run(() =>
+            {
+                IISLogFileList = ClickQueryLogBtn?.Invoke((IISLogQueryCondition)_IISLogQueryConditionViewModel.LogQueryCondition) ?? new List<IISLogFile>();
+                return IISLogFileList.SelectMany(iisLogFile => iisLogFile.LogList)
                                     .OrderByDescending(logInfo => logInfo.Time)
                                     .ToList() ?? [];
+            });
 
-            VisibleIndexes = Enumerable.Range(0, IISLogInfoList.Count)
-                            .Take(MaxVisibleRows)
-                            .ToList();
+            if (IISLogInfoList != null && IISLogInfoList.Count > 0)
+                LogInfoDataGridView.RowCount = IISLogInfoList.Count;
+            else
+                MessageBox.Show("No log found.");
 
             LogInfoDataGridView.Invalidate();
-            LogInfoDataGridView.Refresh();
-
-            if (IISLogInfoList.Count > 0)
-                LogInfoDataGridView.RowCount = VisibleIndexes.Count;
+            QueryLogBtn.Text = "Query";
+            QueryLogBtn.Enabled = true;
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Detail視窗
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenLogDetail(IISLogInfo logInfo)
         {
             IISLogInfoViewModel viewModel = new IISLogInfoViewModel(logInfo);
             viewModel.OpenViewWindow();
         }
 
+        /// <summary>
+        /// DGV自訂欄位-打開Log所在資料夾
+        /// </summary>
+        /// <param name="logInfo"></param>
         protected virtual void OpenIISLogSourceFolder(IISLogInfo logInfo)
         {
             IISLogFile? selectedErrorFile = IISLogFileList.FirstOrDefault(file => file.FileName == logInfo.LogID);
@@ -191,9 +203,9 @@ namespace ErrorHelper.App.Control.LogViewer
             if (selectedErrorFile != null)
             {
                 if (string.IsNullOrEmpty(selectedErrorFile.SourceZIPPath))
-                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath, selectedErrorFile.FileName)}\"");
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.ParentFolderPath ?? string.Empty, selectedErrorFile.FileName ?? string.Empty)}\"");
                 else
-                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName)}\"");
+                    Process.Start("explorer.exe", $"/select,\"{Path.Combine(selectedErrorFile.SourceZIPPath, selectedErrorFile.FileName ?? string.Empty)}\"");
             }
         }
 

@@ -22,7 +22,10 @@
         public SelectForm(string formTitle = "Select")
         {
             InitializeComponent();
-            Text = formTitle;
+
+            this.Text = formTitle;
+            // 設定視窗在父視窗/擁有者視窗的中央開啟
+            this.StartPosition = FormStartPosition.CenterParent;
         }
 
         private void SelectProjectInfoForm_Load(object sender, EventArgs e)

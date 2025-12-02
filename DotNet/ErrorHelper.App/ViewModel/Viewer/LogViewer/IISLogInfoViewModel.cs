@@ -1,5 +1,5 @@
 ﻿using ErrorHelper.Core.Model.LogHelper.IISLog;
-using System.ComponentModel; // 新增此命名空間以支援 DisplayName 屬性
+using System.ComponentModel;
 
 namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
 {
@@ -12,14 +12,14 @@ namespace ErrorHelper.App.ViewModel.Viewer.LogViewer
             _IISLogInfo = iisLogInfo;
         }
 
-        [DisplayName("Date")]
+        [DisplayName("Date(UTC)")]
         public string DateStr
         {
             get => _IISLogInfo.DateStr;
             set { if (_IISLogInfo.DateStr != value) { _IISLogInfo.DateStr = value; OnPropertyChanged(nameof(DateStr)); } }
         }
 
-        [DisplayName("Time")]
+        [DisplayName("Time(UTC)")]
         public string TimeStr
         {
             get => _IISLogInfo.TimeStr;

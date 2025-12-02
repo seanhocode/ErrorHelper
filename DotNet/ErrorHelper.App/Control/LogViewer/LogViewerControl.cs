@@ -15,8 +15,6 @@ namespace ErrorHelper.App.Control.LogViewer
         # region VAR
         protected IList<LogFile<LogInfo>> LogFileList { get; set; }
         protected IList<LogInfo> LogInfoList { get; set; }
-        protected List<int> VisibleIndexes { get; set; }
-        protected int MaxVisibleRows = 200000;
         protected virtual LogQueryConditionViewModel<LogQueryCondition> _LogQueryConditionViewModel { get; set; }
 
         protected FormControlService controlSrv = new FormControlService();
@@ -40,7 +38,7 @@ namespace ErrorHelper.App.Control.LogViewer
         protected LogDetailForm LogDetailForm;
         protected Button SaveFolderPathBtn;
 
-        protected virtual (string FieldName, string HeaderText)[] ColumnOrderAndHeader { get; set; }
+        protected virtual (string FieldName, string HeaderText, int Width, DataGridViewContentAlignment locate)[] ColumnOrderAndHeader { get; set; }
 
         /// <summary>
         /// 點QueryBtn後執行的Method
@@ -100,13 +98,22 @@ namespace ErrorHelper.App.Control.LogViewer
             StartTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
             EndTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
 
-            //DGV
+            // DGV
+            // 設定DataGridViewAutoSizeColumnsMode.AllCells會導致讀取非常慢
+            LogInfoDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            // 避免最後一列消失
+            LogInfoDataGridView.AllowUserToAddRows = false;
+            // 欄位標題置中
+            LogInfoDataGridView.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            // ==========VirtualMode設定==========
             LogInfoDataGridView.DataBindings.Clear();
             LogInfoDataGridView.AutoGenerateColumns = false;
-            LogInfoDataGridView.VirtualMode = true;
             LogInfoDataGridView.DataSource = null;
+            LogInfoDataGridView.VirtualMode = true;
             LogInfoDataGridView.CellValueNeeded += LogInfoDGV_CellValueNeeded;
             LogInfoDataGridView.CellContentClick += LogInfoDGV_CellContentClick;
+            // ==========VirtualMode設定==========
+
             LoadDGVColumn();
         }
 
@@ -126,12 +133,19 @@ namespace ErrorHelper.App.Control.LogViewer
         #endregion
 
         # region DGV相關設定
-        protected virtual void LogInfoDGV_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        /// <summary>
+        /// DGV VirtualMode Event
+        /// </summary>
+        /// <remarks>
+        /// 當 DGV 需要某個儲存格的資料時觸發
+        /// </remarks>
+        /// <param name="sender">觸發事件的 DataGridView 控制項</param>
+        /// <param name="e">包含行索引 RowIndex 和列索引 ColumnIndex 的事件參數</param>
+        protected virtual void LogInfoDGV_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int modelIndex = VisibleIndexes[e.RowIndex];
-            LogInfo log = LogInfoList[modelIndex];
+            LogInfo log = LogInfoList[e.RowIndex];
             string col = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
 
             switch (col)
@@ -145,48 +159,57 @@ namespace ErrorHelper.App.Control.LogViewer
                 case nameof(LogInfo.Title):
                     e.Value = log.Title;
                     break;
-                case "OpenErrorDetailCol":
+                case "OpenErrorDetailBtnCol":
                     e.Value = "細節";
                     break;
-                case "OpenLogFolderCol":
+                case "OpenLogFolderBtnCol":
                     e.Value = "檔案總管顯示";
                     break;
-                case "AddTitleToIgnoreList":
+                case "AddTitleToIgnoreListBtnCol":
                     e.Value = "忽略此類型";
                     break;
             }
         }
 
-        protected virtual void LogInfoDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        /// <summary>
+        /// DataGridView 儲存格內容點擊事件
+        /// </summary>
+        /// <remarks>用於處理使用者點擊按鈕欄位 Button Columns 的操作</remarks>
+        /// <param name="sender">觸發事件的 DataGridView 控制項</param>
+        /// <param name="e">包含點擊位置的行索引 RowIndex 和列索引 ColumnIndex 的事件參數</param>
+        protected virtual void LogInfoDGV_CellContentClick(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            var colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
-            var log = LogInfoList[e.RowIndex];
+            LogInfo log = LogInfoList[e.RowIndex];
+            string colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
 
-            if (colName == "OpenErrorDetailCol")
+            if (colName == "OpenErrorDetailBtnCol")
                 OpenLogDetail(log);
 
-            else if (colName == "OpenLogFolderCol")
+            else if (colName == "OpenLogFolderBtnCol")
                 OpenLogSourceFolder(log);
 
-            else if (colName == "AddTitleToIgnoreList")
+            else if (colName == "AddTitleToIgnoreListBtnCol")
                 AddTitleToIgnoreList(log);
         }
 
         /// <summary>
         /// 自訂欄位樣式
         /// </summary>
-        /// <remarks>(屬性名稱, 欄位標題) - 這裡同時定義了順序和標題</remarks>
+        /// <remarks>
+        /// (屬性名稱, 欄位標題) - 這裡同時定義了順序和標題，
+        /// 按鈕欄位命名用BtnCol結尾
+        /// </remarks>
         protected virtual void DefineDGVColumn()
         {
             ColumnOrderAndHeader = new[]{
-                ("OpenErrorDetailCol", "操作"),
-                ("OpenLogFolderCol", "操作"),
-                ("AddTitleToIgnoreList", "操作"),
-                (nameof(LogInfo.Time), "時間"),
-                (nameof(LogInfo.LogID), "ID"),
-                (nameof(LogInfo.Title), "Title")
+                ("OpenErrorDetailBtnCol", "操作", 50, DataGridViewContentAlignment.MiddleCenter),
+                ("OpenLogFolderBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                ("AddTitleToIgnoreListBtnCol", "操作", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(LogInfo.Time), "時間", 175, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(LogInfo.LogID), "ID", 100, DataGridViewContentAlignment.MiddleCenter),
+                (nameof(LogInfo.Title), "Title", 1000, DataGridViewContentAlignment.MiddleCenter)
             };
         }
 
@@ -199,7 +222,7 @@ namespace ErrorHelper.App.Control.LogViewer
         }
 
         /// <summary>
-        /// 自訂欄位樣式
+        /// 載入欄位、設定樣式
         /// </summary>
         protected virtual void LoadDGVColumn()
         {
@@ -207,16 +230,15 @@ namespace ErrorHelper.App.Control.LogViewer
 
             DataGridViewColumnCollection columns = LogInfoDataGridView.Columns;
 
-            // 先加入缺少的欄位（按鈕欄位 + 普通欄位）
-            foreach (var (fieldName, headerText) in ColumnOrderAndHeader)
+            // 加入缺少的欄位
+            foreach ((string fieldName, string headerText, int width, DataGridViewContentAlignment locate) in ColumnOrderAndHeader)
             {
                 if (!columns.Contains(fieldName))
                 {
-                    // 判斷是否為按鈕欄位
-                    if (fieldName.StartsWith("Open") || fieldName.StartsWith("Add"))
+                    if (fieldName.EndsWith("BtnCol"))
                     {
                         // 建立按鈕欄位
-                        var btn = new DataGridViewButtonColumn
+                        DataGridViewButtonColumn btn = new DataGridViewButtonColumn
                         {
                             Name = fieldName,
                             HeaderText = headerText,
@@ -227,7 +249,7 @@ namespace ErrorHelper.App.Control.LogViewer
                     else
                     {
                         // 一般文字欄位
-                        var col = new DataGridViewTextBoxColumn
+                        DataGridViewTextBoxColumn col = new DataGridViewTextBoxColumn
                         {
                             Name = fieldName,
                             HeaderText = headerText
@@ -246,22 +268,22 @@ namespace ErrorHelper.App.Control.LogViewer
 
             // 隱藏非白名單欄位
             foreach (DataGridViewColumn column in columns)
-            {
                 column.Visible = visibleFields.Contains(column.Name);
-            }
 
             // 設定排序與標題
-            foreach (var (fieldName, headerText) in ColumnOrderAndHeader)
+            foreach ((string fieldName, string headerText, int width, DataGridViewContentAlignment locate) in ColumnOrderAndHeader)
             {
                 if (columns.Contains(fieldName))
                 {
                     columns[fieldName].Visible = true;
                     columns[fieldName].HeaderText = headerText;
+                    columns[fieldName].Width = width;
+                    columns[fieldName].DefaultCellStyle.Alignment = locate;
                     columns[fieldName].DisplayIndex = displayIndex++;
                 }
             }
 
-            //SetDGVColumnFormat(); // optional
+            SetDGVColumnFormat();
         }
         # endregion
 
@@ -274,7 +296,7 @@ namespace ErrorHelper.App.Control.LogViewer
         protected virtual void QueryLogBtn_Click(object sender, EventArgs e)
         {
             _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList = new List<string>();
-            QueryLog();
+            _ = QueryLog();
         }
 
         /// <summary>
@@ -285,7 +307,7 @@ namespace ErrorHelper.App.Control.LogViewer
         protected virtual void ChangeLogFolderBtn_Click(object sender, EventArgs e)
         {
             ChangeLogFolder();
-            QueryLog();
+            _ = QueryLog();
         }
 
         /// <summary>
@@ -298,7 +320,7 @@ namespace ErrorHelper.App.Control.LogViewer
             string configFilePath = Path.Combine(FileTool.ThisExeDir, "Config", "LogFolderList.json");
             SelectItem item = new SelectItem()
             {
-                Key = Path.GetDirectoryName(_LogQueryConditionViewModel.LogSourceFolderPath),
+                Key = Path.GetDirectoryName(_LogQueryConditionViewModel.LogSourceFolderPath) ?? string.Empty,
                 Value = _LogQueryConditionViewModel.LogSourceFolderPath
             };
 
@@ -310,23 +332,26 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <summary>
         /// 查詢Log
         /// </summary>
-        protected virtual void QueryLog()
+        protected virtual async Task QueryLog()
         {
-            LogInfoDataGridView.Rows.Clear();
+            QueryLogBtn.Text = "Loading...";
+            QueryLogBtn.Enabled = false;
+            LogInfoDataGridView.RowCount = 0;
 
-            LogFileList = ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
+            LogInfoList = await Task.Run(() =>
+            {
+                LogFileList = ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition) ?? new List<LogFile<LogInfo>>();
+                return LogFileList.Select(logFile => logFile.LogInfo ?? new LogInfo()).ToList() ?? [];
+            });
 
-            LogInfoList = LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
-
-            VisibleIndexes = Enumerable.Range(0, LogInfoList.Count)
-                            .Take(MaxVisibleRows)
-                            .ToList();
+            if (LogInfoList != null && LogInfoList.Count > 0)
+                LogInfoDataGridView.RowCount = LogInfoList.Count;
+            else
+                MessageBox.Show("No log found.");
 
             LogInfoDataGridView.Invalidate();
-            LogInfoDataGridView.Refresh();
-
-            if (LogInfoList.Count > 0)
-                LogInfoDataGridView.RowCount = VisibleIndexes.Count;
+            QueryLogBtn.Text = "Query";
+            QueryLogBtn.Enabled = true;
         }
 
         /// <summary>
@@ -390,8 +415,8 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <param name="logInfo"></param>
         protected virtual void AddTitleToIgnoreList(LogInfo logInfo)
         {
-            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
-            QueryLog();
+            _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title ?? string.Empty);
+            _ = QueryLog();
         }
         # endregion
     }
