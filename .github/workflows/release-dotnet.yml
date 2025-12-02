@@ -20,7 +20,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-
+          # 設定 GitHub Packages NuGet 來源
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          # 提供 GITHUB_TOKEN 作為驗證憑證 (NUGET_AUTH_TOKEN)
+          # GITHUB_TOKEN 在 Actions 環境中自動有權限讀取 Package
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT

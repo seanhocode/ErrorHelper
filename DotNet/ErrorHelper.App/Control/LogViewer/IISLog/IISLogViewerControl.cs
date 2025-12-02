@@ -4,8 +4,8 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.IISLog;
-using ErrorHelper.Tool;
 using System.Diagnostics;
+using SeanTool.Tools;
 
 namespace ErrorHelper.App.Control.LogViewer
 {

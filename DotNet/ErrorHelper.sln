@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorHelper.Core", "ErrorHe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorHelper.Infrastructure", "ErrorHelper.Infrastructure\ErrorHelper.Infrastructure.csproj", "{5B2911DB-1CC4-4A48-A0D1-AA411967A201}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorHelper.Tool", "ErrorHelper.Tool\ErrorHelper.Tool.csproj", "{FAA9AF00-273B-40F4-BECA-8408D09FF7C4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorHelper.App", "ErrorHelper.App\ErrorHelper.App.csproj", "{2598F605-30AF-4BAF-A8B6-ED9D99882AA2}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{5B2911DB-1CC4-4A48-A0D1-AA411967A201}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B2911DB-1CC4-4A48-A0D1-AA411967A201}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B2911DB-1CC4-4A48-A0D1-AA411967A201}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FAA9AF00-273B-40F4-BECA-8408D09FF7C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FAA9AF00-273B-40F4-BECA-8408D09FF7C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FAA9AF00-273B-40F4-BECA-8408D09FF7C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FAA9AF00-273B-40F4-BECA-8408D09FF7C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2598F605-30AF-4BAF-A8B6-ED9D99882AA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2598F605-30AF-4BAF-A8B6-ED9D99882AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2598F605-30AF-4BAF-A8B6-ED9D99882AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU

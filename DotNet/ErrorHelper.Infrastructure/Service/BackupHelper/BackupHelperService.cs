@@ -1,6 +1,6 @@
 ﻿using ErrorHelper.Core.Model.BackupHelper;
-using ErrorHelper.Tool;
 using System.Collections.Concurrent;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Service.BackupHelper
 {

@@ -1,12 +1,12 @@
 ﻿using ErrorHelper.Core.Model.LogHelper.Elmah;
 using ErrorHelper.Core.Service.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using ErrorHelper.Tool;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {

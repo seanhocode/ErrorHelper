@@ -1,9 +1,9 @@
 ﻿using ErrorHelper.Core.Model.LogHelper.IISLog;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using ErrorHelper.Tool;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {

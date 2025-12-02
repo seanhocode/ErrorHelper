@@ -1,8 +1,8 @@
 ﻿using ErrorHelper.Core.Common.Configuration;
 using ErrorHelper.Core.Model.Common.Configuration.AppSettings;
-using ErrorHelper.Tool;
 using System.Diagnostics;
 using System.Text.Json;
+using SeanTool.Tools;
 
 namespace ErrorHelper.Infrastructure.Common.Configuration
 {
