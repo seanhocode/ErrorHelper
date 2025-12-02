@@ -135,7 +135,14 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             };
 
             //逐行讀取檔案，可以處理大型檔案而不佔用過多記憶體
-            using (FileStream stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream stream = new FileStream(
+                logPath, 
+                FileMode.Open, 
+                FileAccess.Read, 
+                FileShare.ReadWrite,
+                64 * 1024,                  // 64KB buffer
+                FileOptions.SequentialScan  // 告訴 OS 這是「順序讀取」，讓系統做快取最佳化
+            ))
             using (StreamReader reader = new StreamReader(stream))
             {
                 string? line;
