@@ -1,32 +1,49 @@
 name: Publish .NET App
 
 on:
+  # 當有 Tag 推送到主分支時觸發 (例如: git tag v1.0.0; git push --tags)
   push:
     tags:
-      - 'v*.*.*'   # 例如推送 v1.0.0 時觸發
+      - 'v*.*.*'
 
 permissions:
-  contents: write  # 讓 GITHUB_TOKEN 能建立 Release
+  # 建立 GitHub Release 需要 contents: write
+  contents: write
+  # GITHUB_TOKEN 可讀取此 Repository 自身的 GitHub Packages（非跨 repo）
+  # 跨 Repo 套件讀取需使用 PAT，因此本 workflow 的 restore 採用 GH_PACKAGES_TOKEN
+  # 此 workflow 不依賴此權限做套件 restore（restore 改用 PAT）
   packages: read
 
 jobs:
   build:
+    # 使用 Windows Runner，因為此專案需要發布 Windows 可執行檔（win-x64）
+    # Windows Runner 支援 PowerShell、Compress-Archive 和 Windows-specific Target Runtime
     runs-on: windows-latest
 
     steps:
+      # 檢出原始碼
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 安裝 .NET SDK，用於 restore/build/publish
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
+      # 從Tag取得版本號 Tag格式：v[X].[X].[X]
       - name: Get version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
         shell: bash
 
+      # 手動加入 GitHub Packages 的 NuGet 來源，讓 dotnet restore 能夠下載 private 套件。
+      # 使用 PAT（GH_PACKAGES_TOKEN）是為了避免跨 Repo 讀取私有套件時出現 403 Forbidden。
+      # 加入這個 GitHub Source 不會移除或覆蓋官方 nuget.org 的來源：
+      #    - 公開套件（例如：Newtonsoft.Json / Serilog / Microsoft.*）仍然會從 nuget.org 取得
+      #    - 私有套件會從這個 GitHub Packages 來源取得
+      #    - NuGet 會同時保留多個來源並自動依序查詢
+      # 這裡設定 GitHub Packages 不會影響你使用所有官方 NuGet 套件
       - name: Add GitHub NuGet source
         run: |
           dotnet nuget remove source GitHub || true
@@ -37,9 +54,12 @@ jobs:
             --store-password-in-clear-text
         shell: pwsh
 
+      # 還原專案相依套件（含 GitHub Packages 套件）
       - name: Restore dependencies
         run: dotnet restore ./DotNet/ErrorHelper.App/ErrorHelper.App.csproj
 
+      # 生成 Windows x64 的單檔、自包含可執行檔
+      # 使用 Tag 版本作為組建版號
       - name: Publish (single file, self-contained, win-x64)
         run: >
           dotnet publish ./DotNet/ErrorHelper.App/ErrorHelper.App.csproj
@@ -50,12 +70,15 @@ jobs:
           -p:Version=${{ steps.version.outputs.version }}
           -o ./DotNet/ErrorHelper.App/Release/build
 
+      # 將發布結果打包成 zip 方便放進 Release 中
       - name: Archive build
         run: |
           mkdir -p artifacts
           Compress-Archive -Path "./DotNet/ErrorHelper.App/Release/build/*" -DestinationPath "artifacts/ErrorHelper.App-${{ steps.version.outputs.version }}.zip"
         shell: pwsh
 
+      # 建立 GitHub Release 並附上 zip 檔
+      # 使用 GITHUB_TOKEN（自動授權）即可建立 Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
