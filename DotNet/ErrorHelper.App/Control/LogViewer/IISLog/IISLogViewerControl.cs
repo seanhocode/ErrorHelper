@@ -2,25 +2,26 @@
 using ErrorHelper.App.View.Common;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
-using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.IISLog;
-using System.Diagnostics;
 using SeanTool.Tools;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace ErrorHelper.App.Control.LogViewer
 {
     public partial class IISLogViewerControl : LogViewerControl
     {
+        # region VAR
         protected readonly IISLogQueryConditionViewModel _IISLogQueryConditionViewModel;
 
         protected IList<IISLogFile> IISLogFileList { get; set; }
-        protected List<IISLogInfo> IISLogInfoList => IISLogFileList
-                                                        .SelectMany(iisLogFile => iisLogFile.LogList)
-                                                        .OrderByDescending(logInfo => logInfo.Time)
-                                                        .ToList() ?? [];
+
+        protected List<IISLogInfo> IISLogInfoList { get; set; }
 
         public new Func<IISLogQueryCondition, IList<IISLogFile>> ClickQueryLogBtn;
+        # endregion
 
+        # region 建構元及初始化
         public IISLogViewerControl(IISLogQueryConditionViewModel viewModel)
         {
             _IISLogQueryConditionViewModel = viewModel;
@@ -28,62 +29,7 @@ namespace ErrorHelper.App.Control.LogViewer
 
             IISLogFileList = new List<IISLogFile>();
 
-            LogInfoDataGridView.DataSource = IISLogInfoList;
-
             ChangeLogFolder();
-        }
-
-        protected override void DefineDGVColumn()
-        {
-            ColumnOrderAndHeader = new[]{
-                ("OpenIISErrorDetailCol", "操作"),
-                ("OpenIISLogFolderCol", "操作"),
-                ("AddUriToIgnoreList", "操作"),
-                (nameof(IISLogInfo.Time), "時間"),
-                (nameof(IISLogInfo.SCStatus), "狀態碼"),
-                (nameof(IISLogInfo.TimeTaken), "耗時(ms)"),
-                //(nameof(IISLogInfo.ClientIP), "請求端 IP"),
-                //(nameof(IISLogInfo.ClientPort), "客戶端 Port"),
-                //(nameof(IISLogInfo.ServerIP), "伺服器 IP"),
-                //(nameof(IISLogInfo.ServerPort), "伺服器 Port"),
-                (nameof(IISLogInfo.CSUriStem), "請求路徑")
-            };
-        }
-
-        protected override void GenGridAction()
-        {
-            if (!LogInfoDataGridView.Columns.Contains("OpenIISErrorDetailCol"))
-            {
-                controlSrv.GenDataGridViewActionColumn<IISLogInfo>(LogInfoDataGridView
-                , "OpenIISErrorDetailCol"
-                , "操作", "細節"
-                , 0
-                , (logInfo) => { OpenLogDetail(logInfo); });
-            }
-
-            if (!LogInfoDataGridView.Columns.Contains("OpenIISLogFolderCol"))
-            {
-                controlSrv.GenDataGridViewActionColumn<IISLogInfo>(LogInfoDataGridView
-                , "OpenIISLogFolderCol"
-                , "操作", "檔案總管顯示"
-                , 0
-                , (logInfo) => { OpenIISLogSourceFolder(logInfo); });
-            }
-
-            if (!LogInfoDataGridView.Columns.Contains("AddUriToIgnoreList"))
-            {
-                controlSrv.GenDataGridViewActionColumn<IISLogInfo>(LogInfoDataGridView
-                , "AddUriToIgnoreList"
-                , "操作", "忽略此類型"
-                , 0
-                , (logInfo) => { AddUriToIgnoreList(logInfo); });
-            }
-        }
-
-        protected virtual void AddUriToIgnoreList(IISLogInfo logInfo)
-        {
-            _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreUriList.Add(logInfo.CSUriStem);
-            QueryLog();
         }
 
         protected override void InitializeOtherControl()
@@ -103,17 +49,84 @@ namespace ErrorHelper.App.Control.LogViewer
             LogQueryCondition3TextBox.DataBindings.Add("Text", _IISLogQueryConditionViewModel, nameof(_IISLogQueryConditionViewModel.TimeTaken));
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _IISLogQueryConditionViewModel, nameof(_IISLogQueryConditionViewModel.LogSourceFolderPath));
         }
+        # endregion
 
+        # region DGV相關設定
+        protected override void LogInfoDGV_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            int modelIndex = VisibleIndexes[e.RowIndex];
+            IISLogInfo log = IISLogInfoList[modelIndex];
+            string col = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
+
+            switch (col)
+            {
+                case nameof(IISLogInfo.Time):
+                    e.Value = log.Time;
+                    break;
+
+                case nameof(IISLogInfo.SCStatus):
+                    e.Value = log.SCStatus;
+                    break;
+
+                case nameof(IISLogInfo.TimeTaken):
+                    e.Value = log.TimeTaken;
+                    break;
+
+                case nameof(IISLogInfo.CSUriStem):
+                    e.Value = log.CSUriStem;
+                    break;
+                case "OpenIISErrorDetailCol":
+                    e.Value = "細節";
+                    break;
+
+                case "OpenIISLogFolderCol":
+                    e.Value = "檔案總管顯示";
+                    break;
+
+                case "AddUriToIgnoreList":
+                    e.Value = "忽略此類型";
+                    break;
+            }
+        }
+
+        protected override void LogInfoDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
+            var log = IISLogInfoList[e.RowIndex];
+
+            if (colName == "OpenIISErrorDetailCol")
+                OpenLogDetail(log);
+
+            else if (colName == "OpenIISLogFolderCol")
+                OpenIISLogSourceFolder(log);
+
+            else if (colName == "AddUriToIgnoreList")
+                AddUriToIgnoreList(log);
+        }
+
+        protected override void DefineDGVColumn()
+        {
+            ColumnOrderAndHeader = new[]{
+                ("OpenIISErrorDetailCol", "操作"),
+                ("OpenIISLogFolderCol", "操作"),
+                ("AddUriToIgnoreList", "操作"),
+                (nameof(IISLogInfo.Time), "時間"),
+                (nameof(IISLogInfo.SCStatus), "狀態碼"),
+                (nameof(IISLogInfo.TimeTaken), "耗時(ms)"),
+                (nameof(IISLogInfo.CSUriStem), "請求路徑")
+            };
+        }
+        # endregion
+
+        # region BtnClick
         protected override void QueryLogBtn_Click(object sender, EventArgs e)
         {
             _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreUriList = new List<string>();
             QueryLog();
-        }
-
-        protected override void QueryLog()
-        {
-            IISLogFileList = ClickQueryLogBtn?.Invoke((IISLogQueryCondition)_IISLogQueryConditionViewModel.LogQueryCondition);
-            LogInfoDataGridView.DataSource = IISLogInfoList;
         }
 
         protected override void SaveFolderPathBtn_Click(object sender, EventArgs e)
@@ -133,6 +146,36 @@ namespace ErrorHelper.App.Control.LogViewer
 
                 MessageBox.Show("Save successfully.");
             }
+        }
+        # endregion
+
+        # region Service
+        protected virtual void AddUriToIgnoreList(IISLogInfo logInfo)
+        {
+            _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreUriList.Add(logInfo.CSUriStem);
+            QueryLog();
+        }
+        
+        protected override void QueryLog()
+        {
+            LogInfoDataGridView.Rows.Clear();
+
+            IISLogFileList = ClickQueryLogBtn?.Invoke((IISLogQueryCondition)_IISLogQueryConditionViewModel.LogQueryCondition);
+
+            IISLogInfoList = IISLogFileList
+                                    .SelectMany(iisLogFile => iisLogFile.LogList)
+                                    .OrderByDescending(logInfo => logInfo.Time)
+                                    .ToList() ?? [];
+
+            VisibleIndexes = Enumerable.Range(0, IISLogInfoList.Count)
+                            .Take(MaxVisibleRows)
+                            .ToList();
+
+            LogInfoDataGridView.Invalidate();
+            LogInfoDataGridView.Refresh();
+
+            if (IISLogInfoList.Count > 0)
+                LogInfoDataGridView.RowCount = VisibleIndexes.Count;
         }
 
         protected virtual void OpenLogDetail(IISLogInfo logInfo)
@@ -178,11 +221,6 @@ namespace ErrorHelper.App.Control.LogViewer
                 _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
             }
         }
-
-        protected override void AddTitleToIgnoreList(LogInfo logInfo)
-        {
-            _IISLogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
-            QueryLog();
-        }
+        # endregion
     }
 }

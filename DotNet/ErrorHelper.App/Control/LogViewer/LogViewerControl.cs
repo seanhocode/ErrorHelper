@@ -5,17 +5,20 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using System.Diagnostics;
 using SeanTool.Tools;
+using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
 {
     public partial class LogViewerControl : UserControl
     {
+        # region VAR
         protected IList<LogFile<LogInfo>> LogFileList { get; set; }
-        protected IList<LogInfo> LogInfoList => LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
-
+        protected IList<LogInfo> LogInfoList { get; set; }
+        protected List<int> VisibleIndexes { get; set; }
+        protected int MaxVisibleRows = 200000;
         protected virtual LogQueryConditionViewModel<LogQueryCondition> _LogQueryConditionViewModel { get; set; }
+
         protected FormControlService controlSrv = new FormControlService();
 
         protected DateTimePicker StartTimePicker;
@@ -45,6 +48,9 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <remarks>傳入LogQueryCondition並回傳LogFileList(Log查詢結果)</remarks>
         public Func<LogQueryCondition, IList<LogFile<LogInfo>>> ClickQueryLogBtn;
 
+        # endregion
+
+        # region 建構元及初始化
         /// <summary>
         /// 給繼承Control使用的無參建構子
         /// </summary>
@@ -94,12 +100,14 @@ namespace ErrorHelper.App.Control.LogViewer
             StartTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
             EndTimePicker.CustomFormat = AppSettings.SystemSetting.TimePickerFormatStr;
 
-            //資料Binding完後
-            LogInfoDataGridView.DataBindingComplete += (sender, e) =>
-            {
-                GenGridAction();
-                LoadDGVColumn();
-            };
+            //DGV
+            LogInfoDataGridView.DataBindings.Clear();
+            LogInfoDataGridView.AutoGenerateColumns = false;
+            LogInfoDataGridView.VirtualMode = true;
+            LogInfoDataGridView.DataSource = null;
+            LogInfoDataGridView.CellValueNeeded += LogInfoDGV_CellValueNeeded;
+            LogInfoDataGridView.CellContentClick += LogInfoDGV_CellContentClick;
+            LoadDGVColumn();
         }
 
         /// <summary>
@@ -115,7 +123,149 @@ namespace ErrorHelper.App.Control.LogViewer
             LogQueryCondition3TextBox.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.Detail));
             ErrorSourceFolderPathLabel.DataBindings.Add("Text", _LogQueryConditionViewModel, nameof(_LogQueryConditionViewModel.LogSourceFolderPath));
         }
+        #endregion
 
+        # region DGV相關設定
+        protected virtual void LogInfoDGV_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            int modelIndex = VisibleIndexes[e.RowIndex];
+            LogInfo log = LogInfoList[modelIndex];
+            string col = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
+
+            switch (col)
+            {
+                case nameof(LogInfo.Time):
+                    e.Value = log.Time;
+                    break;
+                case nameof(LogInfo.LogID):
+                    e.Value = log.LogID;
+                    break;
+                case nameof(LogInfo.Title):
+                    e.Value = log.Title;
+                    break;
+                case "OpenErrorDetailCol":
+                    e.Value = "細節";
+                    break;
+                case "OpenLogFolderCol":
+                    e.Value = "檔案總管顯示";
+                    break;
+                case "AddTitleToIgnoreList":
+                    e.Value = "忽略此類型";
+                    break;
+            }
+        }
+
+        protected virtual void LogInfoDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var colName = LogInfoDataGridView.Columns[e.ColumnIndex].Name;
+            var log = LogInfoList[e.RowIndex];
+
+            if (colName == "OpenErrorDetailCol")
+                OpenLogDetail(log);
+
+            else if (colName == "OpenLogFolderCol")
+                OpenLogSourceFolder(log);
+
+            else if (colName == "AddTitleToIgnoreList")
+                AddTitleToIgnoreList(log);
+        }
+
+        /// <summary>
+        /// 自訂欄位樣式
+        /// </summary>
+        /// <remarks>(屬性名稱, 欄位標題) - 這裡同時定義了順序和標題</remarks>
+        protected virtual void DefineDGVColumn()
+        {
+            ColumnOrderAndHeader = new[]{
+                ("OpenErrorDetailCol", "操作"),
+                ("OpenLogFolderCol", "操作"),
+                ("AddTitleToIgnoreList", "操作"),
+                (nameof(LogInfo.Time), "時間"),
+                (nameof(LogInfo.LogID), "ID"),
+                (nameof(LogInfo.Title), "Title")
+            };
+        }
+
+        /// <summary>
+        /// 設定欄位格式
+        /// </summary>
+        protected virtual void SetDGVColumnFormat()
+        {
+            LogInfoDataGridView.Columns[nameof(LogInfo.Time)].DefaultCellStyle.Format = AppSettings.SystemSetting.TimeFormatStr;
+        }
+
+        /// <summary>
+        /// 自訂欄位樣式
+        /// </summary>
+        protected virtual void LoadDGVColumn()
+        {
+            DefineDGVColumn();
+
+            DataGridViewColumnCollection columns = LogInfoDataGridView.Columns;
+
+            // 先加入缺少的欄位（按鈕欄位 + 普通欄位）
+            foreach (var (fieldName, headerText) in ColumnOrderAndHeader)
+            {
+                if (!columns.Contains(fieldName))
+                {
+                    // 判斷是否為按鈕欄位
+                    if (fieldName.StartsWith("Open") || fieldName.StartsWith("Add"))
+                    {
+                        // 建立按鈕欄位
+                        var btn = new DataGridViewButtonColumn
+                        {
+                            Name = fieldName,
+                            HeaderText = headerText,
+                            UseColumnTextForButtonValue = false
+                        };
+                        columns.Add(btn);
+                    }
+                    else
+                    {
+                        // 一般文字欄位
+                        var col = new DataGridViewTextBoxColumn
+                        {
+                            Name = fieldName,
+                            HeaderText = headerText
+                        };
+                        columns.Add(col);
+                    }
+                }
+            }
+
+            // 依照 ColumnOrderAndHeader 控制可見/排序
+            int displayIndex = 0;
+            var visibleFields = new HashSet<string>(
+                ColumnOrderAndHeader.Select(c => c.FieldName),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            // 隱藏非白名單欄位
+            foreach (DataGridViewColumn column in columns)
+            {
+                column.Visible = visibleFields.Contains(column.Name);
+            }
+
+            // 設定排序與標題
+            foreach (var (fieldName, headerText) in ColumnOrderAndHeader)
+            {
+                if (columns.Contains(fieldName))
+                {
+                    columns[fieldName].Visible = true;
+                    columns[fieldName].HeaderText = headerText;
+                    columns[fieldName].DisplayIndex = displayIndex++;
+                }
+            }
+
+            //SetDGVColumnFormat(); // optional
+        }
+        # endregion
+
+        # region BtnClick
         /// <summary>
         /// 查詢按鈕
         /// </summary>
@@ -154,108 +304,29 @@ namespace ErrorHelper.App.Control.LogViewer
 
             JsonTool.SaveSinglePropertyToListJson<SelectItem>(configFilePath, "LogFolderList", item.Key, item);
         }
+        # endregion
 
+        # region Service
         /// <summary>
         /// 查詢Log
         /// </summary>
         protected virtual void QueryLog()
         {
+            LogInfoDataGridView.Rows.Clear();
+
             LogFileList = ClickQueryLogBtn?.Invoke(_LogQueryConditionViewModel.LogQueryCondition);
-            LogInfoDataGridView.DataSource = LogInfoList;
-        }
 
-        /// <summary>
-        /// 產生DGV自訂Action欄位
-        /// </summary>
-        protected virtual void GenGridAction()
-        {
-            if (!LogInfoDataGridView.Columns.Contains("OpenErrorDetailCol"))
-            {
-                controlSrv.GenDataGridViewActionColumn<LogInfo>(LogInfoDataGridView
-                , "OpenErrorDetailCol"
-                , "操作", "細節"
-                , 0
-                , (logInfo) => { OpenLogDetail(logInfo); });
-            }
+            LogInfoList = LogFileList.Select(logFile => logFile.LogInfo).ToList<LogInfo>() ?? [];
 
-            if (!LogInfoDataGridView.Columns.Contains("OpenElmahFolderCol"))
-            {
-                controlSrv.GenDataGridViewActionColumn<LogInfo>(LogInfoDataGridView
-                , "OpenElmahFolderCol"
-                , "操作", "檔案總管顯示"
-                , 0
-                , (logInfo) => { OpenLogSourceFolder(logInfo); });
-            }
+            VisibleIndexes = Enumerable.Range(0, LogInfoList.Count)
+                            .Take(MaxVisibleRows)
+                            .ToList();
 
-            if (!LogInfoDataGridView.Columns.Contains("AddTitleToIgnoreList"))
-            {
-                controlSrv.GenDataGridViewActionColumn<LogInfo>(LogInfoDataGridView
-                , "AddTitleToIgnoreList"
-                , "操作", "忽略此類型"
-                , 0
-                , (logInfo) => { AddTitleToIgnoreList(logInfo); });
-            }
-        }
+            LogInfoDataGridView.Invalidate();
+            LogInfoDataGridView.Refresh();
 
-        /// <summary>
-        /// 自訂欄位樣式
-        /// </summary>
-        /// <remarks>(屬性名稱, 欄位標題) - 這裡同時定義了順序和標題</remarks>
-        protected virtual void DefineDGVColumn()
-        {
-            ColumnOrderAndHeader = new[]{
-                ("OpenErrorDetailCol", "操作"),
-                ("OpenElmahFolderCol", "操作"),
-                ("AddTitleToIgnoreList", "操作"),
-                (nameof(LogInfo.Time), "時間"),
-                (nameof(LogInfo.LogID), "ID"),
-                (nameof(LogInfo.Title), "Title")
-            };
-        }
-
-        /// <summary>
-        /// 設定欄位格式
-        /// </summary>
-        protected virtual void SetDGVColumnFormat()
-        {
-            LogInfoDataGridView.Columns[nameof(LogInfo.Time)].DefaultCellStyle.Format = AppSettings.SystemSetting.TimeFormatStr;
-        }
-
-        /// <summary>
-        /// 自訂欄位樣式
-        /// </summary>
-        protected virtual void LoadDGVColumn(){
-            DefineDGVColumn();
-
-            int displayIndex = 0;
-
-            //獲取所有欄位
-            DataGridViewColumnCollection columns = LogInfoDataGridView.Columns;
-
-            //創建一個HashSet以快速檢查哪些欄位應該顯示
-            HashSet<string> visibleFieldsSet = new HashSet<string>(
-                ColumnOrderAndHeader.Select(c => c.FieldName),
-                StringComparer.OrdinalIgnoreCase//使用序數（binary）比較，且忽略大小寫
-            );
-
-            //隱藏所有非白名單欄位
-            foreach (DataGridViewColumn column in columns)
-                if (!visibleFieldsSet.Contains(column.Name))
-                    column.Visible = false;
-
-            foreach ((string fieldName, string headerText) in ColumnOrderAndHeader)
-            {
-                if (columns.Contains(fieldName))
-                {
-                    columns[fieldName].Visible = true;
-                    columns[fieldName].HeaderText = headerText;
-                    columns[fieldName].DisplayIndex = displayIndex;
-
-                    displayIndex++;
-                }
-            }
-
-            SetDGVColumnFormat();
+            if (LogInfoList.Count > 0)
+                LogInfoDataGridView.RowCount = VisibleIndexes.Count;
         }
 
         /// <summary>
@@ -322,5 +393,6 @@ namespace ErrorHelper.App.Control.LogViewer
             _LogQueryConditionViewModel.LogQueryCondition.IgnoreMessageList.Add(logInfo.Title);
             QueryLog();
         }
+        # endregion
     }
 }
