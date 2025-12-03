@@ -3,7 +3,7 @@ using ErrorHelper.Infrastructure.Common.Configuration;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using SeanTool.Tools;
+using SeanTool.CSharp.Net8;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
@@ -88,6 +88,7 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
             string[] fieldNames = Array.Empty<string>();
             //取得台灣的時區資訊(Windows時區ID)
             TimeZoneInfo taiwanTimeZone = TimeZoneInfo.FindSystemTimeZoneById(AppSettings.SystemSetting.TaiwanTimeZoneID);
+            int count = 0, successCount = 0, deCodeError = 0, notInCondition = 0, noField = 0;
 
             if (!File.Exists(logPath)) return result;
 
@@ -134,73 +135,64 @@ namespace ErrorHelper.Infrastructure.Service.LogHelper
                 {"s-computername", (log, value) => log.ServerComputerName = value}      // Server name
             };
 
-            //逐行讀取檔案，可以處理大型檔案而不佔用過多記憶體
-            using (FileStream stream = new FileStream(
-                logPath, 
-                FileMode.Open, 
-                FileAccess.Read, 
-                FileShare.ReadWrite,
-                64 * 1024,                  // 64KB buffer
-                FileOptions.SequentialScan  // 告訴 OS 這是「順序讀取」，讓系統做快取最佳化
-            ))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string? line;
-                while ((line = reader.ReadLine()) != null)
+            foreach(string line in FileTool.ReadFile(logPath)){
+                count++;
+                //忽略空白行或註釋行 (以#開頭)
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
                 {
-                    //忽略空白行或註釋行 (以#開頭)
-                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+                    //解析欄位定義行 (以 #Fields: 開頭)
+                    if (line.StartsWith("#Fields:"))
                     {
-                        //解析欄位定義行 (以 #Fields: 開頭)
-                        if (line.StartsWith("#Fields:"))
-                        {
-                            //分隔並去除 #Fields: 前綴，然後去除空白並轉換為陣列
-                            fieldNames = line.Substring("#Fields:".Length)
-                                             .Split(separator, StringSplitOptions.RemoveEmptyEntries)
-                                             //.Select(f => f.ToLowerInvariant()) // 統一轉為小寫以便匹配
-                                             .ToArray();
-                        }
-                        continue;
+                        //分隔並去除 #Fields: 前綴，然後去除空白並轉換為陣列
+                        fieldNames = line.Substring("#Fields:".Length)
+                                         .Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                                         //.Select(f => f.ToLowerInvariant()) // 統一轉為小寫以便匹配
+                                         .ToArray();
                     }
-
-                    //如果在資料行之前沒有找到#Fields:，則無法解析，跳過檔案
-                    if (fieldNames.Length == 0) continue;
-
-                    //解析資料行，StringSplitOptions.RemoveEmptyEntries處理多個連續空格
-                    string[] values = line.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-
-                    if (values.Length != fieldNames.Length) continue;
-
-                    IISLogInfo currentLog = new IISLogInfo();
-                    string dateString = string.Empty;
-                    string timeString = string.Empty;
-
-                    //根據欄位名稱，將值設置到IisLogInfo物件中
-                    for (int i = 0; i < fieldNames.Length; i++)
-                    {
-                        if (fieldNames[i] == "date") dateString = values[i];
-                        if (fieldNames[i] == "time") timeString = values[i];
-                        if (targetFields.ContainsKey(fieldNames[i]))
-                            // 使用Action<IisLogInfo, string> 委派來設置對應的屬性
-                            targetFields[fieldNames[i]].Invoke(currentLog, values[i]);
-                    }
-
-                    //解析LogTime為DateTime，IIS Log格式通常為yyyy-MM-dd和HH:mm:ss
-                    if (!string.IsNullOrEmpty(dateString) && !string.IsNullOrEmpty(timeString))
-                        if (DateTime.TryParse($"{dateString} {timeString}", out DateTime parsedUTCTime))
-                            currentLog.Time = TimeZoneInfo.ConvertTimeFromUtc(parsedUTCTime, taiwanTimeZone);
-
-                    currentLog.LogID = Path.GetFileName(logPath);
-
-                    if (
-                        currentLog.Time >= iisLogQueryCondition.StartTime && currentLog.Time <= iisLogQueryCondition.EndTime
-                        && (currentLog.SCStatus == iisLogQueryCondition.SCStatus || string.IsNullOrEmpty(iisLogQueryCondition.SCStatus))
-                        && currentLog.CSUriStem.Contains(iisLogQueryCondition.CSUriStem)
-                        && iisLogQueryCondition.IgnoreUriList.All(ignoreUri => currentLog.CSUriStem != ignoreUri)
-                        && currentLog.TimeTaken >= iisLogQueryCondition.TimeTaken
-                    )
-                        result.Add(currentLog);
+                    continue;
                 }
+
+                //如果在資料行之前沒有找到#Fields:，則無法解析，跳過檔案
+                if (fieldNames.Length == 0) { noField++; continue; }
+
+                //解析資料行，StringSplitOptions.RemoveEmptyEntries處理多個連續空格
+                string[] values = line.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+                if (values.Length != fieldNames.Length) { deCodeError++; continue; };
+
+                IISLogInfo currentLog = new IISLogInfo();
+                string dateString = string.Empty;
+                string timeString = string.Empty;
+
+                //根據欄位名稱，將值設置到IisLogInfo物件中
+                for (int i = 0; i < fieldNames.Length; i++)
+                {
+                    if (fieldNames[i] == "date") dateString = values[i];
+                    if (fieldNames[i] == "time") timeString = values[i];
+                    if (targetFields.ContainsKey(fieldNames[i]))
+                        // 使用Action<IisLogInfo, string> 委派來設置對應的屬性
+                        targetFields[fieldNames[i]].Invoke(currentLog, values[i]);
+                }
+
+                //解析LogTime為DateTime，IIS Log格式通常為yyyy-MM-dd和HH:mm:ss
+                if (!string.IsNullOrEmpty(dateString) && !string.IsNullOrEmpty(timeString))
+                    if (DateTime.TryParse($"{dateString} {timeString}", out DateTime parsedUTCTime))
+                        currentLog.Time = TimeZoneInfo.ConvertTimeFromUtc(parsedUTCTime, taiwanTimeZone);
+
+                currentLog.LogID = Path.GetFileName(logPath);
+
+                if (
+                    currentLog.Time >= iisLogQueryCondition.StartTime && currentLog.Time <= iisLogQueryCondition.EndTime
+                    && (currentLog.SCStatus == iisLogQueryCondition.SCStatus || string.IsNullOrEmpty(iisLogQueryCondition.SCStatus))
+                    && currentLog.CSUriStem.Contains(iisLogQueryCondition.CSUriStem)
+                    && iisLogQueryCondition.IgnoreUriList.All(ignoreUri => currentLog.CSUriStem != ignoreUri)
+                    && currentLog.TimeTaken >= iisLogQueryCondition.TimeTaken
+                ){
+                    result.Add(currentLog);
+                    successCount++;
+                }
+                else{ notInCondition++; }
+                    
             }
 
             return result;

@@ -5,7 +5,7 @@ using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using SeanTool.Tools;
+using SeanTool.CSharp.Net8;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer

@@ -2,7 +2,7 @@
 using ErrorHelper.Core.Model.Common.Configuration.AppSettings;
 using System.Diagnostics;
 using System.Text.Json;
-using SeanTool.Tools;
+using SeanTool.CSharp.Net8;
 
 namespace ErrorHelper.Infrastructure.Common.Configuration
 {

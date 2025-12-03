@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using SeanTool.Tools;
+using SeanTool.CSharp.Net8;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {

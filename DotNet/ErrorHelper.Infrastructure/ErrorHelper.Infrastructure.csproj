@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SeanTool.CSharp.Net8.FileTool" Version="0.0.1" />
-    <PackageReference Include="SeanTool.CSharp.Net8.JsonTool" Version="0.0.1" />
-    <PackageReference Include="SeanTool.CSharp.Net8.XMLTool" Version="0.0.1" />
-    <PackageReference Include="SeanTool.CSharp.Net8.ZipTool" Version="0.0.1" />
+    <PackageReference Include="SeanTool.CSharp.Net8.FileTool" Version="0.0.2" />
+    <PackageReference Include="SeanTool.CSharp.Net8.JsonTool" Version="0.0.2" />
+    <PackageReference Include="SeanTool.CSharp.Net8.XMLTool" Version="0.0.2" />
+    <PackageReference Include="SeanTool.CSharp.Net8.ZipTool" Version="0.0.2" />
   </ItemGroup>
 
   <ItemGroup>
