@@ -1,9 +1,8 @@
-﻿using ErrorHelper.App.Service.FormControl;
-using ErrorHelper.App.View.Common;
-using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper.IISLog;
 using SeanTool.CSharp.Net8;
+using SeanTool.CSharp.Net8.Forms;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
@@ -224,13 +223,13 @@ namespace ErrorHelper.App.Control.LogViewer
             {
                 SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "IISLogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
                 if (selectedItem.Value == "Select")
-                    _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
+                    _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
                 else
                     _IISLogQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
             }
             else
             {
-                _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
+                _IISLogQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_IISLogQueryConditionViewModel.LogSourceFolderPath);
             }
         }
         # endregion

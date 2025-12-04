@@ -1,11 +1,10 @@
-﻿using ErrorHelper.App.Service.FormControl;
-using ErrorHelper.App.View.Common;
-using ErrorHelper.App.View.LogViewer;
+﻿using ErrorHelper.App.View.LogViewer;
 using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
 using SeanTool.CSharp.Net8;
+using SeanTool.CSharp.Net8.Forms;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer
@@ -16,8 +15,6 @@ namespace ErrorHelper.App.Control.LogViewer
         protected IList<LogFile<LogInfo>> LogFileList { get; set; }
         protected IList<LogInfo> LogInfoList { get; set; }
         protected virtual LogQueryConditionViewModel<LogQueryCondition> _LogQueryConditionViewModel { get; set; }
-
-        protected FormControlService controlSrv = new FormControlService();
 
         protected DateTimePicker StartTimePicker;
         protected DateTimePicker EndTimePicker;
@@ -399,13 +396,13 @@ namespace ErrorHelper.App.Control.LogViewer
             {
                 SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "LogFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
                 if (selectedItem.Value == "Select")
-                    _LogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
+                    _LogQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
                 else
                     _LogQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
             }
             else
             {
-                _LogQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
+                _LogQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_LogQueryConditionViewModel.LogSourceFolderPath);
             }
         }
 

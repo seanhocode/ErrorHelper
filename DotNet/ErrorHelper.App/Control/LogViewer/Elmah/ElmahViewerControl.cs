@@ -1,10 +1,9 @@
-﻿using ErrorHelper.App.Service.FormControl;
-using ErrorHelper.App.View.Common;
-using ErrorHelper.App.ViewModel.Viewer.LogViewer;
+﻿using ErrorHelper.App.ViewModel.Viewer.LogViewer;
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
 using SeanTool.CSharp.Net8;
+using SeanTool.CSharp.Net8.Forms;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer.Elmah
@@ -184,13 +183,13 @@ namespace ErrorHelper.App.Control.LogViewer.Elmah
             {
                 SelectItem selectedItem = JsonTool.GetSinglePropertyByListJson<SelectItem>(configFilePath, "ElmahFolderList", (selectConfigForm.SelectedValue ?? string.Empty));
                 if (selectedItem.Value == "Select")
-                    _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
+                    _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
                 else
                     _ElmahQueryConditionViewModel.LogSourceFolderPath = selectedItem.Value;
             }
             else
             {
-                _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlService.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
+                _ElmahQueryConditionViewModel.LogSourceFolderPath = FormControlTool.GetSelectFolderPath(_ElmahQueryConditionViewModel.LogSourceFolderPath);
             }
         }
 

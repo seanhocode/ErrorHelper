@@ -6,7 +6,7 @@
 void Main()
 {
 	string output = @"C:\Temp\u_ex[yymmdd].log";
-    const int lines = 1_000_000;
+    const int lines = 1_000_000_0;
     var sb = new StringBuilder(200);
 
     var rand = new Random();

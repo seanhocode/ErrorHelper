@@ -1,4 +1,4 @@
-﻿using ErrorHelper.App.Core.Model;
+﻿using SeanTool.CSharp.Net8.Forms;
 using System.ComponentModel;
 
 namespace ErrorHelper.App.ViewModel
