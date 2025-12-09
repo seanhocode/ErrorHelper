@@ -187,8 +187,8 @@ namespace ErrorHelper.App.Control.LogViewer
         /// <param name="logInfo"></param>
         protected virtual void OpenLogDetail(IISLogInfo logInfo)
         {
-            IISLogInfoViewModel viewModel = new IISLogInfoViewModel(logInfo);
-            viewModel.OpenViewWindow();
+            ModelEditorForm editorForm = new ModelEditorForm(logInfo, viewMode: ModelEditorViewMode.Viewer) ;
+            editorForm.ShowDialog();
         }
 
         /// <summary>

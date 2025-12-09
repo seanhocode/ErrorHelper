@@ -4,6 +4,7 @@ using ErrorHelper.App.Core.Viewer.LogViewer;
 using ErrorHelper.App.ViewModel.Backup;
 using ErrorHelper.Core.Model.BackupHelper;
 using ErrorHelper.Infrastructure.Service.BackupHelper;
+using SeanTool.CSharp.Net8.Forms;
 
 namespace ErrorHelper.App.Service.Viewer
 {
@@ -53,7 +54,8 @@ namespace ErrorHelper.App.Service.Viewer
             backupFolderMenuItem.Click += (sender, e) =>
             {
                 BackupFolderViewModel backupFolder = new BackupFolderViewModel(new BackupFolder());
-                if (backupFolder.OpenEditWindow())
+                ModelEditorForm editorForm = new ModelEditorForm(backupFolder, viewMode: ModelEditorViewMode.Editor);
+                if (editorForm.ShowDialog() == DialogResult.OK)
                 {
                     backupHelperSrv.BackupFolderByTemp(backupFolder.BackupFolder);
                     MessageBox.Show("Done");
