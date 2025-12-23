@@ -1,6 +1,6 @@
 ﻿using ErrorHelper.Core.Model.BackupHelper;
 using ErrorHelper.Infrastructure.Common.Configuration;
-using SeanTool.CSharp.Net8.Forms;
+using SeanTool.CSharp.Forms;
 
 namespace ErrorHelper.App.ViewModel.Backup
 {

@@ -28,11 +28,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-    <PackageReference Include="SeanTool.CSharp.Net8.FileTool" Version="0.0.2" />
-    <PackageReference Include="SeanTool.CSharp.Net8.FormControlTool" Version="0.0.3" />
-    <PackageReference Include="SeanTool.CSharp.Net8.JsonTool" Version="0.0.3" />
-    <PackageReference Include="SeanTool.CSharp.Net8.XMLTool" Version="0.0.2" />
-    <PackageReference Include="SeanTool.CSharp.Net8.ZipTool" Version="0.0.2" />
+    <PackageReference Include="SeanTool.CSharp.FileTool" Version="0.0.3" />
+    <PackageReference Include="SeanTool.CSharp.FormControlTool" Version="0.0.4" />
+    <PackageReference Include="SeanTool.CSharp.JsonTool" Version="0.0.4" />
+    <PackageReference Include="SeanTool.CSharp.XMLTool" Version="0.0.3" />
+    <PackageReference Include="SeanTool.CSharp.ZipTool" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,8 +2,8 @@
 using ErrorHelper.Core.Model.Common.Configuration;
 using ErrorHelper.Core.Model.LogHelper;
 using ErrorHelper.Core.Model.LogHelper.Elmah;
-using SeanTool.CSharp.Net8;
-using SeanTool.CSharp.Net8.Forms;
+using SeanTool.CSharp;
+using SeanTool.CSharp.Forms;
 using System.Diagnostics;
 
 namespace ErrorHelper.App.Control.LogViewer.Elmah

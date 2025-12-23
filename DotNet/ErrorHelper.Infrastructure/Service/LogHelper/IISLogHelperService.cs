@@ -3,7 +3,7 @@ using ErrorHelper.Infrastructure.Common.Configuration;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using SeanTool.CSharp.Net8;
+using SeanTool.CSharp;
 
 namespace ErrorHelper.Infrastructure.Service.LogHelper
 {
